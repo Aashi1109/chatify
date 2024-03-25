@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-rgb: 35, 38, 47;
+  --secondary-rgb: 255, 255, 255;
+  --tertiary-rgb: 47, 128, 237;
+  --danger-rgb: 224, 23, 72;
+
+  --primary-hex: #23262f;
+  --secondary-hex: #fff;
+  --tertiary-hex: #2f80ed;
+  --danger-hex: #e01748;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+} */
+
+body {
+  color: rgb(var(--secondary-rgb));
+  background: rgba(var(--primary-rgb), 0.7);
+  /* font-size: 62.5%; */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+
+  .text-tertiary {
+    color: var(--tertiary-hex);
+  }
+}
+
+.section-bg {
+  @apply bg-[--primary-hex] rounded-xl;
+}
+
+.sidebar {
+  position: relative;
+}
+.sidebar::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: var(--secondary-hex);
+  transform: scaleY(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.active {
+  transform: scaleY(1);
+}
+
+.sidebar:hover::before {
+  transform: scaleY(1);
+}
+
+.chat-list-item {
+  position: relative;
+}
+
+.chat-list-divider {
+  position: absolute;
+  bottom: 0;
+  right: 1.5rem;
+  height: 1px;
+  /* background-color: rgba(var(--secondary-hex), 1);
+  background-color: red; */
+  width: 70%;
+
+  @apply bg-gray-600;
+}
+
+.chat-list-item:last-child .chat-list-divider {
+  display: none;
+}
