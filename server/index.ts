@@ -2,14 +2,11 @@ import * as express from "express";
 import { createServer } from "http";
 import * as path from "path";
 
-import * as dotenv from "dotenv";
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import connectDB from "./database/connectDB";
 import config from "./config";
-
-dotenv.config();
 
 const app = express();
 const server = createServer(app);
