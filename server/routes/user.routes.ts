@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import { asyncHandler } from "../middlewares/asyncHandler";
 import {
   create,
@@ -6,20 +7,43 @@ import {
   getById,
   getByUsername,
   updateById,
-  updatePassword,
+  updatePasswordById,
 } from "../controllers/user.controller";
 import { validateUser } from "../middlewares/validators";
+import checkJwt from "../middlewares/checkJwt";
+import checkRoles from "../middlewares/checkRoles";
+import { UserRoles } from "../definitions/enums";
 
 const router = Router();
 
-router.get("/:id", [], asyncHandler(getById));
-router.get("/:username", [], asyncHandler(getByUsername));
+router.get(
+  "/:id",
+  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  asyncHandler(getById)
+);
+router.get(
+  "/:username",
+  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  asyncHandler(getByUsername)
+);
 
 router.post("/create", [validateUser], asyncHandler(create));
 
-router.patch("/:id/update", [], asyncHandler(updateById));
-router.patch("/:id/updatePassword", [], asyncHandler(updatePassword));
+router.patch(
+  "/:id/update",
+  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  asyncHandler(updateById)
+);
+router.patch(
+  "/:id/updatePasswordById",
+  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  asyncHandler(updatePasswordById)
+);
 
-router.delete("/:id/delete", [], asyncHandler(deleteById));
+router.delete(
+  "/:id/delete",
+  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  asyncHandler(deleteById)
+);
 
 export default router;

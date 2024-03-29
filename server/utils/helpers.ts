@@ -1,6 +1,7 @@
-import { IUser } from "../definitions/interfaces";
-import { bcrypt } from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import { bcrypt } from "bcrypt";
+
+import { IUser } from "../definitions/interfaces";
 import config from "../config";
 
 /**
@@ -50,7 +51,7 @@ const hashPassword = async (
  */
 const generateAccessToken = async (user) => {
   try {
-    const payload = { username: user.username, role: user.role };
+    const payload = { username: user.username, role: user.role, id: user._id };
     return jwt.sign(payload, config.jwt.secret, { expiresIn: "30d" });
   } catch (error) {
     throw new Error("Failed to generate access token");

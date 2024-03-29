@@ -6,33 +6,35 @@ import { generateUserSafeCopy } from "../utils/helpers";
 /**
  * Retrieves a user by their ID from the database.
  * @param {string} id - The ID of the user to retrieve.
- * @returns {Promise<IUser | null>} A Promise that resolves with the retrieved user.
+ * @returns {Promise<InstanceType<typeof User> | null>} A Promise that resolves with the retrieved user if there or null.
  */
-const getUserById = async (id: string): Promise<IUser | null> => {
+const getUserById = async (
+  id: string
+): Promise<InstanceType<typeof User> | null> => {
   const existingUser = await User.findById(id);
 
   if (!existingUser) {
     return;
   }
 
-  const safeCopyUser = generateUserSafeCopy(existingUser);
-  return safeCopyUser;
+  return existingUser;
 };
 
 /**
  * Retrieves a user by their username from the database.
  * @param {string} username - The username of the user to retrieve.
- * @returns {Promise<IUser|null>} A Promise that resolves with the retrieved user.
+ * @returns {Promise<InstanceType<typeof User> | null> } A Promise that resolves with the retrieved user if there or null.
  */
-const getUserByUsername = async (username: string): Promise<IUser | null> => {
-  const userFound = await User.find({ username: username });
+const getUserByUsername = async (
+  username: string
+): Promise<InstanceType<typeof User> | null> => {
+  const userFound = await User.findOne({ username: username });
 
   if (!userFound) {
     return;
   }
 
-  const safeCopyUser = generateUserSafeCopy(userFound);
-  return safeCopyUser;
+  return userFound;
 };
 
 /**
@@ -74,7 +76,7 @@ const deleteUserByUsername = async (username) => {
  * @param {string} about - The about information of the new user.
  * @param {string} role - The role of the new user.
  * @param {string} salt - The salt used for hashing the password of the new user.
- * @returns {Promise<IUser>} A Promise that resolves with the newly created user.
+ * @returns {Promise<InstanceType<typeof User>>} A Promise that resolves with the newly created user.
  * @throws {Error} Throws an error if the user creation fails for any reason.
  */
 const createUser = async (
@@ -84,7 +86,7 @@ const createUser = async (
   about: string,
   role: string,
   salt: string
-) => {
+): Promise<InstanceType<typeof User>> => {
   const newUser = new User({
     username,
     password: hashedPassword,
@@ -94,8 +96,7 @@ const createUser = async (
     salt,
   });
   await newUser.save();
-  const safeCopyUser = generateUserSafeCopy(newUser);
-  return safeCopyUser;
+  return newUser;
 };
 
 /**
@@ -105,6 +106,8 @@ const createUser = async (
  * @param {string} profileImage - The updated profile image URL of the user.
  * @param {string} about - The updated about information of the user.
  * @param {string} role - The updated role information of the user.
+ * @param {string} password - The updated password information of the user.
+ * @param {string} salt - The updated salt information of the user.
  * @returns {Promise<IUser>} A Promise that resolves with the updated user.
  * @throws {Error} Throws an error if the update fails for any other reason.
  */
@@ -113,15 +116,16 @@ const updateUser = async (
   username: string,
   profileImage: string,
   about: string,
-  role: string
-) => {
+  role: string,
+  password: string,
+  salt: string
+): Promise<InstanceType<typeof User>> => {
   const updatedUser = await User.findByIdAndUpdate(
     id,
-    { username, profileImage, about, role },
+    { username, profileImage, about, role, password, salt },
     { new: true }
   );
-  const safeCopyUser = generateUserSafeCopy(updatedUser);
-  return safeCopyUser;
+  return updatedUser;
 };
 
 export {

@@ -8,7 +8,11 @@ import {
   getUserByUsername,
   updateUser,
 } from "../state/user";
-import { hashPassword } from "../utils/helpers";
+import {
+  generateUserSafeCopy,
+  hashPassword,
+  validatePassword,
+} from "../utils/helpers";
 import { UserRoles } from "../definitions/enums";
 
 /**
@@ -34,8 +38,10 @@ const getById = async (
   // Retrieve user data by ID
   const userData = await getUserById(id);
 
+  const safeCopyUser = generateUserSafeCopy(userData);
+
   // Send response with user data
-  return res.status(200).json({ data: userData });
+  return res.status(200).json({ data: safeCopyUser });
 };
 
 /**
@@ -48,12 +54,7 @@ const getById = async (
  * or if a user already exists with the given username.
  */
 const create = async (req: Request, res: Response, next: NextFunction) => {
-  const { username, password, confirmPassword, profileImage, about, role } =
-    req.body;
-
-  if (password !== confirmPassword) {
-    throw new ClientError("Passwords do not match");
-  }
+  const { username, password, profileImage, about, role } = req.body;
 
   if (role !== UserRoles.User && role !== UserRoles.Admin) {
     throw new ClientError(`Invalid role provided role: ${role}`);
@@ -74,7 +75,9 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
     salt
   );
 
-  res.status(201).json({ data: createdUser });
+  const safeCopyUser = generateUserSafeCopy(createdUser);
+
+  res.status(201).json({ data: safeCopyUser });
 };
 
 /**
@@ -98,7 +101,10 @@ const getByUsername = async (
   }
 
   const userFound = getUserByUsername(username);
-  return res.status(200).json({ data: userFound });
+
+  const safeCopyUser = generateUserSafeCopy(userFound);
+
+  return res.status(200).json({ data: safeCopyUser });
 };
 
 /**
@@ -125,7 +131,7 @@ const deleteById = async (
   const deleteResp = await deleteUserById(id);
 
   // Send success response
-  res.status(204).json();
+  res.status(200).json({ data: deleteResp });
 };
 
 /**
@@ -155,24 +161,69 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
     throw new ClientError(`Invalid role provided role: ${role}`);
   }
 
-  const updatedUser = await updateUser(id, username, profileImage, about, role);
+  const updatedUser = await updateUser(
+    id,
+    username,
+    profileImage || existingUser.profileImage,
+    about || existingUser.about,
+    role || existingUser.role,
+    existingUser.password,
+    existingUser.salt
+  );
 
-  res.status(204).json();
+  const safeCopyUser = generateUserSafeCopy(updatedUser);
+
+  res.status(200).json({ data: safeCopyUser });
 };
 
-const updatePassword = async (
+const updatePasswordById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.params;
   const { oldPassword, newPassword } = req.body;
+
+  const existingUser = await getUserById(id);
+  if (!existingUser) {
+    throw new ClientError(`User with id: ${id} not found`);
+  }
+
+  if (oldPassword === newPassword) {
+    throw new ClientError("New password cannot be the same as old password");
+  }
+
+  const isPasswordCorrect = await validatePassword(
+    oldPassword,
+    existingUser.password
+  );
+
+  if (!isPasswordCorrect) {
+    throw new ClientError("Old password is incorrect");
+  }
+
+  const { salt, hashedPassword } = await hashPassword(newPassword);
+
+  const updatedUser = await updateUser(
+    id,
+    existingUser.username,
+    existingUser.profileImage,
+    existingUser.about,
+    existingUser.role,
+    hashedPassword,
+    salt
+  );
+
+  const safeCopyUser = generateUserSafeCopy(updatedUser);
+
+  res.status(200).json({ data: safeCopyUser });
 };
+
 export {
   getById,
   getByUsername,
   create,
   deleteById,
   updateById,
-  updatePassword,
+  updatePasswordById,
 };
