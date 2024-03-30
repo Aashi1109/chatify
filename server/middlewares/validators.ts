@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import userValidationSchema from "../schemas/userValidationSchema";
 import ClientError from "../exceptions/clientError";
+import chatRoomValidationSchema from "../schemas/roomValidationSchema";
+import messageValidationSchema from "../schemas/messageValidationSchema";
 
 /**
  * Validates user input against a predefined schema.
@@ -10,7 +12,7 @@ import ClientError from "../exceptions/clientError";
  * @param {NextFunction} next - The Express next function.
  * @throws {ClientError} If the provided data is invalid.
  */
-const validateUser = (req, res, next) => {
+const validateUser = (req: Request, res: Response, next: NextFunction) => {
   // Validate user input against a predefined schema
   const { error, value } = userValidationSchema.validate(req.body);
 
@@ -24,4 +26,24 @@ const validateUser = (req, res, next) => {
   return next();
 };
 
-export { validateUser };
+const validateRoom = (req: Request, res: Response, next: NextFunction) => {
+  const { error, value } = chatRoomValidationSchema.validate(req.body);
+
+  if (error) {
+    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
+  }
+
+  return next();
+};
+
+const validateMessage = (req: Request, res: Response, next: NextFunction) => {
+  const { error, value } = messageValidationSchema.validate(req.body);
+
+  if (error) {
+    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
+  }
+
+  return next();
+};
+
+export { validateUser, validateRoom, validateMessage };
