@@ -1,4 +1,4 @@
-import { CustomError } from "./customError";
+import CustomError from "./customError";
 
 /**
  * Custom error class for unauthorized errors.

@@ -15,8 +15,8 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const existingUser = await getUserByUsername(username);
 
   const isPasswordValid = await validatePassword(
-    password,
-    existingUser.password
+    existingUser.password,
+    password
   );
   if (!existingUser || !isPasswordValid)
     throw new UnauthorizdError("Invalid credentials provided");

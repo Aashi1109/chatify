@@ -60,7 +60,8 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
     throw new ClientError(`Invalid role provided role: ${role}`);
   }
 
-  const existingUser = getUserByUsername(username);
+  const existingUser = await getUserByUsername(username);
+
   if (existingUser) {
     throw new ClientError(`User already exists with username: ${username}`);
   }
@@ -92,7 +93,8 @@ const getByUsername = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { username } = req.params;
+  const { username } = req.query;
+  console.log(username);
 
   if (!username) {
     throw new ClientError(
@@ -100,7 +102,7 @@ const getByUsername = async (
     );
   }
 
-  const userFound = getUserByUsername(username);
+  const userFound = await getUserByUsername(username as string);
 
   const safeCopyUser = generateUserSafeCopy(userFound);
 
@@ -157,9 +159,6 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
       throw new ClientError(`User with username: ${username} already exists`);
     }
   }
-  if (role !== UserRoles.User && role !== UserRoles.Admin) {
-    throw new ClientError(`Invalid role provided role: ${role}`);
-  }
 
   const updatedUser = await updateUser(
     id,
@@ -194,8 +193,8 @@ const updatePasswordById = async (
   }
 
   const isPasswordCorrect = await validatePassword(
-    oldPassword,
-    existingUser.password
+    existingUser.password,
+    oldPassword
   );
 
   if (!isPasswordCorrect) {
