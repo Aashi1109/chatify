@@ -1,4 +1,4 @@
-import { UserRoles } from "./enums";
+import { EUserRoles } from "./enums";
 
 interface IUser {
   username: string;
@@ -6,7 +6,7 @@ interface IUser {
   about?: string;
   profileImage: string;
   createdAt: Date;
-  role: UserRoles;
+  role: EUserRoles;
 }
 
 export { IUser };

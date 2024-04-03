@@ -12,18 +12,18 @@ import {
 import { validateUser } from "../middlewares/validators";
 import checkJwt from "../middlewares/checkJwt";
 import checkRoles from "../middlewares/checkRoles";
-import { UserRoles } from "../definitions/enums";
+import { EUserRoles } from "../definitions/enums";
 
 const router = Router();
 
 router.get(
   "/:id",
-  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
   asyncHandler(getById)
 );
 router.get(
   "/:username",
-  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
   asyncHandler(getByUsername)
 );
 
@@ -31,18 +31,18 @@ router.post("/create", [validateUser], asyncHandler(create));
 
 router.patch(
   "/:id/update",
-  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
   asyncHandler(updateById)
 );
 router.patch(
   "/:id/updatePasswordById",
-  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
   asyncHandler(updatePasswordById)
 );
 
 router.delete(
   "/:id/delete",
-  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
+  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
   asyncHandler(deleteById)
 );
 

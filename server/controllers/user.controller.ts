@@ -13,7 +13,7 @@ import {
   hashPassword,
   validatePassword,
 } from "../utils/helpers";
-import { UserRoles } from "../definitions/enums";
+import { EUserRoles } from "../definitions/enums";
 
 /**
  * Get user data by ID.
@@ -56,7 +56,7 @@ const getById = async (
 const create = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password, profileImage, about, role } = req.body;
 
-  if (role !== UserRoles.User && role !== UserRoles.Admin) {
+  if (role !== EUserRoles.User && role !== EUserRoles.Admin) {
     throw new ClientError(`Invalid role provided role: ${role}`);
   }
 
@@ -157,7 +157,7 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
       throw new ClientError(`User with username: ${username} already exists`);
     }
   }
-  if (role !== UserRoles.User && role !== UserRoles.Admin) {
+  if (role !== EUserRoles.User && role !== EUserRoles.Admin) {
     throw new ClientError(`Invalid role provided role: ${role}`);
   }
 

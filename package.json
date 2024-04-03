@@ -11,6 +11,7 @@
     "clientLint": "cd client && next lint"
   },
   "dependencies": {
+    "@socket.io/mongo-adapter": "^0.3.2",
     "bcrypt": "^5.1.1",
     "clsx": "^2.1.0",
     "dotenv": "^16.4.5",
