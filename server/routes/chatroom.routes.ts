@@ -1,15 +1,17 @@
 import { Router } from "express";
 import checkJwt from "../middlewares/checkJwt";
-import { asyncHandler } from "../middlewares/asyncHandler";
+import asyncHandler from "../middlewares/asyncHandler";
 import {
   create,
   deleteById,
+  getAll,
   getById,
   updateById,
 } from "../controllers/chatrooms.controller";
 
 const router = Router();
 
+router.get("/", [checkJwt], asyncHandler(getAll));
 router
   .route("/:id")
   .get([checkJwt], asyncHandler(getById))

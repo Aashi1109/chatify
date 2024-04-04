@@ -1,4 +1,4 @@
-import { CustomError } from "./customError";
+import CustomError from "./customError";
 
 /**
  * Represents an error that occurs due to client-side input or behavior.

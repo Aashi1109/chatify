@@ -27,4 +27,10 @@ enum ESocketEvents {
   ERROR = "error",
 }
 
-export { EUserRoles, ESocketEvents };
+enum EMessageType {
+  Text = "text",
+  Image = "image",
+  File = "file",
+}
+
+export { EUserRoles, ESocketEvents, EMessageType };

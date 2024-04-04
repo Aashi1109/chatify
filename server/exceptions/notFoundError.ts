@@ -1,4 +1,4 @@
-import { CustomError } from "./customError";
+import CustomError from "./customError";
 
 /**
  * Represents an error indicating that a requested resource was not found.

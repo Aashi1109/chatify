@@ -1,8 +1,9 @@
 import * as jwt from "jsonwebtoken";
-import { bcrypt } from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 import { IUser } from "../definitions/interfaces";
 import config from "../config";
+import { UserRoles } from "../definitions/enums";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -34,11 +35,11 @@ const hashPassword = async (
   password: string
 ): Promise<{ hashedPassword: string; salt: string }> => {
   try {
-    const saltRounds = 10; // Specify the number of salt rounds
-    const salt = await bcrypt.genSalt(saltRounds);
+    const salt = await bcrypt.genSalt(config.saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
     return { hashedPassword, salt };
   } catch (error) {
+    console.error(error);
     throw new Error("Failed to hash password");
   }
 };
@@ -73,9 +74,21 @@ const validatePassword = async (originalPassword, comparePassword) => {
   }
 };
 
+/**
+ * Parses a string representation of a user role and returns the corresponding enum value.
+ * @param {string} role - The string representation of the user role.
+ * @returns {UserRoles | undefined} The corresponding enum value if found, otherwise undefined.
+ */
+function parseUserRole(role: string): UserRoles | undefined {
+  const roleKeys = Object.keys(UserRoles) as (keyof typeof UserRoles)[];
+  const foundRole = roleKeys.find((key) => UserRoles[key] === role);
+  return foundRole ? UserRoles[foundRole] : undefined;
+}
+
 export {
   generateUserSafeCopy,
   hashPassword,
   generateAccessToken,
   validatePassword,
+  parseUserRole,
 };

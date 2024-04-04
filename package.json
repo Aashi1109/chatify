@@ -11,7 +11,6 @@
     "clientLint": "cd client && next lint"
   },
   "dependencies": {
-    "@socket.io/mongo-adapter": "^0.3.2",
     "bcrypt": "^5.1.1",
     "clsx": "^2.1.0",
     "dotenv": "^16.4.5",
@@ -19,6 +18,7 @@
     "joi": "^17.12.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.2",
+    "morgan": "^1.10.0",
     "next": "14.1.3",
     "react": "^18",
     "react-dom": "^18",
@@ -32,7 +32,7 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.3",
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.1.0",
     "postcss": "^8",
     "tailwind-merge": "^2.2.2",
     "tailwindcss": "^3.3.0",

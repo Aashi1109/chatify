@@ -1,15 +1,36 @@
-import { Schema, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
+import { EMessageType } from "../definitions/enums";
 
-const messageSchema = new Schema(
-  {
-    content: { type: String, required: true },
-    roomId: { type: Schema.Types.ObjectId, ref: "ChatRoom" },
-    senderId: { type: Schema.Types.ObjectId, ref: "User" },
-    isEdited: { type: Boolean, default: false },
+interface Message {
+  id: string;
+  userId: ObjectId;
+  chatId: ObjectId;
+  content: string;
+  sentAt: Date;
+  deliveredAt?: Date;
+  seenAt?: Date;
+  groupId?: ObjectId;
+  type: EMessageType;
+  isEdited: boolean;
+}
+
+const messageSchema = new Schema<Message>({
+  id: { type: String, required: true, unique: true },
+  userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+  chatId: { type: Schema.Types.ObjectId, required: true, ref: "Chats" },
+  content: { type: String, required: true },
+  sentAt: { type: Date, required: true, default: Date.now },
+  deliveredAt: { type: Date },
+  seenAt: { type: Date },
+  type: {
+    type: String,
+    enum: EMessageType,
+    required: true,
+    default: EMessageType.Text,
   },
-  { timestamps: true }
-);
+  isEdited: { type: Boolean, required: true, default: false },
+  groupId: { type: Schema.Types.ObjectId },
+});
 
-const Message = model("Message", messageSchema);
-
+const Message = model<Message>("Message", messageSchema);
 export default Message;

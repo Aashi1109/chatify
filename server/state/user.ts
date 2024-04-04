@@ -1,7 +1,7 @@
+import { Document } from "mongoose";
 import { IUser } from "../definitions/interfaces";
 import NotFoundError from "../exceptions/notFoundError";
 import User from "../models/User";
-import { generateUserSafeCopy } from "../utils/helpers";
 
 /**
  * Retrieves a user by their ID from the database.
@@ -11,7 +11,9 @@ import { generateUserSafeCopy } from "../utils/helpers";
 const getUserById = async (
   id: string
 ): Promise<InstanceType<typeof User> | null> => {
-  const existingUser = await User.findById(id);
+  const existingUser = (await User.findById(id).lean().exec()) as InstanceType<
+    typeof User
+  >;
 
   if (!existingUser) {
     return;
@@ -28,7 +30,9 @@ const getUserById = async (
 const getUserByUsername = async (
   username: string
 ): Promise<InstanceType<typeof User> | null> => {
-  const userFound = await User.findOne({ username: username });
+  const userFound = (await User.findOne({ username }).lean()) as InstanceType<
+    typeof User
+  >;
 
   if (!userFound) {
     return;
@@ -65,7 +69,7 @@ const deleteUserByUsername = async (username) => {
   if (deleteResp.deletedCount === 0) {
     throw new NotFoundError(`User not found with username: ${username}`);
   }
-  return;
+  return deleteResp;
 };
 
 /**
@@ -96,7 +100,7 @@ const createUser = async (
     salt,
   });
   await newUser.save();
-  return newUser;
+  return newUser.toObject();
 };
 
 /**
@@ -120,11 +124,11 @@ const updateUser = async (
   password: string,
   salt: string
 ): Promise<InstanceType<typeof User>> => {
-  const updatedUser = await User.findByIdAndUpdate(
+  const updatedUser = (await User.findByIdAndUpdate(
     id,
     { username, profileImage, about, role, password, salt },
     { new: true }
-  );
+  ).lean()) as InstanceType<typeof User>;
   return updatedUser;
 };
 

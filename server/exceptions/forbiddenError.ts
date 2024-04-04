@@ -1,4 +1,4 @@
-import { CustomError } from "./customError";
+import CustomError from "./customError";
 
 /**
  * Represents an error indicating that access to a resource is forbidden.
@@ -16,6 +16,5 @@ class ForbiddenError extends CustomError {
     super(message, 403); // Passes the error message and HTTP status code (403 Forbidden) to the parent constructor
   }
 }
-
 
 export default ForbiddenError;

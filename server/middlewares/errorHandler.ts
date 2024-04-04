@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomError, IResponseError } from "../exceptions/customError";
+import CustomError, { IResponseError } from "../exceptions/customError";
 
 /**
  * Handles errors and sends appropriate HTTP responses.
