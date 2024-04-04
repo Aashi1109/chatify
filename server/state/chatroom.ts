@@ -8,7 +8,9 @@ import ChatRoom from "../models/ChatRooms";
 const getRoomById = async (
   roomId: string
 ): Promise<InstanceType<typeof ChatRoom>> => {
-  const existingRoom = await ChatRoom.findById(roomId);
+  const existingRoom = (await ChatRoom.findById({
+    _id: roomId,
+  }).lean()) as InstanceType<typeof ChatRoom>;
   return existingRoom;
 };
 
@@ -17,7 +19,9 @@ const getRoomById = async (
  * @returns {Promise<Array<InstanceType<typeof ChatRoom>>>} A promise that resolves to an array of chat room instances.
  */
 const getAllRooms = async (): Promise<Array<InstanceType<typeof ChatRoom>>> => {
-  const allRooms = await ChatRoom.find();
+  const allRooms = (await ChatRoom.find().lean()) as Array<
+    InstanceType<typeof ChatRoom>
+  >;
   return allRooms;
 };
 
@@ -29,10 +33,10 @@ const getAllRooms = async (): Promise<Array<InstanceType<typeof ChatRoom>>> => {
  */
 const createRoom = async (roomName: string, description: string) => {
   const newRoom = new ChatRoom({
-    roomName,
+    name: roomName,
     description,
   });
-  return await newRoom.save();
+  return (await newRoom.save()) as InstanceType<typeof ChatRoom>;
 };
 
 /**
@@ -56,17 +60,16 @@ const deleteRoomById = async (
 const updateRoomById = async (
   roomId: string,
   roomName: string,
-  description: string,
-
+  description: string
 ): Promise<InstanceType<typeof ChatRoom>> => {
-  const updatedRoom = await ChatRoom.findByIdAndUpdate(
-    {_id: roomId},
+  const updatedRoom = (await ChatRoom.findByIdAndUpdate(
+    { _id: roomId },
     {
-      roomName,
+      name: roomName,
       description,
     },
     { new: true }
-  );
+  ).lean()) as InstanceType<typeof ChatRoom>;
   return updatedRoom;
 };
 

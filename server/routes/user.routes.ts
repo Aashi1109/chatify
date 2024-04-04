@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { asyncHandler } from "../middlewares/asyncHandler";
+import asyncHandler from "../middlewares/asyncHandler";
 import {
   create,
   deleteById,
@@ -22,21 +22,17 @@ router.get(
   asyncHandler(getById)
 );
 router.get(
-  "/:username",
-  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
+  "/",
+  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
   asyncHandler(getByUsername)
 );
 
 router.post("/create", [validateUser], asyncHandler(create));
 
-router.patch(
-  "/:id/update",
-  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
-  asyncHandler(updateById)
-);
+router.patch("/:id/update", [checkJwt], asyncHandler(updateById));
 router.patch(
   "/:id/updatePasswordById",
-  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
+  [checkJwt],
   asyncHandler(updatePasswordById)
 );
 

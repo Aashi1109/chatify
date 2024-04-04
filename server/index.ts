@@ -1,9 +1,13 @@
 import * as express from "express";
 import { createServer } from "http";
 import * as path from "path";
+import * as morgan from "morgan";
 
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
+import messagesRouter from "./routes/messages.routes";
+import chatroomRouter from "./routes/chatroom.routes";
+
 import { errorHandler } from "./middlewares/errorHandler";
 import connectDB from "./database/connectDB";
 import config from "./config";
@@ -13,8 +17,6 @@ import { ESocketEvents } from "./definitions/enums";
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
-
-const port = process.env.SERVER_PORT || 3001;
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -27,9 +29,13 @@ app.use(
   })
 );
 
+app.use(morgan(config.morganLogFormat));
+
 // routes setup
 app.use(config.apiPrefixes.auth, authRouter);
 app.use(config.apiPrefixes.user, userRouter);
+app.use(config.apiPrefixes.chatroom, chatroomRouter);
+app.use(config.apiPrefixes.message, messagesRouter);
 // app.use("/api/chat");
 
 // adding errorHandler as last middleware to handle all error
@@ -80,11 +86,7 @@ io.on(ESocketEvents.CONNECT, (socket) => {
   });
 });
 
-app.listen(port, async () => {
-  console.log(`Listening on http://localhost:${port}`);
+app.listen(config.port, async () => {
+  console.log(`Listening on http://localhost:${config.port}`);
   await connectDB();
 });
-
-// server.listen(port, () => {
-//   console.log("Server running at port: " + port);
-// });

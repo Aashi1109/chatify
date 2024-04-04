@@ -56,7 +56,7 @@ const getAll = async (req: Request, res: Response) => {
 const updateById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, description } = req.body;
-  if (!name || !description) {
+  if (!name) {
     throw new Error("Name and description are required");
   }
   const room = await getRoomById(id);

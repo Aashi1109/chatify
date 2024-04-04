@@ -10,10 +10,17 @@ import Message from "../models/Message";
 const getAllMessagesForRoom = async (
   roomId: string
 ): Promise<Array<InstanceType<typeof Message>>> => {
-  const roomMessages = await Message.find({ roomId }).sort({ createdAt: 1 });
+  const roomMessages = (await Message.find({ roomId })
+    .sort({ createdAt: 1 })
+    .lean()) as Array<InstanceType<typeof Message>>;
   return roomMessages;
 };
 
+/**
+ * Retrieve message given for a particular id
+ * @param messageId The ID of the message to retrieve
+ * @returns {Promise<Message>} A Promise that resolves to message
+ */
 const getMessageById = async (
   messageId: string
 ): Promise<InstanceType<typeof Message>> => {

@@ -3,7 +3,7 @@
  * @class CustomError
  * @extends Error
  */
-export class CustomError extends Error {
+class CustomError extends Error {
   /**
    * Error message.
    * @type {string}
@@ -35,6 +35,7 @@ export class CustomError extends Error {
     additionalInfo: any = undefined
   ) {
     super(message);
+    Object.setPrototypeOf(this, CustomError.prototype);
     this.message = message;
     this.status = status;
     this.additionalInfo = additionalInfo;
@@ -45,7 +46,7 @@ export class CustomError extends Error {
  * Represents the structure of an error response.
  * @interface IResponseError
  */
-export interface IResponseError {
+interface IResponseError {
   /**
    * Error message.
    * @type {string}
@@ -58,3 +59,6 @@ export interface IResponseError {
    */
   additionalInfo?: string;
 }
+
+export { IResponseError };
+export default CustomError;
