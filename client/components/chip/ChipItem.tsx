@@ -12,11 +12,13 @@ const ChipItem: React.FC<{
   isActive?: boolean;
   itemActiveClass?: string;
 }> = ({ chipData, callback, classes, isActive = false, itemActiveClass }) => {
-  console.log(classes);
   return (
     <div
       className={twMerge(
-        clsx("px-2 py-1 rounded-lg", classes, isActive && itemActiveClass)
+        clsx("px-2 py-1 rounded-lg", classes, {
+          "bg-gray-600": isActive,
+          "bg-gray-700": !isActive,
+        })
       )}
       onClick={() => callback(chipData)}
     >

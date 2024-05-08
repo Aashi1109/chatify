@@ -1,14 +1,18 @@
 import { ChatInfoItemI } from "@/definitions/interfaces";
+import { updateQueryString } from "@/utils/generalHelper";
 import clsx from "clsx";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 import CircleAvatar from "../CircleAvatar";
-import { formatTimeAgo } from "@/utils/timeHelper";
 
 const ChatInfoItem: React.FC<{
   chatData: ChatInfoItemI;
   classes?: string;
 }> = ({ chatData, classes }) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const {
     chatsNotRead,
     imageUrl,
@@ -18,7 +22,14 @@ const ChatInfoItem: React.FC<{
     userName,
   } = chatData;
 
-  const formattedLastTime = formatTimeAgo(lastChatTime);
+  // const formattedLastTime = formatTimeAgo(lastChatTime);
+  const handleChatInfoItemClick = () => {
+    const id = chatData.id;
+    const query = updateQueryString(searchParams, "interactionId", id, "upadd");
+
+    router.push(`?${query}`);
+  };
+
   return (
     <div
       className={twMerge(
@@ -27,6 +38,7 @@ const ChatInfoItem: React.FC<{
           classes
         )
       )}
+      onClick={handleChatInfoItemClick}
     >
       <div className="relative mr-4">
         <CircleAvatar size={50} alt={"user image"} imageUrl={imageUrl} />
@@ -38,7 +50,7 @@ const ChatInfoItem: React.FC<{
       <div className="flex flex-col flex-1">
         <div className="text-white flex justify-between items-center flex-1 flex-nowrap">
           <p className="font-bold text-lg text-ellipsis">{userName}</p>
-          <p className="text-sm">{formattedLastTime}</p>
+          {/* <p className="text-sm">{formattedLastTime}</p> */}
         </div>
         <div className="text-white flex justify-between items-center flex-1 flex-nowrap">
           <p className="text-ellipsis text-gray-500">{lastChatText}</p>

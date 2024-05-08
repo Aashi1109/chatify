@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 
 import { EUserRoles } from "../definitions/enums";
-import { getUserById } from "../state/user";
-import { CustomRequest } from "./checkJwt";
+import UserService from "../services/UserService";
 import { parseUserRole } from "../utils/helpers";
+import { CustomRequest } from "./checkJwt";
 
 const checkRoles =
   (roles: Array<EUserRoles>) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    const existingUser = await getUserById(
+    const existingUser = await UserService.getUserById(
       (req as CustomRequest).token.payload.id
     );
 

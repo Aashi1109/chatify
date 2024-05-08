@@ -1,31 +1,34 @@
 import { Router } from "express";
-import asyncHandler from "../middlewares/asyncHandler";
 import {
   createMessage,
-  deleteMessage,
-  getAll,
-  getById,
-  updateMessage,
+  deleteMessageById,
+  getAllMessages,
+  getMessageById,
+  getMessageByQuery,
+  updateMessageById,
 } from "../controllers/messages.controller";
+import asyncHandler from "../middlewares/asyncHandler";
 import checkJwt from "../middlewares/checkJwt";
+import {
+  validateCreateMessage,
+  validateUpdateMessage,
+} from "../middlewares/validators";
 
 const router = Router();
 
-router.get("/:roomId", [checkJwt], asyncHandler(getAll));
-router.get("/:roomId/:messageId", [checkJwt], asyncHandler(getById));
-
-router.post("/:roomId/create", [checkJwt], asyncHandler(createMessage));
+router.get("", [checkJwt], asyncHandler(getMessageByQuery));
+router.get("/all", [checkJwt], asyncHandler(getAllMessages));
 
 router.patch(
-  "/:roomId/:messageId/update",
-  [checkJwt],
-  asyncHandler(updateMessage)
+  "/create",
+  [checkJwt, validateCreateMessage],
+  asyncHandler(createMessage)
 );
 
-router.delete(
-  "/:roomId/:messageId/delete",
-  [checkJwt],
-  asyncHandler(deleteMessage)
-);
+router
+  .route("/:messageId")
+  .get([checkJwt], asyncHandler(getMessageById))
+  .patch([checkJwt, validateUpdateMessage], asyncHandler(updateMessageById))
+  .delete([checkJwt], asyncHandler(deleteMessageById));
 
 export default router;

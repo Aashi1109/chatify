@@ -1,9 +1,9 @@
-import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
 
-import { IUser } from "../definitions/interfaces";
 import config from "../config";
-import { UserRoles } from "../definitions/enums";
+import { EUserRoles } from "../definitions/enums";
+import { IUser } from "../definitions/interfaces";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -53,7 +53,9 @@ const hashPassword = async (
 const generateAccessToken = async (user) => {
   try {
     const payload = { username: user.username, role: user.role, id: user._id };
-    return jwt.sign(payload, config.jwt.secret, { expiresIn: "30d" });
+    return jwt.sign(payload, config.jwt.secret, {
+      expiresIn: config.jwt.expiresIn,
+    });
   } catch (error) {
     throw new Error("Failed to generate access token");
   }
@@ -77,18 +79,18 @@ const validatePassword = async (originalPassword, comparePassword) => {
 /**
  * Parses a string representation of a user role and returns the corresponding enum value.
  * @param {string} role - The string representation of the user role.
- * @returns {UserRoles | undefined} The corresponding enum value if found, otherwise undefined.
+ * @returns {EUserRoles | undefined} The corresponding enum value if found, otherwise undefined.
  */
-function parseUserRole(role: string): UserRoles | undefined {
-  const roleKeys = Object.keys(UserRoles) as (keyof typeof UserRoles)[];
-  const foundRole = roleKeys.find((key) => UserRoles[key] === role);
-  return foundRole ? UserRoles[foundRole] : undefined;
+function parseUserRole(role: string): EUserRoles | undefined {
+  const roleKeys = Object.keys(EUserRoles) as (keyof typeof EUserRoles)[];
+  const foundRole = roleKeys.find((key) => EUserRoles[key] === role);
+  return foundRole ? EUserRoles[foundRole] : undefined;
 }
 
 export {
+  generateAccessToken,
   generateUserSafeCopy,
   hashPassword,
-  generateAccessToken,
-  validatePassword,
   parseUserRole,
+  validatePassword,
 };

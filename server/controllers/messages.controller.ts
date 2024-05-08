@@ -1,15 +1,8 @@
 import { Request, Response } from "express";
-import {
-  createMessageForRoom,
-  deleteMessageForRoom,
-  getAllMessagesForRoom,
-  getMessageById,
-  updateMessageForRoom,
-} from "../state/messages";
-import NotFoundError from "../exceptions/notFoundError";
-import { getRoomById } from "../state/chatroom";
-import { getUserById } from "../state/user";
+
 import ClientError from "../exceptions/clientError";
+import NotFoundError from "../exceptions/notFoundError";
+import MessageService from "../services/MessageService";
 
 /**
  * Create a new message for a particular room
@@ -18,26 +11,26 @@ import ClientError from "../exceptions/clientError";
  * @throws {NotFoundError} Throws a NotFoundError if the room or user with the specified ID is not found.
  */
 const createMessage = async (req: Request, res: Response) => {
-  const { roomId } = req.params;
-  const { message, senderId } = req.body;
+  const { userId, chatId, content, sentAt, groupId, type } = req.body;
 
-  if (!message) {
+  if (!content) {
     throw new ClientError("Message content is missing");
   }
 
-  if (!senderId || !roomId) {
+  if (!userId || !chatId) {
     throw new ClientError(
-      `Room or sender id is missing room id: ${roomId}, user id: ${senderId}`
+      `User or sender id is missing. user id: ${userId}, chat id: ${chatId}`
     );
   }
 
-  const existingRoom = await getRoomById(roomId);
-  const existingUser = await getUserById(senderId);
-  if (!existingRoom || !existingUser) {
-    throw new NotFoundError(`Room or sender invalid`);
-  }
-
-  const createdMessage = await createMessageForRoom(roomId, message, senderId);
+  const createdMessage = await MessageService.create({
+    chatId,
+    userId,
+    content,
+    sentAt,
+    groupId,
+    type,
+  });
   res.status(201).json({ data: createdMessage });
 };
 
@@ -45,16 +38,10 @@ const createMessage = async (req: Request, res: Response) => {
  * Get all the messages for a room
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
- * @throws {NotFoundError} Throws a NotFoundError if the room with the specified ID is not found.
  */
-const getAll = async (req: Request, res: Response) => {
-  const { roomId } = req.params;
-  const existingRoom = await getRoomById(roomId);
-  if (!existingRoom) {
-    throw new NotFoundError(`Room id is invalid: ${roomId}`);
-  }
+const getAllMessages = async (req: Request, res: Response) => {
+  const messages = await MessageService.getAll();
 
-  const messages = await getAllMessagesForRoom(roomId);
   res.status(200).json({ data: messages });
 };
 
@@ -64,27 +51,28 @@ const getAll = async (req: Request, res: Response) => {
  * @param {Response} res Express Response object
  * @throws {NotFoundError} Throws a NotFoundError if the room or message with the specified ID is not found.
  */
-const updateMessage = async (req: Request, res: Response) => {
-  const { roomId, messageId } = req.params;
-  const { message } = req.body;
+const updateMessageById = async (req: Request, res: Response) => {
+  const { messageId } = req.params;
+  const { content, seenAt, deliveredAt } = req.body;
 
-  if (!messageId || !roomId) {
-    throw new ClientError(
-      `Room or message id is missing room id: ${roomId}, message id: ${messageId}`
-    );
+  if (!messageId || !content) {
+    throw new ClientError(`Message id invalid messageId: ${messageId}`);
   }
 
-  if (!message) {
+  if (!content) {
     throw new ClientError("Message content is missing");
   }
-
-  const existingRoom = await getRoomById(roomId);
-  const existingMessage = await getMessageById(messageId);
-  if (!existingRoom || !existingMessage) {
-    throw new NotFoundError(`Room or message not found`);
+  const previousMessage = await MessageService.getById(messageId);
+  if (!previousMessage) {
+    throw new NotFoundError(`Message with id: ${messageId} not found`);
   }
 
-  const updatedMessage = await updateMessageForRoom(roomId, messageId, message);
+  const updatedMessage = await MessageService.updateById(
+    messageId,
+    content,
+    seenAt || previousMessage?.seenAt,
+    deliveredAt || previousMessage?.deliveredAt
+  );
   res.status(200).json({ data: updatedMessage });
 };
 
@@ -93,10 +81,10 @@ const updateMessage = async (req: Request, res: Response) => {
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
  */
-const deleteMessage = async (req: Request, res: Response) => {
-  const { roomId, messageId } = req.params;
+const deleteMessageById = async (req: Request, res: Response) => {
+  const { messageId } = req.params;
 
-  const deleteRoom = await deleteMessageForRoom(roomId, messageId);
+  const deleteRoom = await MessageService.deleteById(messageId);
   res.status(204).json({ data: deleteRoom });
 };
 
@@ -105,11 +93,47 @@ const deleteMessage = async (req: Request, res: Response) => {
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
  */
-const getById = async (req: Request, res: Response) => {
+const getMessageById = async (req: Request, res: Response) => {
   const { messageId } = req.params;
-  const existingMessage = await getMessageById(messageId);
+  const existingMessage = await MessageService.getById(messageId);
 
   res.status(200).json({ data: existingMessage });
 };
 
-export { createMessage, getAll, deleteMessage, updateMessage, getById };
+/**
+ * Get a messages for a specific chat
+ * @param {Request} req Express Request object
+ * @param {Response} res Express Response object
+ */
+const getMessageByQuery = async (req: Request, res: Response) => {
+  const { chatId, userId, groupId } = req.query;
+
+  if (!chatId || !userId || !groupId) {
+    throw new ClientError(`Invalid search query provided ${req.query}`);
+  }
+
+  const messageFilter: { chatId?: string; userId?: string; groupId?: string } =
+    {};
+  if (chatId) {
+    messageFilter.chatId = chatId as string;
+  }
+  if (userId) {
+    messageFilter.userId = userId as string;
+  }
+  if (groupId) {
+    messageFilter.groupId = groupId as string;
+  }
+
+  const existingMessage = await MessageService.getByFilter(messageFilter);
+
+  res.status(200).json({ data: existingMessage });
+};
+
+export {
+  createMessage,
+  deleteMessageById,
+  getAllMessages,
+  getMessageById,
+  getMessageByQuery,
+  updateMessageById,
+};

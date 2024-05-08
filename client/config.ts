@@ -1,5 +1,11 @@
 import { ChatInfoItemI, ChipItemI } from "./definitions/interfaces";
 
+const config = {
+  apiURL: process.env.NEXT_PUBLIC_CHATIFY_API_URL || "",
+};
+
+export default config;
+
 export const sidebarLinks = [
   {
     path: "/explore",
@@ -32,7 +38,7 @@ export const sidebarLinks = [
 ];
 
 export const inboxChipItems: Array<ChipItemI> = [
-  { id: 1, text: "Primary" },
+  { id: 1, text: "Chats" },
   { id: 2, text: "Group" },
   { id: 3, text: "Archive" },
 ];

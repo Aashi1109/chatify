@@ -2,9 +2,10 @@
 
 import { ChipItemI } from "@/definitions/interfaces";
 
-import ChipItem from "./ChipItem";
 import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
+import ChipItem from "./ChipItem";
 
 const ChipList: React.FC<{
   chipItems: Array<ChipItemI>;
@@ -19,6 +20,9 @@ const ChipList: React.FC<{
   chipItemClasses,
   chipListClasses,
 }) => {
+  const searchParams = useSearchParams();
+
+  const selectedChip = searchParams.get("current") ?? "chats";
   return (
     <div
       className={twMerge(
@@ -38,6 +42,7 @@ const ChipList: React.FC<{
           callback={callback}
           key={chipItem.id}
           classes={chipItemClasses}
+          isActive={chipItem.text.toLowerCase() === selectedChip}
         />
       ))}
     </div>

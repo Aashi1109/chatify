@@ -6,13 +6,12 @@ const CircleAvatar: React.FC<{
   alt: string | null;
 }> = ({ size, imageUrl, alt }) => {
   return (
-    <div>
+    <div className="flex-1">
       <Image
         height={size}
         width={size}
         alt={alt ?? "Circle Avatar"}
         src={imageUrl}
-        objectFit="cover"
         className="rounded-full border-[2px] border-white object-contain"
       />
     </div>

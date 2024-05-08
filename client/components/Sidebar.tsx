@@ -1,16 +1,23 @@
-import Link from "next/link";
-import CircleAvatar from "./CircleAvatar";
-import clsx from "clsx";
 import { sidebarLinks } from "@/config";
 import Image from "next/image";
+import Link from "next/link";
+import CircleAvatar from "./CircleAvatar";
 
-const Sidebar = () => {
+const Sidebar = ({ userData }: { userData: object | any }) => {
+  const {
+    name,
+    profileImage: { url },
+  } = userData?.data ?? {};
   return (
-    <section className="section-bg col-span-2 row-span-full py-4 flex flex-col overflow-auto">
+    <section className="section-bg col-span-2 row-span-full py-4 flex flex-col">
       <div className="flex flex-col lg:flex-row gap-0 md:gap-4 items-center p-4">
-        <CircleAvatar size={40} imageUrl="/assets/user.png" alt={"User Icon"} />
+        <CircleAvatar
+          size={40}
+          imageUrl={url ? url : "/assets/user.png"}
+          alt={"User Icon"}
+        />
         <div className="text-lg">
-          Hii, <strong>Jane Doe</strong>
+          Hii, <strong>{name}</strong>
         </div>
       </div>
 

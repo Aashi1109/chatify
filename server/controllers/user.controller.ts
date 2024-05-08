@@ -1,19 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 
+import { EUserRoles } from "../definitions/enums";
 import ClientError from "../exceptions/clientError";
-import {
-  createUser,
-  deleteUserById,
-  getUserById,
-  getUserByUsername,
-  updateUser,
-} from "../state/user";
+import UserService from "../services/UserService";
 import {
   generateUserSafeCopy,
   hashPassword,
   validatePassword,
 } from "../utils/helpers";
-import { EUserRoles } from "../definitions/enums";
 
 /**
  * Get user data by ID.
@@ -36,7 +30,7 @@ const getById = async (
   }
 
   // Retrieve user data by ID
-  const userData = await getUserById(id);
+  const userData = await UserService.getUserById(id);
 
   const safeCopyUser = generateUserSafeCopy(userData);
 
@@ -53,22 +47,23 @@ const getById = async (
  * @throws {ClientError} Throws a ClientError if the provided passwords do not match, if an invalid role is provided,
  * or if a user already exists with the given username.
  */
-const create = async (req: Request, res: Response, next: NextFunction) => {
-  const { username, password, profileImage, about, role } = req.body;
+const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { username, name, password, profileImage, about, role } = req.body;
 
   if (role !== EUserRoles.User && role !== EUserRoles.Admin) {
     throw new ClientError(`Invalid role provided role: ${role}`);
   }
 
-  const existingUser = await getUserByUsername(username);
+  const existingUser = await UserService.getUserByUsername(username);
 
   if (existingUser) {
     throw new ClientError(`User already exists with username: ${username}`);
   }
 
   const { salt, hashedPassword } = await hashPassword(password);
-  const createdUser = await createUser(
+  const createdUser = await UserService.createUser(
     username,
+    name,
     hashedPassword,
     profileImage,
     about,
@@ -88,25 +83,26 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
  * @param {NextFunction} next - The Express next function.
  * @throws {ClientError} If an invalid or incorrect username is provided.
  */
-const getByUsername = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { username } = req.query;
-  console.log(username);
+const getByQuery = async (req: Request, res: Response, next: NextFunction) => {
+  const { username, id, not } = req.query;
 
-  if (!username) {
-    throw new ClientError(
-      `Invalid or incorrect username provided: ${username}`
-    );
+  if (!username && !id) {
+    const data = await UserService.getAllUsers(not as string);
+
+    const safeCopyUsers = data.map((user) => generateUserSafeCopy(user));
+
+    return res.status(200).json({ data: safeCopyUsers });
+  } else {
+    let data;
+    if (!!username) {
+      data = await UserService.getUserByUsername(username as string);
+    } else if (!!id) {
+      data = await UserService.getUserById(id as string);
+    }
+
+    const safeCopyUser = generateUserSafeCopy(data);
+    return res.status(200).json({ data: safeCopyUser });
   }
-
-  const userFound = await getUserByUsername(username as string);
-
-  const safeCopyUser = generateUserSafeCopy(userFound);
-
-  return res.status(200).json({ data: safeCopyUser });
 };
 
 /**
@@ -130,7 +126,7 @@ const deleteById = async (
   }
 
   // Delete user by ID
-  const deleteResp = await deleteUserById(id);
+  const deleteResp = await UserService.deleteUserById(id);
 
   // Send success response
   res.status(200).json({ data: deleteResp });
@@ -145,29 +141,33 @@ const deleteById = async (
  * @throws {Error} Throws an error if the update fails for any other reason.
  */
 const updateById = async (req: Request, res: Response, next: NextFunction) => {
-  const { username, profileImage, about, role } = req.body;
+  const { username, name, profileImage, about, role, lastSeenAt, isActive } =
+    req.body;
   const { id } = req.params;
 
-  const existingUser = await getUserById(id);
+  const existingUser = await UserService.getUserById(id);
   if (!existingUser) {
     throw new ClientError(`User with id: ${id} not found`);
   }
 
-  if (username) {
-    const existingUsername = await getUserByUsername(username);
+  if (username && username !== existingUser.username) {
+    const existingUsername = await UserService.getUserByUsername(username);
     if (existingUsername) {
       throw new ClientError(`User with username: ${username} already exists`);
     }
   }
 
-  const updatedUser = await updateUser(
+  const updatedUser = await UserService.updateUser(
     id,
     username,
+    name || existingUser.name,
     profileImage || existingUser.profileImage,
     about || existingUser.about,
     role || existingUser.role,
     existingUser.password,
-    existingUser.salt
+    existingUser.salt,
+    isActive ?? existingUser.isActive,
+    lastSeenAt ?? existingUser.lastSeenAt
   );
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
@@ -183,7 +183,7 @@ const updatePasswordById = async (
   const { id } = req.params;
   const { oldPassword, newPassword } = req.body;
 
-  const existingUser = await getUserById(id);
+  const existingUser = await UserService.getUserById(id);
   if (!existingUser) {
     throw new ClientError(`User with id: ${id} not found`);
   }
@@ -203,14 +203,17 @@ const updatePasswordById = async (
 
   const { salt, hashedPassword } = await hashPassword(newPassword);
 
-  const updatedUser = await updateUser(
+  const updatedUser = await UserService.updateUser(
     id,
     existingUser.username,
+    existingUser.name,
     existingUser.profileImage,
     existingUser.about,
     existingUser.role,
     hashedPassword,
-    salt
+    salt,
+    existingUser.isActive,
+    existingUser.lastSeenAt
   );
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
@@ -219,10 +222,10 @@ const updatePasswordById = async (
 };
 
 export {
-  getById,
-  getByUsername,
-  create,
+  createUser,
   deleteById,
+  getById,
+  getByQuery,
   updateById,
   updatePasswordById,
 };

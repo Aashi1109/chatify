@@ -1,4 +1,5 @@
 import { ChatDeliveryStatus } from "@/definitions/enums";
+import { ReadonlyURLSearchParams } from "next/navigation";
 
 /**
  * Returns the icon URL corresponding to the given chat delivery status.
@@ -27,4 +28,79 @@ const iconUrlFromDeliveryStatus = (deliveryStatus: ChatDeliveryStatus) => {
   }
 };
 
-export { iconUrlFromDeliveryStatus };
+function formatBytes(bytes: number, decimals = 2) {
+  if (!+bytes) return "0 Bytes";
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = [
+    "Bytes",
+    "KiB",
+    "MiB",
+    "GiB",
+    "TiB",
+    "PiB",
+    "EiB",
+    "ZiB",
+    "YiB",
+  ];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+const handleOnunloadTokenClear = (e: any) => {
+  localStorage.removeItem("token");
+};
+
+const getToken = () => {
+  return localStorage.getItem("token");
+};
+
+const updateQueryString = (
+  searchParams: ReadonlyURLSearchParams,
+  name: string,
+  value: string,
+  optype: "upadd" | "remove"
+) => {
+  const params = new URLSearchParams(Array.from(searchParams.entries()));
+
+  switch (optype) {
+    case "upadd":
+      params.set(name, value);
+      break;
+    case "remove":
+      params.delete(name);
+      break;
+    default:
+      break;
+  }
+  return params.toString();
+};
+
+const createUrlWithQueryParams = (url: string, queryParams: any): string => {
+  let isInitial = true;
+
+  for (const query in queryParams) {
+    if (Object.prototype.hasOwnProperty.call(queryParams, query)) {
+      const queryValue = queryParams[query];
+      if (isInitial) {
+        url += "?" + query + "=" + queryValue;
+        isInitial = false;
+      } else {
+        url += "&" + query + "=" + queryValue;
+      }
+    }
+  }
+
+  return url;
+};
+export {
+  createUrlWithQueryParams,
+  formatBytes,
+  getToken,
+  handleOnunloadTokenClear,
+  iconUrlFromDeliveryStatus,
+  updateQueryString,
+};

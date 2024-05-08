@@ -1,33 +1,29 @@
 import { Router } from "express";
 
-import asyncHandler from "../middlewares/asyncHandler";
 import {
-  create,
+  createUser,
   deleteById,
   getById,
-  getByUsername,
+  getByQuery,
   updateById,
   updatePasswordById,
 } from "../controllers/user.controller";
-import { validateUser } from "../middlewares/validators";
+import { EUserRoles } from "../definitions/enums";
+import asyncHandler from "../middlewares/asyncHandler";
 import checkJwt from "../middlewares/checkJwt";
 import checkRoles from "../middlewares/checkRoles";
-import { EUserRoles } from "../definitions/enums";
+import { validateUser } from "../middlewares/validators";
 
 const router = Router();
 
+router.get("", asyncHandler(getByQuery));
 router.get(
   "/:id",
-  [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
+  // [checkJwt, checkRoles([EUserRoles.User, EUserRoles.Admin])],
   asyncHandler(getById)
 );
-router.get(
-  "/",
-  [checkJwt, checkRoles([UserRoles.User, UserRoles.Admin])],
-  asyncHandler(getByUsername)
-);
 
-router.post("/create", [validateUser], asyncHandler(create));
+router.post("/create", [validateUser], asyncHandler(createUser));
 
 router.patch("/:id/update", [checkJwt], asyncHandler(updateById));
 router.patch(

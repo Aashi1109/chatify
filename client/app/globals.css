@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("react-toastify/dist/ReactToastify.min.css");
+
 :root {
   --primary-rgb: 35, 38, 47;
   --secondary-rgb: 255, 255, 255;
@@ -40,6 +42,18 @@ body {
   .text-tertiary {
     color: var(--tertiary-hex);
   }
+
+  .input {
+    @apply w-full px-4 py-2 border-2 border-gray-600 rounded-lg focus:outline-none focus:border-gray-300 text-white bg-gray-800 placeholder:text-gray-400;
+  }
+
+  .error-field {
+    @apply text-[--danger-hex];
+  }
+
+  .form-group {
+    @apply flex flex-col gap-2;
+  }
 }
 
 .section-bg {
@@ -67,6 +81,46 @@ body {
   transform: scaleY(1);
 }
 
+.custom__checkbox-input {
+  display: none;
+}
+.custom__checkbox-label {
+  display: block;
+  position: relative;
+  padding-left: 2rem;
+}
+
+.custom__checkbox-button {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0.2rem;
+  left: 0;
+  width: 1rem;
+  height: 1rem;
+  z-index: 10;
+  opacity: 1;
+
+  outline: none;
+  border-radius: 2px;
+  background-color: white;
+
+  /* transition: all 0.3s ease-in-out; */
+}
+.custom__checkbox-input:checked
+  ~ .custom__checkbox-label
+  .custom__checkbox-button {
+  background: url("/assets/single-tick-white.png") no-repeat;
+  background-size: contain;
+}
+
+.custom-checkbox:checked::before {
+  opacity: 1;
+}
+.custom-checkbox:checked {
+  /* display: none; */
+  opacity: 0;
+}
 .sidebar:hover::before {
   transform: scaleY(1);
 }
@@ -89,4 +143,13 @@ body {
 
 .chat-list-item:last-child .chat-list-divider {
   display: none;
+}
+
+.toast-div-fix > div {
+  height: 100%;
+}
+
+.grid-layout {
+  @apply grid grid-cols-12;
+  grid-template-rows: 5rem 1fr;
 }

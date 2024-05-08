@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 
-import userValidationSchema from "../schemas/userValidationSchema";
 import ClientError from "../exceptions/clientError";
-import chatRoomValidationSchema from "../schemas/roomValidationSchema";
-import messageValidationSchema from "../schemas/messageValidationSchema";
+import fileValidationSchema from "../schemas/fileValidationSchema";
+import {
+  messageCreateValidationSchema,
+  messageUpdateValidationSchema,
+} from "../schemas/messageValidationSchema";
+import userValidationSchema from "../schemas/userValidationSchema";
 
 /**
  * Validates user input against a predefined schema.
@@ -27,8 +30,38 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
-const validateRoom = (req: Request, res: Response, next: NextFunction) => {
-  const { error, value } = chatRoomValidationSchema.validate(req.body);
+const validateCreateMessage = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { error, value } = messageCreateValidationSchema.validate(req.body);
+
+  if (error) {
+    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
+  }
+
+  return next();
+};
+const validateUpdateMessage = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { error, value } = messageUpdateValidationSchema.validate(req.body);
+
+  if (error) {
+    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
+  }
+
+  return next();
+};
+const validateFileUploadData = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { error, value } = fileValidationSchema.validate(req.body);
 
   if (error) {
     throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
@@ -37,14 +70,9 @@ const validateRoom = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
-const validateMessage = (req: Request, res: Response, next: NextFunction) => {
-  const { error, value } = messageValidationSchema.validate(req.body);
-
-  if (error) {
-    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
-  }
-
-  return next();
+export {
+  validateCreateMessage,
+  validateFileUploadData,
+  validateUpdateMessage,
+  validateUser,
 };
-
-export { validateUser, validateRoom, validateMessage };

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { clsx } from "clsx";
 import { MouseEventHandler } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -23,10 +22,7 @@ const Button: React.FC<{
   return (
     <div
       className={twMerge(
-        clsx(
-          "flex justify-center items-center gap-2 bg-[--tertiary-hex] rounded-lg cursor-pointer",
-          classes
-        )
+        `flex justify-center items-center gap-2 bg-[--tertiary-hex] rounded-lg cursor-pointer ${classes}`
       )}
       onClick={callback}
     >
