@@ -2,7 +2,15 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
+    "strict": true,
     "sourceMap": true,
-    "outDir": "dist"
-  }
+    "outDir": "dist",
+    "sourceRoot": ".",
+    "baseUrl": "./",
+    "paths": {
+      "@/*":["./*"]
+    },
+  },
+  "include": ["**/*.ts",],
+  "exclude":["node_modules"]
 }
