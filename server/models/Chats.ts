@@ -1,5 +1,5 @@
-import { ObjectId, Schema, model } from "mongoose";
-import { IChats } from "../definitions/interfaces";
+import { IChats } from "@definitions/interfaces";
+import { Schema, model } from "mongoose";
 
 const chatSchema = new Schema<IChats>(
   {

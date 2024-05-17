@@ -3,24 +3,25 @@ import * as express from "express";
 import { createServer } from "http";
 import * as morgan from "morgan";
 import * as path from "path";
-
-import authRouter from "./routes/auth.routes";
-import chatsRouter from "./routes/chats.routes";
-import fileRouter from "./routes/file.routes";
-import messagesRouter from "./routes/messages.routes";
-import userRouter from "./routes/user.routes";
-
 import { Server } from "socket.io";
-import config from "./config";
-import connectDB from "./database/connectDB";
+
+import config from "@config";
+import authRouter from "@routes/auth.routes";
+import chatsRouter from "@routes/chats.routes";
+import fileRouter from "@routes/file.routes";
+import groupsRouter from "@routes/groups.routes";
+import messagesRouter from "@routes/messages.routes";
+import userRouter from "@routes/user.routes";
+
+import connectDB from "@database/connectDB";
 import {
   ESocketConnectionEvents,
   ESocketGroupEvents,
   ESocketMessageEvents,
   ESocketUserEvents,
-} from "./definitions/enums";
-import checkJwt from "./middlewares/checkJwt";
-import { errorHandler } from "./middlewares/errorHandler";
+} from "@definitions/enums";
+import checkJwt from "@middlewares/checkJwt";
+import { errorHandler } from "@middlewares/errorHandler";
 
 const app = express();
 const server = createServer(app);
@@ -49,6 +50,7 @@ app.use(config.apiPrefixes.user, userRouter);
 app.use(config.apiPrefixes.message, messagesRouter);
 app.use(config.apiPrefixes.chats, [checkJwt], chatsRouter);
 app.use(config.apiPrefixes.file, fileRouter);
+app.use(config.apiPrefixes.groups, [checkJwt], groupsRouter);
 // app.use("/api/chat");
 
 // when a user connects

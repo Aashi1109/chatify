@@ -1,5 +1,6 @@
-import { IChats } from "../definitions/interfaces";
-import Chats from "../models/Chats";
+import { IChats } from "@definitions/interfaces";
+import { Chats } from "@models";
+import { getByFilter } from "@utils/helpers";
 
 class ChatsService {
   /**
@@ -68,30 +69,19 @@ class ChatsService {
     sortBy?: "createdAt" | "updatedAt",
     sortOrder?: "asc" | "desc",
     doPopulate = true,
+    pageNumber = 1,
     populateFields?: string[]
   ) {
-    try {
-      let query = Chats.find(filter);
-
-      if (sortBy && sortOrder) {
-        query.sort({ [sortBy]: sortOrder });
-      }
-
-      if (limit) {
-        query.limit(limit);
-      }
-
-      if (doPopulate) {
-        query.populate(populateFields ?? ["userId", "receiverId", "messages"], {
-          strictPopulate: false,
-        });
-      }
-
-      return await query.lean().exec();
-    } catch (error) {
-      console.error("Error fetching user chats by filter:", error);
-      throw error;
-    }
+    populateFields ??= ["userId", "receiverId", "messages"];
+    return getByFilter(Chats)(
+      filter,
+      populateFields,
+      limit,
+      sortBy,
+      sortOrder,
+      doPopulate,
+      pageNumber
+    );
   }
 
   /**
@@ -144,7 +134,7 @@ class ChatsService {
         }
         await existingChat.save();
       }
-      return existingChat.toJSON();
+      return existingChat?.toJSON();
     } catch (error) {
       console.error("Error updating user chat:", error);
       throw error;

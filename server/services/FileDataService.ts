@@ -1,4 +1,5 @@
-import FileData, { IFileData } from "../models/FileData";
+import { IFileData } from "@definitions/interfaces";
+import { FileData } from "@models";
 
 /**
  * Service class for FileData.

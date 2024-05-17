@@ -1,24 +1,13 @@
-import { ObjectId, Schema, model } from "mongoose";
-import { EMessageType } from "../definitions/enums";
-
-export interface IMessage {
-  userId: ObjectId;
-  chatId: ObjectId;
-  content: string;
-  sentAt: Date;
-  deliveredAt?: Date;
-  seenAt?: Date;
-  groupId?: ObjectId;
-  type: EMessageType;
-  isEdited?: boolean;
-}
+import { EMessageType } from "@definitions/enums";
+import { IMessage } from "@definitions/interfaces";
+import { Schema, model } from "mongoose";
 
 const messageSchema = new Schema<IMessage>(
   {
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    chatId: { type: Schema.Types.ObjectId, required: true, ref: "Chats" },
+    chatId: { type: Schema.Types.ObjectId, ref: "Chats" },
     content: { type: String, required: true },
-    sentAt: { type: Date, required: true, default: Date.now },
+    sentAt: { type: Date, default: Date.now },
     deliveredAt: { type: Date },
     seenAt: { type: Date },
     type: {

@@ -1,18 +1,6 @@
-import mongoose, { Model, ObjectId, Schema } from "mongoose";
-import { EUploadTypes } from "../definitions/enums";
-
-/**
- * Interface representing the FileData document.
- */
-export interface IFileData {
-  path: string;
-  name: string;
-  format: string;
-  size: string;
-  storageType: string;
-  userId?: ObjectId;
-  fileMetadata?: Record<string, any>;
-}
+import { EUploadTypes } from "@definitions/enums";
+import { IFileData } from "@definitions/interfaces";
+import mongoose, { Model, Schema } from "mongoose";
 
 /**
  * Mongoose schema for FileData.
@@ -23,7 +11,7 @@ const fileDataSchema = new Schema<IFileData>({
   format: { type: String, required: true },
   size: { type: String, required: true },
   storageType: { type: String, enum: EUploadTypes, required: true },
-  userId: { type: mongoose.Types.ObjectId },
+  userId: { type: Schema.Types.ObjectId },
   fileMetadata: { type: Schema.Types.Mixed },
 });
 

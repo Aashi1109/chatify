@@ -1,5 +1,5 @@
-import { ObjectId } from "mongoose";
-import { EUploadTypes, EUserRoles } from "./enums";
+import { Types } from "mongoose";
+import { EMessageType, EUploadTypes, EUserRoles } from "./enums";
 
 interface IUser {
   username: string;
@@ -53,17 +53,16 @@ interface ICloudinaryResponse {
 }
 
 interface IChats {
-  messages: ObjectId[];
-  userId: ObjectId;
-  receiverId: ObjectId;
+  messages: Types.ObjectId[];
+  userId: Types.ObjectId;
+  receiverId: Types.ObjectId;
   optype?: "add" | "delete";
 }
 interface IGroups {
-  messages: ObjectId[];
+  messages: Types.ObjectId[];
   name: string;
   description: string;
-  users: ObjectId[];
-  creatorId: ObjectId;
+  creatorId: Types.ObjectId;
   image: {
     url: string;
     filename: string;
@@ -73,16 +72,40 @@ interface IGroups {
 }
 
 interface IUserGroups {
-  userId: ObjectId;
-  groupId: ObjectId;
+  userId: Types.ObjectId;
+  groupId: Types.ObjectId;
 }
+interface IMessage {
+  userId: Types.ObjectId;
+  chatId: Types.ObjectId;
+  content: string;
+  sentAt: Date;
+  deliveredAt?: Date;
+  seenAt?: Date;
+  groupId?: Types.ObjectId;
+  type: EMessageType;
+  isEdited?: boolean;
+}
+
+interface IFileData {
+  path: string;
+  name: string;
+  format: string;
+  size: string;
+  storageType: string;
+  userId?: Types.ObjectId;
+  fileMetadata?: Record<string, any>;
+}
+
 export {
   IChats,
   ICloudinaryImageUploadOptions,
   ICloudinaryResponse,
+  IFileData,
   IFileInterface,
   IGroups,
-  IUserGroups,
+  IMessage,
   IUploadFileInterface,
   IUser,
+  IUserGroups,
 };

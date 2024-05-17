@@ -1,8 +1,7 @@
+import ClientError from "@exceptions/clientError";
+import NotFoundError from "@exceptions/notFoundError";
+import MessageService from "@services/MessageService";
 import { Request, Response } from "express";
-
-import ClientError from "../exceptions/clientError";
-import NotFoundError from "../exceptions/notFoundError";
-import MessageService from "../services/MessageService";
 
 /**
  * Create a new message for a particular room
@@ -63,15 +62,15 @@ const updateMessageById = async (req: Request, res: Response) => {
     throw new ClientError("Message content is missing");
   }
   const previousMessage = await MessageService.getById(messageId);
-  if (!previousMessage) {
+  if (!previousMessage.length) {
     throw new NotFoundError(`Message with id: ${messageId} not found`);
   }
 
   const updatedMessage = await MessageService.updateById(
     messageId,
     content,
-    seenAt || previousMessage?.seenAt,
-    deliveredAt || previousMessage?.deliveredAt
+    seenAt || previousMessage[0]?.seenAt,
+    deliveredAt || previousMessage[0]?.deliveredAt
   );
   res.status(200).json({ data: updatedMessage });
 };
@@ -106,14 +105,30 @@ const getMessageById = async (req: Request, res: Response) => {
  * @param {Response} res Express Response object
  */
 const getMessageByQuery = async (req: Request, res: Response) => {
-  const { chatId, userId, groupId } = req.query;
+  const {
+    chatId,
+    userId,
+    groupId,
+    messageId,
+    limit,
+    populate,
+    sortBy,
+    sortOrder,
+    pageNumber,
+  } = req.query;
 
-  if (!chatId || !userId || !groupId) {
-    throw new ClientError(`Invalid search query provided ${req.query}`);
+  if (!chatId && !userId && !groupId && !messageId) {
+    throw new ClientError(
+      `chatId or userId or groupId or messageId not specified`
+    );
   }
 
-  const messageFilter: { chatId?: string; userId?: string; groupId?: string } =
-    {};
+  const messageFilter: {
+    chatId?: string;
+    userId?: string;
+    groupId?: string;
+    _id?: string;
+  } = {};
   if (chatId) {
     messageFilter.chatId = chatId as string;
   }
@@ -123,8 +138,18 @@ const getMessageByQuery = async (req: Request, res: Response) => {
   if (groupId) {
     messageFilter.groupId = groupId as string;
   }
+  if (messageId) {
+    messageFilter._id = messageId as string;
+  }
 
-  const existingMessage = await MessageService.getByFilter(messageFilter);
+  const existingMessage = await MessageService.getMessagesByFilter(
+    messageFilter,
+    +limit,
+    sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
+    sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
+    !!populate,
+    +pageNumber
+  );
 
   res.status(200).json({ data: existingMessage });
 };

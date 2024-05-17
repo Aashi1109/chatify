@@ -1,5 +1,5 @@
-import NotFoundError from "../exceptions/notFoundError";
-import User from "../models/User";
+import NotFoundError from "@exceptions/notFoundError";
+import { User } from "@models";
 
 class UserService {
   /**

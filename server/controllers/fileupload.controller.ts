@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import config from "../config";
-import { EUploadTypes } from "../definitions/enums";
-import { IUploadFileInterface } from "../definitions/interfaces";
-import ClientError from "../exceptions/clientError";
-import { IFileData } from "../models/FileData";
-import CloudinaryService from "../services/CloudinaryService";
-import FileDataService from "../services/FileDataService";
+
+import config from "@config";
+import { EUploadTypes } from "@definitions/enums";
+import { IFileData, IUploadFileInterface } from "@definitions/interfaces";
+import ClientError from "@exceptions/clientError";
+import CloudinaryService from "@services/CloudinaryService";
+import FileDataService from "@services/FileDataService";
 
 const uploadFile = async (req: Request, res: Response) => {
   const { file, format, name, preview, size, uploadTo, userId } =

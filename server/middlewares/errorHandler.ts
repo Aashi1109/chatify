@@ -1,5 +1,5 @@
+import CustomError, { IResponseError } from "@exceptions/customError";
 import { NextFunction, Request, Response } from "express";
-import CustomError, { IResponseError } from "../exceptions/customError";
 
 /**
  * Handles errors and sends appropriate HTTP responses.
@@ -20,12 +20,10 @@ export const errorHandler = (
   // Check if the error is an instance of CustomError
   if (!(err instanceof CustomError)) {
     // If not a CustomError, send a generic internal server error response
-    res
-      .status(500)
-      .json({
-        message: "Internal server error. Try again later",
-        success: false,
-      });
+    res.status(500).json({
+      message: "Internal server error. Try again later",
+      success: false,
+    });
   } else {
     const customError = err as CustomError;
     let response = { message: customError.message } as IResponseError;

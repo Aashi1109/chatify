@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
-import ClientError from "../exceptions/clientError";
-import UnauthorizdError from "../exceptions/unauthorizedError";
-import UserService from "../services/UserService";
-import { generateAccessToken, validatePassword } from "../utils/helpers";
+import { NotFoundError } from "@exceptions";
+import ClientError from "@exceptions/clientError";
+import UnauthorizdError from "@exceptions/unauthorizedError";
+import UserService from "@services/UserService";
+import { generateAccessToken, validatePassword } from "@utils/helpers";
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
@@ -13,6 +14,10 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   const existingUser = await UserService.getUserByUsername(username);
+
+  if (!existingUser) {
+    throw new NotFoundError("User not found");
+  }
 
   const isPasswordValid = await validatePassword(
     existingUser.password,

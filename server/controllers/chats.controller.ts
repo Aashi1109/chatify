@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import ClientError from "../exceptions/clientError";
+import { IChats } from "@definitions/interfaces";
+import ClientError from "@exceptions/clientError";
+import ChatsService from "@services/ChatsService";
 
-import { IChats } from "../definitions/interfaces";
-import ChatsService from "../services/ChatsService";
+import { Request, Response } from "express";
 
 /**
  * Creates a new user chat with the provided chatId and userId.
@@ -11,11 +11,10 @@ import ChatsService from "../services/ChatsService";
  * @throws {Error} Throws an error if the name or description is missing.
  */
 const createChat = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
-  const { messages, receiverId } = req.body as {
+  const { messages, receiverId, userId } = req.body as {
     receiverId: string;
     messages?: string[];
+    userId: string;
   };
 
   if (!userId || !receiverId) {
@@ -63,12 +62,22 @@ const getChatsById = async (req: Request, res: Response) => {
  */
 const getChatsByQuery = async (req: Request, res: Response) => {
   // options to configure query parameters
-  let { limit, populate, sortBy, sortOrder, chatId, userId, receiverId } =
-    req.query;
+  let {
+    limit,
+    populate,
+    sortBy,
+    sortOrder,
+    chatId,
+    userId,
+    receiverId,
+    pageNumber,
+  } = req.query;
 
-  if (!(chatId && userId && receiverId)) {
+  // console.log(userId, chatId, receiverId);
+
+  if (!chatId && !userId && !receiverId) {
     throw new ClientError(
-      "ChatId, ReceiverId or UserId is required but nothing provided"
+      "ChatId, ReceiverId, or UserId is required but nothing provided"
     );
   }
 
@@ -88,7 +97,8 @@ const getChatsByQuery = async (req: Request, res: Response) => {
     +limit,
     sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
     sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate
+    !!populate,
+    +pageNumber
   );
 
   res.json({ success: true, data: userChats });
@@ -153,6 +163,8 @@ const deleteUserChatById = async (req: Request, res: Response) => {
  */
 const getByUserAndIteractingUserId = async (req: Request, res: Response) => {
   const { userId, receiverId } = req.params;
+  // console.log(userId, receiverId);
+
   const chatData = await ChatsService.getChatsByFilter({
     userId,
     receiverId,

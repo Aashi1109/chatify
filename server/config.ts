@@ -15,6 +15,7 @@ const config = {
     userchats: "/api/userchats",
     file: "/api/file",
     chats: "/api/chats",
+    groups: "/api/groups",
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,

@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { EUploadTypes } from "../definitions/enums";
+import { EUploadTypes } from "@definitions/enums";
 
 const fileValidationSchema = Joi.object({
   preview: Joi.string().min(0).required(),

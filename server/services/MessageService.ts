@@ -1,4 +1,6 @@
-import Message, { IMessage } from "../models/Message";
+import { IMessage } from "@definitions/interfaces";
+import { Message } from "@models";
+import { getByFilter } from "@utils/helpers";
 
 class MessageService {
   /**
@@ -23,12 +25,9 @@ class MessageService {
    */
   static async getById(messageId: string) {
     try {
-      return (await MessageService.getByFilter(
-        {
-          _id: messageId,
-        },
-        true
-      )) as InstanceType<typeof Message>;
+      return (await MessageService.getMessagesByFilter({
+        _id: messageId,
+      })) as Array<InstanceType<typeof Message>>;
     } catch (error) {
       console.error("Error fetching message by ID:", error);
       throw error;
@@ -42,7 +41,7 @@ class MessageService {
    */
   static async getByChatId(chatId: string) {
     try {
-      return await MessageService.getByFilter({ chatId });
+      return await MessageService.getMessagesByFilter({ chatId });
     } catch (error) {
       console.error("Error fetching messages by chat ID:", error);
       throw error;
@@ -56,7 +55,7 @@ class MessageService {
    */
   static async getByUserId(userId: string) {
     try {
-      return await MessageService.getByFilter({ userId });
+      return await MessageService.getMessagesByFilter({ userId });
     } catch (error) {
       console.error("Error fetching messages by user ID:", error);
       throw error;
@@ -70,7 +69,7 @@ class MessageService {
    */
   static async getByGroupId(groupId: string) {
     try {
-      return await MessageService.getByFilter({ groupId });
+      return await MessageService.getMessagesByFilter({ groupId });
     } catch (error) {
       console.error("Error fetching messages by group ID:", error);
       throw error;
@@ -83,7 +82,7 @@ class MessageService {
    */
   static async getAll() {
     try {
-      const messages = await MessageService.getByFilter({});
+      const messages = await MessageService.getMessagesByFilter({});
       return messages;
     } catch (error) {
       console.error("Error fetching all messages:", error);
@@ -97,24 +96,31 @@ class MessageService {
    * @param singleRow Whether to return first match only. Default is false which returns all messages.
    * @returns {Promise<Message[] | Message>} A promise that resolves with an array of filtered messages.
    */
-  static async getByFilter(filter: object, singleRow: boolean = false) {
-    try {
-      let query = Message.find(filter);
-
-      if (singleRow) {
-        query = query.limit(1);
-      }
-      let messages = await query.lean().exec();
-
-      if (singleRow) {
-        return messages.length ? messages[0] : null;
-      }
-
-      return messages;
-    } catch (error) {
-      console.error(`Error fetching by filter: ${filter}`, error);
-      throw error;
-    }
+  static async getMessagesByFilter(
+    filter: {
+      userId?: string;
+      chatId?: string;
+      groupId?: string;
+      _id?: string;
+    },
+    limit?: number,
+    sortBy?: "createdAt" | "updatedAt",
+    sortOrder?: "asc" | "desc",
+    doPopulate = true,
+    pageNumber?: number,
+    populateFields?: string[]
+  ) {
+    pageNumber ??= 1;
+    populateFields ??= ["userId", "chatId", "groupId"];
+    return getByFilter(Message)(
+      filter,
+      populateFields,
+      limit,
+      sortBy,
+      sortOrder,
+      doPopulate,
+      pageNumber
+    );
   }
 
   /**

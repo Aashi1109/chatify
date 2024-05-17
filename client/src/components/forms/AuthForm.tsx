@@ -1,0 +1,348 @@
+import { createUser, loginUser, uploadFile } from "@/actions/form";
+import { EToastType, EUserRoles } from "@/definitions/enums";
+import { IFileInterface } from "@/definitions/interfaces";
+import authFormValidationSchemaWrapper, {
+  validateUsername,
+} from "@/schemas/authFormValidation";
+import { handleOnunloadLTClear } from "@/utils/generalHelper";
+import { Field, Form, Formik } from "formik";
+
+import { useAppDispatch } from "@/hook";
+import { setAuth } from "@/store/slices/authSlice";
+import React, { useState } from "react";
+import FileInput from "../inputs/FileInput";
+import ProfileImageInput from "../inputs/ProfileImageInput";
+import { showToaster } from "../toasts/Toaster";
+
+const fileData: { profileImage: null | IFileInterface } = {
+  profileImage: null,
+};
+const AuthForm: React.FC<{
+  setFormValue?: (formData: object) => void;
+
+  isLogin?: boolean;
+}> = ({ setFormValue, isLogin }) => {
+  const dispatch = useAppDispatch();
+
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+  const [isLoginForm, setIsLoginForm] = useState(isLogin ?? true);
+  // toast("demo");
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordHidden((prevState) => !prevState);
+  };
+
+  const toggleLoginForm = () => {
+    setIsLoginForm((prevState) => !prevState);
+    fileData.profileImage = null;
+  };
+
+  const setFileData = (files: IFileInterface[]) => {
+    if (files.length > 0) {
+      fileData.profileImage = files[0];
+    } else {
+      fileData.profileImage = null;
+    }
+  };
+
+  const formInitialValues = {
+    username: "",
+    password: "",
+    confirmPassword: "",
+    about: "",
+    name: "",
+    rememberMe: false,
+  };
+
+  return (
+    <div className="rounded-xl p-8 bg-[--primary-hex] min-w-[300px] md:min-w-[500px]">
+      <div className="flex flex-col items-center mb-8 gap-2">
+        <p className="text-2xl">Welcome back</p>
+        <p className="font-light">Please enter your details to sign in.</p>
+      </div>
+
+      <Formik
+        initialValues={formInitialValues}
+        onSubmit={async (values, { setSubmitting }) => {
+          setSubmitting(true);
+          const {
+            username,
+            about,
+            confirmPassword,
+            name,
+            password,
+            rememberMe,
+          } = values;
+          let doLoginProcess = false;
+
+          // if is login form then don't check for profile image
+          if (!isLoginForm) {
+            if (!fileData.profileImage) {
+              // call popup function
+              showToaster({
+                toastText: "Profile image not provided",
+                toastType: EToastType.Error,
+              });
+            } else {
+              const uploadFileResult = await uploadFile(fileData.profileImage);
+
+              if (uploadFileResult?.data) {
+                const profileImageData = {
+                  url: uploadFileResult.data?.fileMetadata?.secure_url ?? "",
+                  filename: fileData?.profileImage?.name ?? "",
+                  publicId:
+                    uploadFileResult.data?.fileMetadata?.public_id ?? "",
+                  fileDataId: uploadFileResult.data?._id?.toString() ?? "",
+                };
+                const createUserResponse = await createUser(
+                  username,
+                  name,
+                  password,
+                  confirmPassword,
+                  profileImageData,
+                  about,
+                  // TODO for now setting all user role as admin fix it later in later versions
+                  EUserRoles.Admin
+                );
+
+                // console.log(createUserResponse);
+
+                if (createUserResponse?.data?._id) {
+                  // call popup function
+                  showToaster({
+                    toastText: "User created successfully",
+                    toastType: EToastType.Success,
+                  });
+                  doLoginProcess = true;
+                }
+              } else {
+                // call popup function
+                showToaster({
+                  toastText: "Profile image not uploaded",
+                  toastType: EToastType.Error,
+                });
+
+                setSubmitting(false);
+              }
+            }
+          } else {
+            doLoginProcess = true;
+          }
+
+          if (doLoginProcess) {
+            // login the user with credentials
+            const loginResult = await loginUser(
+              values.username,
+              values.password
+            );
+            // if response contains token then login successfull
+            // else show error message to user
+            if (loginResult?.data) {
+              const token = loginResult.data?.token;
+              const userId = loginResult.data?.userId;
+
+              // console.log(token, userId);
+
+              showToaster({
+                toastText: "Login successful",
+                toastType: EToastType.Success,
+              });
+
+              if (!!token && !!userId) {
+                localStorage.setItem("token", token);
+                localStorage.setItem("userId", userId);
+
+                // if remember me is disable then don't save token
+                if (!values.rememberMe) {
+                  window.addEventListener("unload", handleOnunloadLTClear);
+                } else {
+                  window.removeEventListener("unload", handleOnunloadLTClear);
+                }
+
+                dispatch(
+                  setAuth({
+                    accessToken: token,
+                  })
+                );
+
+                // save token and route to homepage
+                // router.replace(`/?userId=${userId}&current=chats`);
+              }
+            } else if (loginResult?.message) {
+              showToaster({
+                toastText: loginResult?.message,
+                toastType: EToastType.Error,
+              });
+            }
+          }
+          setSubmitting(false);
+
+          //
+          setFormValue &&
+            setFormValue({ ...values, ...fileData, isLogin: isLoginForm });
+        }}
+        validationSchema={authFormValidationSchemaWrapper(isLoginForm)}
+      >
+        {({ isSubmitting, errors, setValues, touched, resetForm }) => (
+          <Form className="flex flex-col gap-6">
+            {!isLoginForm && (
+              <div className="">
+                <FileInput
+                  acceptedFileTypes={["image/png", "image/jpeg", "image/*"]}
+                  RenderComponent={ProfileImageInput}
+                  setFiles={setFileData}
+                />
+              </div>
+            )}
+
+            <div className="flex flex-col gap-6">
+              {/* name field */}
+              {!isLoginForm && (
+                <div className="form-group">
+                  <Field
+                    name={"name"}
+                    className={"input"}
+                    placeholder={"Enter full name"}
+                  />
+                  {/* <ErrorMessage className="error-field" name="name" /> */}
+                  {errors.name && touched.name ? (
+                    <div className="error-field">{errors.name}</div>
+                  ) : null}
+                </div>
+              )}
+              {/* username field */}
+              <div className="form-group">
+                <Field
+                  name={"username"}
+                  className={"input"}
+                  placeholder={"Enter username"}
+                  validate={validateUsername(isLoginForm)}
+                />
+                {/* <ErrorMessage className="error-field" name="username" /> */}
+                {errors.username && touched.username ? (
+                  <div className="error-field">{errors.username}</div>
+                ) : null}
+              </div>
+              {/* password field */}
+              <div className="form-group">
+                <div className="relative">
+                  <Field
+                    type={isPasswordHidden ? "password" : "text"}
+                    name="password"
+                    className="input"
+                    placeholder="Enter password"
+                  />
+                  <img
+                    width={25}
+                    height={25}
+                    className="absolute p-1 hover:bg-gray-700 rounded-md right-2 top-[50%] translate-y-[-50%] cursor-pointer"
+                    src={
+                      isPasswordHidden
+                        ? "/assets/password-hidden.png"
+                        : "/assets/password-shown.png"
+                    }
+                    alt={isPasswordHidden ? "Show password" : "Hide password"}
+                    onClick={togglePasswordVisibility}
+                  />
+                </div>
+                {/* <ErrorMessage className="error-field" name="password" /> */}
+                {errors.password && touched.password ? (
+                  <div className="error-field">{errors.password}</div>
+                ) : null}
+              </div>
+
+              {!isLoginForm && (
+                <>
+                  {/* confirmPassword field */}
+                  <div className="form-group">
+                    <Field
+                      type={isPasswordHidden ? "password" : "text"}
+                      name="confirmPassword"
+                      className="input"
+                      placeholder="Enter password again"
+                    />
+                    {/* <ErrorMessage
+                      className="error-field"
+                      name="confirmPassword"
+                    /> */}
+                    {errors.confirmPassword && touched.confirmPassword ? (
+                      <div className="error-field">
+                        {errors.confirmPassword}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* about field */}
+                  <div className="form-group">
+                    <Field
+                      name="about"
+                      as="textarea"
+                      className="input"
+                      placeholder="Tell us about yourself ..."
+                      rows={3}
+                      style={{ resize: "none" }}
+                    />
+                    {/* <ErrorMessage className="error-field" name="about" /> */}
+                    {errors.about && touched.about ? (
+                      <div className="error-field">{errors.about}</div>
+                    ) : null}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {isLoginForm && (
+              <div className="flex justify-between ">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    name="remember-me"
+                    id="remember-me"
+                    className="block w-4 h-4 custom__checkbox-input"
+                    onChange={(e) => {
+                      setValues((prevData) => ({
+                        ...prevData,
+                        rememberMe: e.target.checked,
+                      }));
+                    }}
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="flex justify-center custom__checkbox-label"
+                  >
+                    <span className="custom__checkbox-button"></span>
+                    Remember me
+                  </label>
+                </div>
+                <a href={"/forgot-password"} className="underline">
+                  Forgot password?
+                </a>
+              </div>
+            )}
+
+            <button type="submit" disabled={isSubmitting} className="button">
+              {isLoginForm ? "Sign in" : "Sign up"}
+            </button>
+
+            <p className="font-light text-center">
+              {isLoginForm
+                ? "Don't have an account yet? "
+                : "Already have an account? "}
+              <strong
+                className="cursor-pointer"
+                onClick={() => {
+                  toggleLoginForm();
+                  resetForm();
+                }}
+              >
+                {isLoginForm ? "Sign up" : "Login"}
+              </strong>
+            </p>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
+};
+
+export default AuthForm;

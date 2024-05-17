@@ -61,4 +61,5 @@ interface IResponseError {
 }
 
 export { IResponseError };
+
 export default CustomError;

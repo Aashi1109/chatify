@@ -1,9 +1,8 @@
+import { EUserRoles } from "@definitions/enums";
+import UserService from "@services/UserService";
 import { NextFunction, Request, Response } from "express";
-
-import { EUserRoles } from "../definitions/enums";
-import UserService from "../services/UserService";
-import { parseUserRole } from "../utils/helpers";
 import { CustomRequest } from "./checkJwt";
+import { parseUserRole } from "@utils/helpers";
 
 const checkRoles =
   (roles: Array<EUserRoles>) =>

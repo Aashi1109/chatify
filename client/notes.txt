@@ -1,4 +1,0 @@
-Primary color
-- primary: black #23262f, rgba(35,38,47,255)
-- secondary: white #fff
-- tertiary: blue #2f80ed 

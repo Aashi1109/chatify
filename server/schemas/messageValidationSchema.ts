@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { EMessageType } from "../definitions/enums";
+import { EMessageType } from "@definitions/enums";
 
 const messageCreateValidationSchema = Joi.object({
   userId: Joi.string()

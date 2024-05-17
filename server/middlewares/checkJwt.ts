@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { verify, JwtPayload } from "jsonwebtoken";
 
-import config from "../config";
+import config from "@config";
 
 export interface CustomRequest extends Request {
   token: JwtPayload;

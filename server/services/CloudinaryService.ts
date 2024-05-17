@@ -1,9 +1,9 @@
 import { v2 as cloudinary } from "cloudinary";
-import config from "../config";
+import config from "@config";
 import {
   ICloudinaryImageUploadOptions,
   ICloudinaryResponse,
-} from "../definitions/interfaces";
+} from "@definitions/interfaces";
 /**
  * CloudinaryService class for handling file uploads and asset information retrieval using Cloudinary API.
  */

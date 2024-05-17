@@ -1,70 +1,122 @@
-import { IGroups } from "@/definitions/interfaces";
-import Groups from "@/models/Groups";
+import { IUserGroups } from "@/definitions/interfaces";
+import { UserGroups } from "@models";
 
 /**
- * Service class for CRUD operations on Groups model.
+ * Service class for CRUD operations on UserGroups model.
  */
-class GroupService {
+class UserGroupService {
   /**
-   * Creates a new group.
-   * @param {Partial<IGroups>} groupData - Data for the new group.
-   * @returns {Promise<IGroups>} The created group.
+   * Creates a new user group association.
+   * @param {Partial<IUserGroups>} userGroupData - Data for the new user group association.
+   * @returns {Promise<IUserGroups>} The created user group association.
    */
-  static async createGroup(groupData: Partial<IGroups>): Promise<IGroups> {
+  static async createUserGroup(
+    userGroupData: IUserGroups
+  ): Promise<InstanceType<typeof UserGroups>> {
     try {
-      return (await Groups.create(groupData)).toJSON();
+      return (await UserGroups.create(userGroupData)).toObject();
     } catch (error) {
-      console.error("Error creating group:", error);
+      console.error("Error creating user group association:", error);
       throw error;
     }
   }
 
   /**
-   * Retrieves a group by its ID.
-   * @param {string} groupId - The ID of the group to retrieve.
-   * @returns {Promise<IGroups | null>} The retrieved group, or null if not found.
+   * Retrieves user group associations by user ID.
+   * @param {string} userId - The ID of the user.
+   * @returns {Promise<IUserGroups[]>} The user group associations for the user.
    */
-  static async getGroupById(groupId: string): Promise<IGroups | null> {
+  static async getUserGroupByUserId(userId: string): Promise<IUserGroups[]> {
     try {
-      return await Groups.findById(groupId).lean();
+      return await UserGroupService.getUserGroupsByFilter({ _id: userId });
     } catch (error) {
-      console.error("Error fetching group by ID:", error);
+      console.error(
+        "Error fetching user group associations by user ID:",
+        error
+      );
       throw error;
     }
   }
 
   /**
-   * Updates a group.
-   * @param {string} groupId - The ID of the group to update.
-   * @param {Partial<IGroups>} update - Updated data for the group.
-   * @returns {Promise<IGroups | null>} The updated group.
+   * Retrieves user group associations by user ID.
+   * @param {string} userId - The ID of the user.
+   * @returns {Promise<IUserGroups[]>} The user group associations for the user.
    */
-  static async updateGroup(
-    groupId: string,
-    update: Partial<IGroups>
-  ): Promise<IGroups | null> {
+  static async getUserGroupByGroupId(userId: string): Promise<IUserGroups[]> {
     try {
-      return await Groups.findByIdAndUpdate(groupId, update, {
-        new: true,
-      }).lean();
+      return await UserGroupService.getUserGroupsByFilter({ _id: userId });
     } catch (error) {
-      console.error("Error updating group:", error);
+      console.error(
+        "Error fetching user group associations by user ID:",
+        error
+      );
       throw error;
     }
   }
 
   /**
-   * Deletes a group.
-   * @param {string} groupId - The ID of the group to delete.
+   * Deletes a user group association.
+   * @param {string} userId - The ID of the user.
+   * @param {string} groupId - The ID of the group.
    */
-  static async deleteGroup(groupId: string): Promise<void> {
+  static async deleteUserGroup(
+    userId: string,
+    groupId: string
+  ): Promise<IUserGroups | null> {
     try {
-      await Groups.findByIdAndDelete(groupId).exec();
+      return await UserGroups.findOneAndDelete({ userId, groupId });
     } catch (error) {
-      console.error("Error deleting group:", error);
+      console.error("Error deleting user group association:", error);
+      throw error;
+    }
+  }
+
+  static async getUserGroupsByFilter(
+    filter: {
+      userId?: string;
+      groupId?: string;
+      _id?: string;
+    },
+    limit?: number,
+    sortBy?: "createdAt" | "updatedAt",
+    sortOrder?: "asc" | "desc",
+    doPopulate = true,
+    populateFields?: string[]
+  ) {
+    try {
+      let query = UserGroups.find(filter);
+
+      if (sortBy && sortOrder) {
+        query.sort({ [sortBy]: sortOrder });
+      }
+
+      if (limit) {
+        query.limit(limit);
+      }
+
+      if (doPopulate) {
+        query.populate(populateFields ?? ["groupId", "userId"], {
+          strictPopulate: false,
+        });
+      }
+
+      return await query.lean().exec();
+    } catch (error) {
+      console.error("Error fetching user groups:", error);
+      throw error;
+    }
+  }
+  static async getAllUserGroups(): Promise<
+    Array<InstanceType<typeof UserGroups> | any>
+  > {
+    try {
+      return await UserGroupService.getUserGroupsByFilter({});
+    } catch (error) {
+      console.error("Error fetching all user groups:", error);
       throw error;
     }
   }
 }
 
-export default GroupService;
+export default UserGroupService;

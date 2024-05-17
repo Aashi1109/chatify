@@ -1,9 +1,17 @@
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
-import config from "../config";
-import { EUserRoles } from "../definitions/enums";
-import { IUser } from "../definitions/interfaces";
+import config from "@config";
+import { EUserRoles } from "@definitions/enums";
+import {
+  IChats,
+  IFileData,
+  IGroups,
+  IMessage,
+  IUser,
+} from "@definitions/interfaces";
+
+import { Model } from "mongoose";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -87,9 +95,71 @@ function parseUserRole(role: string): EUserRoles | undefined {
   return foundRole ? EUserRoles[foundRole] : undefined;
 }
 
+/**
+ * Fetches documents from the given model based on specified filters, pagination, sorting, and population options.
+ *
+ * @template T - The type of the documents in the model.
+ * @param {Model<T>} model - The Mongoose model to query.
+ * @returns {function(Object, string[], number=, string=, string=, boolean=, number=): Promise<T[]>}
+ *   A function that takes filters, population options, pagination, and sorting settings, and returns a promise that resolves to the queried documents.
+ */
+const getByFilter =
+  (model: Model<IGroups | IUser | IMessage | IChats | IFileData>) =>
+  /**
+   * @param {Object} filter - The filter object to query documents.
+   * @param {string} [filter.creatorId] - Optional creator ID to filter by.
+   * @param {string} [filter._id] - Optional document ID to filter by.
+   * @param {string[]} populateFields - Array of fields to populate.
+   * @param {number} [limit] - Optional limit for the number of documents to return.
+   * @param {"createdAt"|"updatedAt"} [sortBy] - Optional field to sort by.
+   * @param {"asc"|"desc"} [sortOrder] - Optional order to sort (ascending or descending).
+   * @param {boolean} [doPopulate=true] - Whether to populate the specified fields.
+   * @param {number} [pageNumber=1] - Optional page number for pagination.
+   * @returns {Promise<T[]>} - A promise that resolves to an array of documents matching the query.
+   */
+  async (
+    filter: {
+      creatorId?: string;
+      _id?: string;
+    },
+    populateFields: string[],
+    limit?: number,
+    sortBy?: "createdAt" | "updatedAt",
+    sortOrder?: "asc" | "desc",
+    doPopulate = true,
+    pageNumber?: number
+  ) => {
+    try {
+      pageNumber ??= 1;
+      const skip = limit ? (pageNumber - 1) * limit : 0;
+
+      let query = model.find(filter);
+
+      if (sortBy && sortOrder) {
+        query.sort({ [sortBy]: sortOrder });
+      }
+
+      if (limit) {
+        query.limit(limit).skip(skip);
+      }
+
+      if (doPopulate && populateFields.length > 0) {
+        populateFields.forEach((field) => {
+          query.populate(field);
+        });
+      }
+
+      return await query.lean().exec();
+    } catch (error) {
+      console.error(`Error fetching ${model.modelName}:`, error);
+      throw error;
+    }
+  };
+
 export {
   generateAccessToken,
   generateUserSafeCopy,
+  getByFilter,
   hashPassword,
   parseUserRole,
   validatePassword,

@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { EUserRoles } from "../definitions/enums";
+import { EUserRoles } from "@definitions/enums";
 
 const userValidationSchema = Joi.object({
   username: Joi.string().alphanum().min(3).max(30).required().messages({

@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 
-import ClientError from "../exceptions/clientError";
-import fileValidationSchema from "../schemas/fileValidationSchema";
+import ClientError from "@exceptions/clientError";
+import fileValidationSchema from "@schemas/fileValidationSchema";
 import {
   messageCreateValidationSchema,
   messageUpdateValidationSchema,
-} from "../schemas/messageValidationSchema";
-import userValidationSchema from "../schemas/userValidationSchema";
+} from "@schemas/messageValidationSchema";
+import userValidationSchema from "@schemas/userValidationSchema";
+import mongoose from "mongoose";
 
 /**
  * Validates user input against a predefined schema.
@@ -70,9 +71,37 @@ const validateFileUploadData = (
   return next();
 };
 
+const validateMongooseIds =
+  (paramIds: Array<string>) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    paramIds.forEach((paramName) => {
+      const id = req.params?.[paramName];
+
+      if (!id) {
+        return next();
+      }
+
+      // Normalize the ID
+      const normalizedId = id === "null" ? null : id;
+
+      // Check if the normalized ID is null or a valid Mongoose ObjectId
+      if (!normalizedId || !mongoose.Types.ObjectId.isValid(normalizedId)) {
+        throw new ClientError(
+          `Invalid ID for parameter: ${paramName} -> ${normalizedId}`
+        );
+      }
+
+      // // Attach the normalized ID to the request object for further use
+      // req[`validated_${paramName}`] = normalizedId;
+    });
+
+    return next();
+  };
+
 export {
   validateCreateMessage,
   validateFileUploadData,
+  validateMongooseIds,
   validateUpdateMessage,
   validateUser,
 };
