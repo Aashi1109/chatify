@@ -4,17 +4,17 @@ import CustomError from "./customError";
  * Custom error class for unauthorized errors.
  * Extends the `CustomError` class.
  */
-class UnauthorizdError extends CustomError {
+class UnauthorizedError extends CustomError {
   /**
-   * Creates a new `UnauthorizdError` instance.
+   * Creates a new `UnauthorizedError` instance.
    * @param message The error message.
    */
-  constructor(message) {
+  constructor(message: string) {
     super(message, 401);
   }
 }
 
 /**
- * Exports the `UnauthorizdError` class.
+ * Exports the `UnauthorizedError` class.
  */
-export default UnauthorizdError;
+export default UnauthorizedError;

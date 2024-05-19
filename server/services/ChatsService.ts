@@ -1,14 +1,17 @@
 import { IChats } from "@definitions/interfaces";
 import { Chats } from "@models";
 import { getByFilter } from "@utils/helpers";
+import { FlattenMaps, Require_id } from "mongoose";
 
 class ChatsService {
   /**
    * Retrieves user chats by user ID from the database.
    * @param {string} userId - The ID of the user to retrieve chats for.
-   * @returns {Promise<InstanceType <typeof UserChats>>} A Promise that resolves with an array of user chats.
+   * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves with an array of user chats.
    */
-  static async getChatsByUserId(userId: string) {
+  static async getChatsByUserId(
+    userId: string,
+  ): Promise<Require_id<FlattenMaps<IChats>>[]> {
     try {
       return await ChatsService.getChatsByFilter({ userId });
     } catch (error) {
@@ -19,8 +22,8 @@ class ChatsService {
 
   /**
    * Retrieves user chats by user ID from the database.
-   * @param {string} receiverId - The ID of the user with whom intercation is going on.
-   * @returns {Promise<InstanceType <typeof UserChats>>} A Promise that resolves with an array of user chats.
+   * @param {string} receiverId - The ID of the user with whom interaction is going on.
+   * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves with an array of user chats.
    */
   static async getChatsByReceiverId(receiverId: string) {
     try {
@@ -55,8 +58,9 @@ class ChatsService {
    * @param {"createdAt" | "updatedAt"} [sortBy] - Sort chats by creation or update time.
    * @param {"asc" | "desc"} [sortOrder] - Sort order for chats.
    * @param {boolean} [doPopulate=true] - Flag to specify whether to populate fields. Defaults to true.
+   * @param {number} [pageNumber=1] - Current page number to fetch data from
    * @param {string[]} [populateFields] - Fields to populate in the retrieved chats.
-   * @returns {Promise<Object[]>} A Promise that resolves to an array of retrieved chat objects.
+   * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves to an array of retrieved chat objects.
    * @throws {Error} If there's an error fetching user chats by the provided filter.
    */
   static async getChatsByFilter(
@@ -68,10 +72,10 @@ class ChatsService {
     limit?: number,
     sortBy?: "createdAt" | "updatedAt",
     sortOrder?: "asc" | "desc",
-    doPopulate = true,
-    pageNumber = 1,
-    populateFields?: string[]
-  ) {
+    doPopulate: boolean = true,
+    pageNumber: number = 1,
+    populateFields?: string[],
+  ): Promise<Require_id<FlattenMaps<IChats>>[]> {
     populateFields ??= ["userId", "receiverId", "messages"];
     return getByFilter(Chats)(
       filter,
@@ -80,20 +84,21 @@ class ChatsService {
       sortBy,
       sortOrder,
       doPopulate,
-      pageNumber
+      pageNumber,
     );
   }
 
   /**
    * Creates a new user chat in the database.
    * @param {string} userId - The user id for which to create.
-   * @param {string} chatId - The chat id where messages will be stored.
+   * @param receiverId - Id of the receiver
+   * @param messages - List of messages
    * @returns {Promise<any>} A Promise that resolves with the newly created user chat.
    */
   static async createChat(
     userId: string,
     receiverId: string,
-    messages?: string[]
+    messages?: string[],
   ) {
     try {
       const newUserChat = new Chats({
@@ -117,7 +122,7 @@ class ChatsService {
    */
   static async updateChatById(
     chatId: string,
-    updateData: { messages: IChats["messages"]; optype: IChats["optype"] }
+    updateData: { messages: IChats["messages"]; optype: IChats["optype"] },
   ) {
     try {
       const existingChat = await Chats.findOne({ _id: chatId });
@@ -129,7 +134,7 @@ class ChatsService {
         }
         {
           existingChat.messages = existingChat.messages.filter(
-            (msg) => !messages.includes(msg)
+            (msg) => !messages.includes(msg),
           );
         }
         await existingChat.save();

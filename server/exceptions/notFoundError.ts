@@ -12,8 +12,13 @@ class NotFoundError extends CustomError {
    * @constructor
    * @param {string} message - The error message.
    */
-  constructor(message) {
-    super(message, 404); // Passes the error message and HTTP status code (404 Not Found) to the parent constructor
+  constructor(message: string) {
+    /**
+     * Passes the error message and HTTP status code (404 Not Found) to the parent constructor.
+     * @param {string} message - The error message.
+     * @param {number} statusCode - The HTTP status code (404 Not Found).
+     */
+    super(message, 404);
   }
 }
 

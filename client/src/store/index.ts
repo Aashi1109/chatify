@@ -1,12 +1,16 @@
+import { authReducer, chatReducer, uiReducer } from "@/features";
+import { baseApiSlice } from "@/services";
 import { configureStore } from "@reduxjs/toolkit";
-import { authReducer, chatReducer, uiReducer } from "./slices";
 
 const store = configureStore({
   reducer: {
+    [baseApiSlice.reducerPath]: baseApiSlice.reducer,
     ui: uiReducer,
     auth: authReducer,
     chat: chatReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApiSlice.middleware),
 });
 
 // inferring types for the store

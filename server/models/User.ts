@@ -1,21 +1,6 @@
 import { model, Schema } from "mongoose";
+import { IUser } from "@definitions/interfaces";
 
-export interface IUser {
-  username: string;
-  name: string;
-  profileImage: {
-    url: string;
-    filename: string;
-    pubicId: string;
-    fileDataId: string;
-  };
-  about?: string;
-  password: string;
-  salt: string;
-  role: string;
-  isActive: boolean;
-  lastSeenAt: Date;
-}
 const userSchema = new Schema<IUser>(
   {
     username: {
@@ -39,7 +24,7 @@ const userSchema = new Schema<IUser>(
     isActive: { type: Boolean, default: true },
     lastSeenAt: { type: Date, default: Date.now },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const User = model("User", userSchema);

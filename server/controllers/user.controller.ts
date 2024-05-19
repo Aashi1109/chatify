@@ -1,25 +1,23 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 
-import { EUserRoles } from "@definitions/enums";
+import {EUserRoles} from "@definitions/enums";
 import ClientError from "@exceptions/clientError";
 import UserService from "@services/UserService";
-import {
-  generateUserSafeCopy,
-  hashPassword,
-  validatePassword,
-} from "@utils/helpers";
+import {generateUserSafeCopy, hashPassword, validatePassword,} from "@utils/helpers";
+import {IUser} from "@definitions/interfaces";
+import {Document, Types} from "mongoose";
+import {NotFoundError} from "@exceptions";
 
 /**
  * Get user data by ID.
  * @param {Request} req - The request object.
  * @param {Response} res - The response object.
- * @param {NextFunction} next - The next function in the middleware chain.
  * @throws {ClientError} Throws a ClientError if an invalid ID is provided.
  * @returns {Promise<Response>} A Promise that resolves with the user data.
  */
 const getUserById = async (req: Request, res: Response): Promise<Response> => {
   const id = req.params?.id;
-  console.log(typeof id === "string");
+
   // Validate ID
   if (!id) {
     throw new ClientError(`Invalid id: ${id} provided`);
@@ -27,6 +25,10 @@ const getUserById = async (req: Request, res: Response): Promise<Response> => {
 
   // Retrieve user data by ID
   const userData = await UserService.getUserById(id);
+
+  if (!userData) {
+    throw new NotFoundError(`User with id: ${id} not found`);
+  }
 
   const safeCopyUser = generateUserSafeCopy(userData);
 
@@ -38,12 +40,11 @@ const getUserById = async (req: Request, res: Response): Promise<Response> => {
  * Creates a new user based on the provided request data.
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
- * @param {NextFunction} next - The Express next function.
- * @returns {Promise<void>} A Promise that resolves once the user is created.
+ * @returns {Promise<Response>} A Promise that resolves with created user once the user is created.
  * @throws {ClientError} Throws a ClientError if the provided passwords do not match, if an invalid role is provided,
  * or if a user already exists with the given username.
  */
-const createUser = async (req: Request, res: Response) => {
+const createUser = async (req: Request, res: Response): Promise<Response> => {
   const { username, name, password, profileImage, about, role } = req.body;
 
   if (role !== EUserRoles.User && role !== EUserRoles.Admin) {
@@ -64,26 +65,21 @@ const createUser = async (req: Request, res: Response) => {
     profileImage,
     about,
     role,
-    salt
+    salt,
   );
 
   const safeCopyUser = generateUserSafeCopy(createdUser);
 
-  res.status(201).json({ data: safeCopyUser });
+  return res.status(201).json({ data: safeCopyUser });
 };
 
 /**
  * Retrieves a user by username from the database.
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
- * @param {NextFunction} next - The Express next function.
  * @throws {ClientError} If an invalid or incorrect username is provided.
  */
-const getUserByQuery = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const getUserByQuery = async (req: Request, res: Response) => {
   const { username, userId, not } = req.query;
 
   if (!username && !userId) {
@@ -93,7 +89,7 @@ const getUserByQuery = async (
 
     return res.status(200).json({ data: safeCopyUsers });
   } else {
-    let data;
+    let data: Document<unknown, {}, IUser> & IUser & { _id: Types.ObjectId };
     if (!!username) {
       data = await UserService.getUserByUsername(username as string);
     } else if (!!userId) {
@@ -109,15 +105,13 @@ const getUserByQuery = async (
  * Delete a user by ID.
  * @param {Request} req - The request object.
  * @param {Response} res - The response object.
- * @param {NextFunction} next - The next function in the middleware chain.
  * @throws {ClientError} Throws a ClientError if an invalid ID is provided.
- * @returns {Promise<void>} A Promise that resolves when the user is deleted successfully.
+ * @returns {Promise<Response>} A Promise that resolves when the user is deleted successfully.
  */
 const deleteUserById = async (
   req: Request,
   res: Response,
-  next: NextFunction
-): Promise<void> => {
+): Promise<Response> => {
   const { id } = req.params;
 
   // Validate ID
@@ -129,7 +123,7 @@ const deleteUserById = async (
   const deleteResp = await UserService.deleteUserById(id);
 
   // Send success response
-  res.status(200).json({ data: deleteResp });
+  return res.status(200).json({ data: deleteResp });
 };
 
 /**
@@ -143,7 +137,7 @@ const deleteUserById = async (
 const updateUserById = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { username, name, profileImage, about, role, lastSeenAt, isActive } =
     req.body;
@@ -151,7 +145,7 @@ const updateUserById = async (
 
   const existingUser = await UserService.getUserById(id);
   if (!existingUser) {
-    throw new ClientError(`User with id: ${id} not found`);
+    throw new NotFoundError(`User with id: ${id} not found`);
   }
 
   if (username && username !== existingUser.username) {
@@ -171,7 +165,7 @@ const updateUserById = async (
     existingUser.password,
     existingUser.salt,
     isActive ?? existingUser.isActive,
-    lastSeenAt ?? existingUser.lastSeenAt
+    lastSeenAt ?? existingUser.lastSeenAt,
   );
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
@@ -179,26 +173,29 @@ const updateUserById = async (
   res.status(200).json({ data: safeCopyUser });
 };
 
+/**
+ * Updates user's password
+ * @param {Request} req - Request object
+ * @param {Response} res - Response object
+ * @throws {ClientError} Throws a ClientError if previous password is incorrect
+ * @throws {NotFoundError} Throws a NotFoundError if user doesn't exist
+ * @return {Promise<Response>} Promise resolved with the updated user
+ */
 const updateUserPasswordById = async (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+): Promise<Response> => {
   const { id } = req.params;
   const { oldPassword, newPassword } = req.body;
 
   const existingUser = await UserService.getUserById(id);
   if (!existingUser) {
-    throw new ClientError(`User with id: ${id} not found`);
-  }
-
-  if (oldPassword === newPassword) {
-    throw new ClientError("New password cannot be the same as old password");
+    throw new NotFoundError(`User with id: ${id} not found`);
   }
 
   const isPasswordCorrect = await validatePassword(
     existingUser.password,
-    oldPassword
+    oldPassword,
   );
 
   if (!isPasswordCorrect) {
@@ -217,16 +214,29 @@ const updateUserPasswordById = async (
     hashedPassword,
     salt,
     existingUser.isActive,
-    existingUser.lastSeenAt
+    existingUser.lastSeenAt,
   );
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
 
-  res.status(200).json({ data: safeCopyUser });
+  return res.status(200).json({ data: safeCopyUser });
+};
+
+/**
+ * Get all the users present in the database
+ * @param {Request} req - Request object
+ * @param {Response} res - Response object
+ * @returns {Promise<Response>} Promise resolved with all the users
+ */
+const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
+  const data = await UserService.getAllUsers();
+  const safeCopyUsers = data.map((user) => generateUserSafeCopy(user));
+  return res.status(200).json({ data: safeCopyUsers });
 };
 
 export {
   createUser,
+  getAllUsers,
   deleteUserById,
   getUserById,
   getUserByQuery,

@@ -6,7 +6,7 @@ import { createUrlWithQueryParams } from "@/utils/generalHelper";
 import axios from "axios";
 
 const checkUsernameExists = async (username: string) => {
-  const requestUrl = `${config.apiURL}/api/user/?username=` + username;
+  const requestUrl = `${config.apiURL}user/?username=` + username;
   try {
     const response = await fetch(requestUrl);
     const data = await response.json();
@@ -22,7 +22,7 @@ const checkUsernameExists = async (username: string) => {
 };
 
 const loginUser = async (username: string, password: string) => {
-  const requestUrl = `${config.apiURL}/api/auth/login`;
+  const requestUrl = `${config.apiURL}auth/login`;
   try {
     const response = await fetch(requestUrl, {
       method: "POST",
@@ -38,7 +38,7 @@ const loginUser = async (username: string, password: string) => {
 };
 
 const uploadFile = async (fileData: IFileInterface) => {
-  const requestUrl = `${config.apiURL}/api/file/upload`;
+  const requestUrl = `${config.apiURL}file/upload`;
   try {
     const modifiedData = { ...fileData, uploadTo: "cloudinary" };
     delete modifiedData.file;
@@ -64,7 +64,7 @@ const createUser = async (
   about: string,
   role: string
 ) => {
-  const requestUrl = `${config.apiURL}/api/user/create`;
+  const requestUrl = `${config.apiURL}user/create`;
 
   try {
     const response = await fetch(requestUrl, {
@@ -88,7 +88,7 @@ const createUser = async (
 };
 
 const getUserData = async (userId: string): Promise<IUser | null> => {
-  const requestUrl = `${config.apiURL}/api/user/${userId}`;
+  const requestUrl = `${config.apiURL}user/${userId}`;
 
   try {
     const response = await axios(requestUrl);
@@ -101,7 +101,7 @@ const getUserData = async (userId: string): Promise<IUser | null> => {
 };
 
 const getUserChats = async (token: string, userId: string) => {
-  const requestUrl = `${config.apiURL}/api/chats/?userId=${userId}`;
+  const requestUrl = `${config.apiURL}chats/?userId=${userId}`;
 
   try {
     const response = await axios(requestUrl, {
@@ -124,7 +124,7 @@ const getUserChatData = async (
     sortOrder?: "asc" | "desc";
   } = {}
 ) => {
-  const requestUrl = `${config.apiURL}/api/chats/${chatId}`;
+  const requestUrl = `${config.apiURL}chats/${chatId}`;
 
   const modifiedUrl = createUrlWithQueryParams(requestUrl, options);
   try {
@@ -139,7 +139,7 @@ const getUserChatData = async (
 };
 
 const getAllUser = async (token: string, not?: null | string) => {
-  const requestUrl = `${config.apiURL}/api/user/?not=${not}`;
+  const requestUrl = `${config.apiURL}user/?not=${not}`;
   try {
     const response = await axios(requestUrl, {
       headers: { Authorization: "Bearer " + token },
@@ -156,7 +156,7 @@ const getChatDataByInteraction = async (
   userId: string,
   receiverId: string
 ) => {
-  const requestUrl = `${config.apiURL}/api/chats/interaction/${userId}/${receiverId}`;
+  const requestUrl = `${config.apiURL}chats/interaction/${userId}/${receiverId}`;
   try {
     const response = await axios(requestUrl, {
       headers: { Authorization: "Bearer " + token },
@@ -173,7 +173,7 @@ const createChatData = async (
   userId: string,
   receiverId: string
 ): Promise<object | any> => {
-  const requestUrl = `${config.apiURL}/api/chats/create`;
+  const requestUrl = `${config.apiURL}chats/create`;
   try {
     const response = await axios(requestUrl, {
       method: "POST",
@@ -188,7 +188,7 @@ const createChatData = async (
 };
 
 const getChatDataById = async (token: string, chatId: string) => {
-  const requestUrl = `${config.apiURL}/api/chats/${chatId}`;
+  const requestUrl = `${config.apiURL}chats/${chatId}`;
   try {
     const response = await axios(requestUrl, {
       headers: { Authorization: "Bearer " + token },
@@ -201,7 +201,7 @@ const getChatDataById = async (token: string, chatId: string) => {
 };
 
 const createGroup = async (token: string, groupData: IGroups) => {
-  const requestUrl = `${config.apiURL}/api/groups/create`;
+  const requestUrl = `${config.apiURL}groups/create`;
   try {
     const response = await axios(requestUrl, {
       method: "POST",

@@ -1,9 +1,9 @@
-import Auth from "@/features/Auth";
-import Page from "@/features/Page";
 import { useAppDispatch, useAppSelector } from "@/hook";
+
+import { setAuth } from "@/features/authSlice";
+import { Auth, Page } from "@/pages";
 import { getLocalStorageItem, getToken } from "@/utils/generalHelper";
 import { useEffect } from "react";
-import { setAuth } from "./store/slices/authSlice";
 
 const App = () => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);

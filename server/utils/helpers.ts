@@ -2,16 +2,10 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
 import config from "@config";
-import { EUserRoles } from "@definitions/enums";
-import {
-  IChats,
-  IFileData,
-  IGroups,
-  IMessage,
-  IUser,
-} from "@definitions/interfaces";
+import {EUserRoles} from "@definitions/enums";
+import {IUser} from "@definitions/interfaces";
 
-import { Model } from "mongoose";
+import {FlattenMaps, Model, Require_id} from "mongoose";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -40,7 +34,7 @@ const generateUserSafeCopy = (user: IUser | any): IUser => {
  * @throws {Error} Throws an error if hashing fails.
  */
 const hashPassword = async (
-  password: string
+  password: string,
 ): Promise<{ hashedPassword: string; salt: string }> => {
   try {
     const salt = await bcrypt.genSalt(config.saltRounds);
@@ -96,39 +90,34 @@ function parseUserRole(role: string): EUserRoles | undefined {
 }
 
 /**
- * Fetches documents from the given model based on specified filters, pagination, sorting, and population options.
- *
- * @template T - The type of the documents in the model.
- * @param {Model<T>} model - The Mongoose model to query.
- * @returns {function(Object, string[], number=, string=, string=, boolean=, number=): Promise<T[]>}
- *   A function that takes filters, population options, pagination, and sorting settings, and returns a promise that resolves to the queried documents.
+ * Queries a particular model based on different params passed to it
+ * @template T - Type of the document in the model
+ * @param {Model<T>} model - The mongoose model to use for query
+ * @returns {Function} A function that takes filter criteria and returns a promise
  */
 const getByFilter =
-  (model: Model<IGroups | IUser | IMessage | IChats | IFileData>) =>
-  /**
-   * @param {Object} filter - The filter object to query documents.
-   * @param {string} [filter.creatorId] - Optional creator ID to filter by.
-   * @param {string} [filter._id] - Optional document ID to filter by.
-   * @param {string[]} populateFields - Array of fields to populate.
-   * @param {number} [limit] - Optional limit for the number of documents to return.
-   * @param {"createdAt"|"updatedAt"} [sortBy] - Optional field to sort by.
-   * @param {"asc"|"desc"} [sortOrder] - Optional order to sort (ascending or descending).
-   * @param {boolean} [doPopulate=true] - Whether to populate the specified fields.
-   * @param {number} [pageNumber=1] - Optional page number for pagination.
-   * @returns {Promise<T[]>} - A promise that resolves to an array of documents matching the query.
-   */
+  <T>(model: Model<T>): Function =>
   async (
-    filter: {
-      creatorId?: string;
-      _id?: string;
-    },
+    /**
+     * @inner
+     * @param {Object} filter - The filter object to query documents.
+     * @param {Partial<Record<keyof T, any>>} filter - Optional dynamic fields to filter by.
+     * @param {string[]} populateFields - Array of fields to populate.
+     * @param {number} [limit] - Optional limit for the number of documents to return.
+     * @param {keyof T} [sortBy] - Optional field to sort by.
+     * @param {"asc"|"desc"} [sortOrder] - Optional order to sort (ascending or descending).
+     * @param {boolean} [doPopulate=true] - Whether to populate the specified fields.
+     * @param {number} [pageNumber=1] - Optional page number for pagination.
+     * @returns {Promise<Require_id<FlattenMaps<T>>[]>} - A promise that resolves to an array of documents matching the query.
+     */
+    filter: Partial<Record<keyof T, any>>,
     populateFields: string[],
     limit?: number,
     sortBy?: "createdAt" | "updatedAt",
     sortOrder?: "asc" | "desc",
     doPopulate = true,
-    pageNumber?: number
-  ) => {
+    pageNumber?: number,
+  ): Promise<Require_id<FlattenMaps<T>>[]> => {
     try {
       pageNumber ??= 1;
       const skip = limit ? (pageNumber - 1) * limit : 0;

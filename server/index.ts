@@ -4,6 +4,8 @@ import { createServer } from "http";
 import * as morgan from "morgan";
 import * as path from "path";
 import { Server } from "socket.io";
+import * as swaggerUI from "swagger-ui-express";
+import * as swaggerJsdoc from "swagger-jsdoc";
 
 import config from "@config";
 import authRouter from "@routes/auth.routes";
@@ -22,6 +24,7 @@ import {
 } from "@definitions/enums";
 import checkJwt from "@middlewares/checkJwt";
 import { errorHandler } from "@middlewares/errorHandler";
+import options from "@swagger/options";
 
 const app = express();
 const server = createServer(app);
@@ -39,7 +42,7 @@ app.use(
   express.urlencoded({
     extended: true,
     limit: config.express.fileSizeLimit,
-  })
+  }),
 );
 
 app.use(morgan(config.morganLogFormat));
@@ -52,6 +55,10 @@ app.use(config.apiPrefixes.chats, [checkJwt], chatsRouter);
 app.use(config.apiPrefixes.file, fileRouter);
 app.use(config.apiPrefixes.groups, [checkJwt], groupsRouter);
 // app.use("/api/chat");
+
+// swagger docs
+const specs = swaggerJsdoc(options);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
 // when a user connects
 io.on(ESocketConnectionEvents.CONNECT, (socket) => {

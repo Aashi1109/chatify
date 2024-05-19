@@ -1,12 +1,17 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 
-import { NotFoundError } from "@exceptions";
+import {NotFoundError} from "@exceptions";
 import ClientError from "@exceptions/clientError";
-import UnauthorizdError from "@exceptions/unauthorizedError";
+import UnauthorizedError from "@exceptions/unauthorizedError";
 import UserService from "@services/UserService";
-import { generateAccessToken, validatePassword } from "@utils/helpers";
+import {generateAccessToken, validatePassword} from "@utils/helpers";
 
-const login = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Logins the user by creating a new access token
+ * @param req Request object containing the request
+ * @param res Response object containing the response
+ */
+const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (!(username && password)) {
@@ -21,10 +26,10 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
   const isPasswordValid = await validatePassword(
     existingUser.password,
-    password
+    password,
   );
   if (!existingUser || !isPasswordValid)
-    throw new UnauthorizdError("Invalid credentials provided");
+    throw new UnauthorizedError("Invalid credentials provided");
 
   const token = await generateAccessToken(existingUser);
 

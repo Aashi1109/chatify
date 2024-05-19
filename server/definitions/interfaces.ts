@@ -1,18 +1,21 @@
 import { Types } from "mongoose";
-import { EMessageType, EUploadTypes, EUserRoles } from "./enums";
+import { EMessageType, EUploadTypes } from "./enums";
 
 interface IUser {
   username: string;
-  password?: string;
-  about?: string;
+  name: string;
   profileImage: {
     url: string;
     filename: string;
-    publicId?: string;
-    fileDataId?: string;
+    pubicId: string;
+    fileDataId: string;
   };
-  createdAt: Date;
-  role: EUserRoles;
+  about?: string;
+  password: string;
+  salt: string;
+  role: string;
+  isActive: boolean;
+  lastSeenAt: Date;
 }
 
 interface ICloudinaryImageUploadOptions {
@@ -58,6 +61,7 @@ interface IChats {
   receiverId: Types.ObjectId;
   optype?: "add" | "delete";
 }
+
 interface IGroups {
   messages: Types.ObjectId[];
   name: string;
@@ -75,6 +79,7 @@ interface IUserGroups {
   userId: Types.ObjectId;
   groupId: Types.ObjectId;
 }
+
 interface IMessage {
   userId: Types.ObjectId;
   chatId: Types.ObjectId;

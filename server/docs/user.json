@@ -1,0 +1,347 @@
+{
+  "components": {
+    "schemas": {
+      "Error": {
+        "description": "Error from server",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "User not found"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the request was successful or not",
+            "example": false
+          }
+        }
+      },
+      "User": {
+        "description": "User's data object from server",
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the user, Mongoose ID",
+            "example": "66334b36354c1f9b14b8a54f"
+          },
+          "username": {
+            "type": "string",
+            "description": "Unique username for the user",
+            "example": "johndoe, madeline73"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Timestamp at which user is created",
+            "example": "2021-04-20T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Timestamp at which user is created",
+            "example": "2021-04-20T12:00:00.000Z"
+          },
+          "profileImage": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "URL of the image",
+                "example": "https://res.cloudinary.com/demo/image/upload/v1618879123/demo/demo.jpg"
+              },
+              "fileDataId": {
+                "type": "string",
+                "description": "File data id for the image file, Mongoose ObjectId",
+                "example": "66334b36354c1f9b14b8a54f"
+              },
+              "publicId": {
+                "type": "string",
+                "description": "Cloudinary id of file if it is uploaded there",
+                "example": "Cloudinary/demo293219312930"
+              },
+              "filename": {
+                "type": "string",
+                "description": "Original filename of the image",
+                "example": "demo"
+              }
+            },
+            "required": [
+              "url",
+              "filename"
+            ]
+          },
+          "role": {
+            "type": "object",
+            "description": "Role of the user",
+            "enum": [
+              "admin",
+              "user"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Indicates whether the user is active or not",
+            "example": true
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "description": "Last time user has last accessed the application",
+            "example": "2021-04-20T12:00:00.000Z"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the user"
+          },
+          "about": {
+            "type": "string",
+            "description": "Something about the user"
+          }
+        },
+        "required": [
+          "profileImage",
+          "isActive",
+          "lastSeenAt",
+          "role",
+          "username",
+          "name",
+          "_id",
+          "about",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UserUpdate": {
+        "description": "User's update data object required by server",
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Unique username for the user",
+            "example": "johndoe, madeline73"
+          },
+          "profileImage": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "URL of the image",
+                "example": "https://res.cloudinary.com/demo/image/upload/v1618879123/demo/demo.jpg"
+              },
+              "fileDataId": {
+                "type": "string",
+                "description": "File data id for the image file, Mongoose ObjectId",
+                "example": "66334b36354c1f9b14b8a54f"
+              },
+              "publicId": {
+                "type": "string",
+                "description": "Cloudinary id of file if it is uploaded there",
+                "example": "Cloudinary/demo293219312930"
+              },
+              "filename": {
+                "type": "string",
+                "description": "Original filename of the image",
+                "example": "demo"
+              }
+            },
+            "required": [
+              "url",
+              "filename"
+            ]
+          },
+          "role": {
+            "type": "object",
+            "description": "Role of the user",
+            "enum": [
+              "admin",
+              "user"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Indicates whether the user is active or not",
+            "example": true
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "description": "Last time user has last accessed the application",
+            "example": "2021-04-20T12:00:00.000Z"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the user"
+          },
+          "about": {
+            "type": "string",
+            "description": "Something about the user"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+    }
+  },
+  "openapi": "3.0.3",
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "paths": {
+    "/users/:id": {
+      "get": {
+        "summary": "Get user",
+        "description": "Get a user with the specified id",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "User found with particular id and data returned"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Invalid id provided, not of mongoose ObjectID"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "User not found with particular id"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Something happened wrong at server"
+          }
+        }
+      },
+      "patch": {
+        "description": "Update a user with provided id",
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "User with username already exists"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "User not found with particular id"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Something happened wrong at server"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "description": "Deletes a user with provided id",
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "User with username already exists or invalid id provided"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "User not found with particular id"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Something happened wrong at server"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  }
+}
