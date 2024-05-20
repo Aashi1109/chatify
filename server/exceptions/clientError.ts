@@ -11,9 +11,10 @@ class ClientError extends CustomError {
    * Creates a new instance of ClientError.
    * @constructor
    * @param {string} message - The error message.
+   * @param additionalInfo - Any additional information about the error
    */
-  constructor(message) {
-    super(message, 400); // Passes the error message and HTTP status code (400 Bad Request) to the parent constructor
+  constructor(message: string, additionalInfo?: string) {
+    super(message, 400, additionalInfo);
   }
 }
 

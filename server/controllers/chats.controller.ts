@@ -1,8 +1,8 @@
-import { IChats } from "@definitions/interfaces";
+import {IChats} from "@definitions/interfaces";
 import ClientError from "@exceptions/clientError";
 import ChatsService from "@services/ChatsService";
 
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 
 /**
  * Creates a new user chat with the provided chatId and userId.
@@ -38,9 +38,6 @@ const getChatsById = async (req: Request, res: Response) => {
   // options to configure query parameters
   let { limit, populate, sortBy, sortOrder } = req.query;
 
-  if (!chatId) {
-    throw new ClientError("Chat ID is required");
-  }
   const userChats = await ChatsService.getChatsByFilter(
     {
       _id: chatId,
@@ -48,7 +45,7 @@ const getChatsById = async (req: Request, res: Response) => {
     +limit,
     sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
     sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate
+    !!populate,
   );
 
   res.json({ success: true, data: userChats });
@@ -67,23 +64,16 @@ const getChatsByQuery = async (req: Request, res: Response) => {
     populate,
     sortBy,
     sortOrder,
+    pageNumber,
     chatId,
     userId,
     receiverId,
-    pageNumber,
+    not,
   } = req.query;
 
-  // console.log(userId, chatId, receiverId);
-
-  if (!chatId && !userId && !receiverId) {
-    throw new ClientError(
-      "ChatId, ReceiverId, or UserId is required but nothing provided"
-    );
-  }
-
-  const filter: { chatId?: string; userId?: string; receiverId?: string } = {};
+  const filter: { _id?: string; userId?: string; receiverId?: string } = {};
   if (chatId) {
-    filter.chatId = chatId as string;
+    filter._id = chatId as string;
   }
   if (userId) {
     filter.userId = userId as string;
@@ -98,7 +88,9 @@ const getChatsByQuery = async (req: Request, res: Response) => {
     sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
     sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
     !!populate,
-    +pageNumber
+    +pageNumber,
+    null,
+    not as string,
   );
 
   res.json({ success: true, data: userChats });

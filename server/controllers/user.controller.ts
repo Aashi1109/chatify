@@ -1,27 +1,27 @@
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 
 import {EUserRoles} from "@definitions/enums";
 import ClientError from "@exceptions/clientError";
 import UserService from "@services/UserService";
-import {generateUserSafeCopy, hashPassword, validatePassword,} from "@utils/helpers";
-import {IUser} from "@definitions/interfaces";
-import {Document, Types} from "mongoose";
+import {generateUserSafeCopy, hashPassword, validateJwtTokenId, validatePassword,} from "@utils/helpers";
 import {NotFoundError} from "@exceptions";
+import {ICustomRequest} from "@definitions/interfaces";
 
 /**
  * Get user data by ID.
- * @param {Request} req - The request object.
+ * @param {ICustomRequest} req - The modified request object.
  * @param {Response} res - The response object.
  * @throws {ClientError} Throws a ClientError if an invalid ID is provided.
  * @returns {Promise<Response>} A Promise that resolves with the user data.
  */
-const getUserById = async (req: Request, res: Response): Promise<Response> => {
+const getUserById = async (
+  req: ICustomRequest,
+  res: Response,
+): Promise<Response> => {
   const id = req.params?.id;
 
-  // Validate ID
-  if (!id) {
-    throw new ClientError(`Invalid id: ${id} provided`);
-  }
+  // validate if id and token being used is for the same user
+  validateJwtTokenId(req, id);
 
   // Retrieve user data by ID
   const userData = await UserService.getUserById(id);
@@ -80,25 +80,40 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
  * @throws {ClientError} If an invalid or incorrect username is provided.
  */
 const getUserByQuery = async (req: Request, res: Response) => {
-  const { username, userId, not } = req.query;
+  const {
+    username,
+    userId,
+    not,
+    limit,
+    populate,
+    sortBy,
+    sortOrder,
+    pageNumber,
+  } = req.query;
+  // console.log("doPopulate -> ", !!populate);
 
-  if (!username && !userId) {
-    const data = await UserService.getAllUsers(not as string);
-
-    const safeCopyUsers = data.map((user) => generateUserSafeCopy(user));
-
-    return res.status(200).json({ data: safeCopyUsers });
-  } else {
-    let data: Document<unknown, {}, IUser> & IUser & { _id: Types.ObjectId };
-    if (!!username) {
-      data = await UserService.getUserByUsername(username as string);
-    } else if (!!userId) {
-      data = await UserService.getUserById(userId as string);
-    }
-
-    const safeCopyUser = generateUserSafeCopy(data);
-    return res.status(200).json({ data: safeCopyUser });
+  const filter: { _id?: string; username?: string } = {};
+  if (username) {
+    filter.username = username as string;
   }
+  if (userId) {
+    filter._id = userId as string;
+  }
+
+  const users = await UserService.getUsersByFilter(
+    filter,
+    +limit,
+    sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
+    sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
+    !!populate,
+    +pageNumber,
+    null,
+    not as string,
+  );
+
+  const safeCopyUsers = users.map((user) => generateUserSafeCopy(user));
+
+  return res.json({ success: true, data: safeCopyUsers });
 };
 
 /**
@@ -109,39 +124,39 @@ const getUserByQuery = async (req: Request, res: Response) => {
  * @returns {Promise<Response>} A Promise that resolves when the user is deleted successfully.
  */
 const deleteUserById = async (
-  req: Request,
+  req: ICustomRequest,
   res: Response,
 ): Promise<Response> => {
   const { id } = req.params;
 
-  // Validate ID
-  if (!id) {
-    throw new ClientError(`Invalid id: ${id} provided`);
-  }
+  // validate if id and token being used is for the same user
+  validateJwtTokenId(req, id);
 
   // Delete user by ID
   const deleteResp = await UserService.deleteUserById(id);
 
   // Send success response
-  return res.status(200).json({ data: deleteResp });
+  return res.status(200).json({
+    data: deleteResp
+      ? generateUserSafeCopy(deleteResp?.toObject())
+      : deleteResp,
+  });
 };
 
 /**
  * Updates a user's information in the database by their ID.
- * @param {Request} req - The request object containing user information.
+ * @param {ICustomRequest} req - The custom request object containing user information.
  * @param {Response} res - The response object for sending responses.
- * @param {NextFunction} next - The next function to call in the middleware chain.
  * @throws {ClientError} Throws a ClientError if the provided user ID is invalid or if the user with the specified ID or username is not found, or if an invalid role is provided.
  * @throws {Error} Throws an error if the update fails for any other reason.
  */
-const updateUserById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const updateUserById = async (req: ICustomRequest, res: Response) => {
   const { username, name, profileImage, about, role, lastSeenAt, isActive } =
     req.body;
   const { id } = req.params;
+
+  // validate if id and token being used is for the same user
+  validateJwtTokenId(req, id);
 
   const existingUser = await UserService.getUserById(id);
   if (!existingUser) {
@@ -170,22 +185,26 @@ const updateUserById = async (
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
 
-  res.status(200).json({ data: safeCopyUser });
+  return res.status(200).json({ data: safeCopyUser });
 };
 
 /**
  * Updates user's password
- * @param {Request} req - Request object
+ * @param {ICustomRequest} req - Request object
  * @param {Response} res - Response object
  * @throws {ClientError} Throws a ClientError if previous password is incorrect
  * @throws {NotFoundError} Throws a NotFoundError if user doesn't exist
  * @return {Promise<Response>} Promise resolved with the updated user
  */
 const updateUserPasswordById = async (
-  req: Request,
+  req: ICustomRequest,
   res: Response,
 ): Promise<Response> => {
   const { id } = req.params;
+
+  // validate if id and token being used is for the same user
+  validateJwtTokenId(req, id);
+
   const { oldPassword, newPassword } = req.body;
 
   const existingUser = await UserService.getUserById(id);
@@ -224,11 +243,11 @@ const updateUserPasswordById = async (
 
 /**
  * Get all the users present in the database
- * @param {Request} req - Request object
+ * @param {Request} _ - Request object
  * @param {Response} res - Response object
  * @returns {Promise<Response>} Promise resolved with all the users
  */
-const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
+const getAllUsers = async (_: Request, res: Response): Promise<Response> => {
   const data = await UserService.getAllUsers();
   const safeCopyUsers = data.map((user) => generateUserSafeCopy(user));
   return res.status(200).json({ data: safeCopyUsers });

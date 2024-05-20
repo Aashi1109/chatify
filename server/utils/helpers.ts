@@ -3,9 +3,10 @@ import * as jwt from "jsonwebtoken";
 
 import config from "@config";
 import {EUserRoles} from "@definitions/enums";
-import {IUser} from "@definitions/interfaces";
+import {ICustomRequest, IUser} from "@definitions/interfaces";
 
 import {FlattenMaps, Model, Require_id} from "mongoose";
+import {UnauthorizedError} from "@exceptions";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -52,7 +53,7 @@ const hashPassword = async (
  * @returns {Promise<string>} A Promise that resolves with the generated access token.
  * @throws {Error} Throws an error if token generation fails.
  */
-const generateAccessToken = async (user) => {
+const generateAccessToken = async (user: IUser): Promise<string> => {
   try {
     const payload = { username: user.username, role: user.role, id: user._id };
     return jwt.sign(payload, config.jwt.secret, {
@@ -70,7 +71,10 @@ const generateAccessToken = async (user) => {
  * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating whether the passwords match.
  * @throws {Error} Throws an error if the comparison fails.
  */
-const validatePassword = async (originalPassword, comparePassword) => {
+const validatePassword = async (
+  originalPassword: string,
+  comparePassword: string,
+): Promise<boolean> => {
   try {
     return await bcrypt.compare(comparePassword, originalPassword);
   } catch (error) {
@@ -108,6 +112,7 @@ const getByFilter =
      * @param {"asc"|"desc"} [sortOrder] - Optional order to sort (ascending or descending).
      * @param {boolean} [doPopulate=true] - Whether to populate the specified fields.
      * @param {number} [pageNumber=1] - Optional page number for pagination.
+     * @param {string} [not] - Optional page number for pagination.
      * @returns {Promise<Require_id<FlattenMaps<T>>[]>} - A promise that resolves to an array of documents matching the query.
      */
     filter: Partial<Record<keyof T, any>>,
@@ -117,12 +122,18 @@ const getByFilter =
     sortOrder?: "asc" | "desc",
     doPopulate = true,
     pageNumber?: number,
+    not?: string,
   ): Promise<Require_id<FlattenMaps<T>>[]> => {
     try {
       pageNumber ??= 1;
       const skip = limit ? (pageNumber - 1) * limit : 0;
 
       let query = model.find(filter);
+
+      if (not) {
+        // @ts-ignore
+        query = query.find({ _id: { $ne: not } });
+      }
 
       if (sortBy && sortOrder) {
         query.sort({ [sortBy]: sortOrder });
@@ -145,8 +156,19 @@ const getByFilter =
     }
   };
 
+const validateJwtTokenId = (req: ICustomRequest, id: string) => {
+  // validate if id and token being used is for the same user
+  if (req.token && req.token.payload.id !== id) {
+    throw new UnauthorizedError(
+      "Invalid token provided",
+      "Token maybe valid but does not match with the user id provided",
+    );
+  }
+};
+
 export {
   generateAccessToken,
+  validateJwtTokenId,
   generateUserSafeCopy,
   getByFilter,
   hashPassword,

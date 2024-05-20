@@ -1,11 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { verify, JwtPayload } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
 
 import config from "@config";
+import { ICustomRequest } from "@definitions/interfaces";
 
-export interface CustomRequest extends Request {
-  token: JwtPayload;
-}
 const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   const token = <string>req.headers["authorization"];
 
@@ -16,7 +14,7 @@ const checkJwt = (req: Request, res: Response, next: NextFunction) => {
       verify(token?.split(" ")[1], config.jwt.secret, { complete: true })
     );
 
-    (req as CustomRequest).token = jwtPayload;
+    (req as ICustomRequest).token = jwtPayload;
   } catch (error) {
     return res.status(401).json({ message: "Missing or invalid token" });
   }

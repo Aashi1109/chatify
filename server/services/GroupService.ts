@@ -1,6 +1,6 @@
-import { IGroups } from "@/definitions/interfaces";
-import { Groups } from "@models";
-import { getByFilter } from "@utils/helpers";
+import {IGroups} from "@/definitions/interfaces";
+import {Groups} from "@models";
+import {getByFilter} from "@utils/helpers";
 
 /**
  * Service class for CRUD operations on Groups model.
@@ -12,7 +12,7 @@ class GroupService {
    * @returns {Promise<IGroups>} The created group.
    */
   static async createGroup(
-    groupData: IGroups
+    groupData: IGroups,
   ): Promise<InstanceType<typeof Groups>> {
     try {
       return (await Groups.create(groupData)).toJSON();
@@ -28,7 +28,7 @@ class GroupService {
    * @returns {Promise<IGroups | null>} The retrieved group, or null if not found.
    */
   static async getGroupById(
-    groupId: string
+    groupId: string,
   ): Promise<InstanceType<typeof Groups> | null> {
     try {
       return await Groups.findById(groupId).lean();
@@ -46,7 +46,7 @@ class GroupService {
    */
   static async updateGroup(
     groupId: string,
-    update: Partial<IGroups>
+    update: Partial<IGroups>,
   ): Promise<IGroups | null> {
     try {
       return await Groups.findByIdAndUpdate(groupId, update, {
@@ -80,7 +80,8 @@ class GroupService {
     sortBy?: "createdAt" | "updatedAt",
     sortOrder?: "asc" | "desc",
     doPopulate = true,
-    populateFields?: string[]
+    populateFields?: string[],
+    not?: string,
   ) {
     populateFields ??= ["messages", "creatorId"];
 
@@ -90,7 +91,7 @@ class GroupService {
       limit,
       sortBy,
       sortOrder,
-      doPopulate
+      doPopulate,not
     );
   }
 }

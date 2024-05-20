@@ -13,9 +13,9 @@ import { Router } from "express";
 const router = Router();
 
 router.get(
-  "query",
+  "/query",
   [validateMongooseIds(["chatId", "userId", "receiverId"])],
-  asyncHandler(getChatsByQuery)
+  asyncHandler(getChatsByQuery),
 );
 
 router.post("/create", asyncHandler(createChat));
@@ -29,7 +29,7 @@ router
 router.get(
   "/interaction/:userId/:receiverId",
   [validateMongooseIds(["userId", "receiverId"])],
-  asyncHandler(getByUserAndIteractingUserId)
+  asyncHandler(getByUserAndIteractingUserId),
 );
 
 export default router;

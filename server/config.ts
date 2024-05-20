@@ -9,11 +9,10 @@ const config = {
     expiresIn: "30d",
   },
   apiPrefixes: {
-    user: "/api/user",
+    user: "/api/users",
     auth: "/api/auth",
     message: "/api/messages",
-    userchats: "/api/userchats",
-    file: "/api/file",
+    file: "/api/files",
     chats: "/api/chats",
     groups: "/api/groups",
   },
@@ -30,7 +29,10 @@ const config = {
   express: {
     fileSizeLimit: "20mb",
   },
-  corsOptions: { origin: ["http://localhost:3000"], optionsSuccessStatus: 200 },
+  corsOptions: {
+    origin: ["http://localhost:3000", "https://editor.swagger.io"],
+    optionsSuccessStatus: 200,
+  },
 };
 
 export default config;

@@ -1,7 +1,10 @@
 import { Types } from "mongoose";
 import { EMessageType, EUploadTypes } from "./enums";
+import { Request } from "express";
+import { JwtPayload } from "jsonwebtoken";
 
 interface IUser {
+  _id?: string;
   username: string;
   name: string;
   profileImage: {
@@ -102,8 +105,13 @@ interface IFileData {
   fileMetadata?: Record<string, any>;
 }
 
+interface ICustomRequest extends Request {
+  token: JwtPayload;
+}
+
 export {
   IChats,
+  ICustomRequest,
   ICloudinaryImageUploadOptions,
   ICloudinaryResponse,
   IFileData,

@@ -86,20 +86,12 @@ const getAllGroups = async (req: Request, res: Response) => {
  */
 const getGroupsByQuery = async (req: Request, res: Response) => {
   // options to configure query parameters
-  let {
-    limit,
-    populate,
-    sortBy,
-    sortOrder,
-    groupId,
-    userId,
-    creatorId,
-    notId,
-  } = req.query;
+  let { limit, populate, sortBy, sortOrder, groupId, userId, creatorId, not } =
+    req.query;
 
   if (!groupId && !userId && !creatorId) {
     throw new ClientError(
-      "GroupId, CreatorId, or UserId is required but nothing provided"
+      "GroupId, CreatorId, or UserId is required but nothing provided",
     );
   }
 
@@ -119,7 +111,9 @@ const getGroupsByQuery = async (req: Request, res: Response) => {
     +limit,
     sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
     sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate
+    !!populate,
+    null,
+    not as string,
   );
 
   res.json({ success: true, data: userChats });

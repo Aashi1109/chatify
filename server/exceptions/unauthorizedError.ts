@@ -8,9 +8,10 @@ class UnauthorizedError extends CustomError {
   /**
    * Creates a new `UnauthorizedError` instance.
    * @param message The error message.
+   * @param [additionalMessage] Additional message to add to the error
    */
-  constructor(message: string) {
-    super(message, 401);
+  constructor(message: string, additionalMessage?: string) {
+    super(message, 401, additionalMessage);
   }
 }
 

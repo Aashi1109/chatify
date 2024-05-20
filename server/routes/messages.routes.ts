@@ -20,29 +20,26 @@ const router = Router();
 router.get(
   "/query",
   [validateMongooseIds(["chatId", "userId", "groupId", "messageId"]), checkJwt],
-  asyncHandler(getMessageByQuery)
+  asyncHandler(getMessageByQuery),
 );
-router.get("", [checkJwt], asyncHandler(getAllMessages));
-
-router.patch(
-  "/create",
-  [checkJwt, validateCreateMessage],
-  asyncHandler(createMessage)
-);
+router
+  .route("")
+  .get([checkJwt], asyncHandler(getAllMessages))
+  .post([checkJwt, validateCreateMessage], asyncHandler(createMessage));
 
 router
   .route("/:messageId")
   .get(
     [validateMongooseIds(["messageId"]), checkJwt],
-    asyncHandler(getMessageById)
+    asyncHandler(getMessageById),
   )
   .patch(
     [validateMongooseIds(["messageId"]), checkJwt, validateUpdateMessage],
-    asyncHandler(updateMessageById)
+    asyncHandler(updateMessageById),
   )
   .delete(
     [validateMongooseIds(["messageId"]), checkJwt],
-    asyncHandler(deleteMessageById)
+    asyncHandler(deleteMessageById),
   );
 
 export default router;

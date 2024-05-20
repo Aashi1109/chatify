@@ -18,7 +18,7 @@ router.post("/upload", [validateFileUploadData], asyncHandler(uploadFile));
 router.post(
   "/cloudinary/:id",
   [checkJwt],
-  asyncHandler(getCloudinaryFileByPublicId)
+  asyncHandler(getCloudinaryFileByPublicId),
 );
 
 router

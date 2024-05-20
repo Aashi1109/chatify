@@ -1,7 +1,7 @@
 import ClientError from "@exceptions/clientError";
 import NotFoundError from "@exceptions/notFoundError";
 import MessageService from "@services/MessageService";
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 
 /**
  * Create a new message for a particular room
@@ -18,7 +18,7 @@ const createMessage = async (req: Request, res: Response) => {
 
   if (!userId || !chatId) {
     throw new ClientError(
-      `User or sender id is missing. user id: ${userId}, chat id: ${chatId}`
+      `User or sender id is missing. user id: ${userId}, chat id: ${chatId}`,
     );
   }
 
@@ -70,7 +70,7 @@ const updateMessageById = async (req: Request, res: Response) => {
     messageId,
     content,
     seenAt || previousMessage[0]?.seenAt,
-    deliveredAt || previousMessage[0]?.deliveredAt
+    deliveredAt || previousMessage[0]?.deliveredAt,
   );
   res.status(200).json({ data: updatedMessage });
 };
@@ -115,13 +115,8 @@ const getMessageByQuery = async (req: Request, res: Response) => {
     sortBy,
     sortOrder,
     pageNumber,
+    not,
   } = req.query;
-
-  if (!chatId && !userId && !groupId && !messageId) {
-    throw new ClientError(
-      `chatId or userId or groupId or messageId not specified`
-    );
-  }
 
   const messageFilter: {
     chatId?: string;
@@ -148,7 +143,9 @@ const getMessageByQuery = async (req: Request, res: Response) => {
     sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
     sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
     !!populate,
-    +pageNumber
+    +pageNumber,
+    null,
+    not as string,
   );
 
   res.status(200).json({ data: existingMessage });

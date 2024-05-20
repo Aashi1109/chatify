@@ -1,14 +1,15 @@
 import { EUserRoles } from "@definitions/enums";
 import UserService from "@services/UserService";
 import { NextFunction, Request, Response } from "express";
-import { CustomRequest } from "./checkJwt";
+
 import { parseUserRole } from "@utils/helpers";
+import { ICustomRequest } from "@definitions/interfaces";
 
 const checkRoles =
   (roles: Array<EUserRoles>) =>
   async (req: Request, res: Response, next: NextFunction) => {
     const existingUser = await UserService.getUserById(
-      (req as CustomRequest).token.payload.id
+      (req as ICustomRequest).token.payload.id,
     );
 
     if (!existingUser) {

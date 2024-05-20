@@ -60,6 +60,7 @@ class ChatsService {
    * @param {boolean} [doPopulate=true] - Flag to specify whether to populate fields. Defaults to true.
    * @param {number} [pageNumber=1] - Current page number to fetch data from
    * @param {string[]} [populateFields] - Fields to populate in the retrieved chats.
+   * @param {string} [not] - ID of the document not to include in the chats results.
    * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves to an array of retrieved chat objects.
    * @throws {Error} If there's an error fetching user chats by the provided filter.
    */
@@ -75,6 +76,7 @@ class ChatsService {
     doPopulate: boolean = true,
     pageNumber: number = 1,
     populateFields?: string[],
+    not?: string,
   ): Promise<Require_id<FlattenMaps<IChats>>[]> {
     populateFields ??= ["userId", "receiverId", "messages"];
     return getByFilter(Chats)(
@@ -85,6 +87,7 @@ class ChatsService {
       sortOrder,
       doPopulate,
       pageNumber,
+      not,
     );
   }
 

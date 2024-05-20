@@ -14,7 +14,7 @@ const router = Router();
 router.get(
   "/query",
   [validateMongooseIds(["groupId", "userId", "creatorId"])],
-  asyncHandler(getGroupsByQuery)
+  asyncHandler(getGroupsByQuery),
 );
 router.post("/create", asyncHandler(createGroup));
 router

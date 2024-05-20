@@ -15,7 +15,7 @@ const userSchema = new Schema<IUser>(
       url: { type: String, trim: true },
       filename: { type: String },
       pubicId: { type: String, trim: true },
-      fileDataId: { type: String, trim: true, required: true },
+      fileDataId: { type: Schema.Types.ObjectId, ref: "FileData" },
     },
     about: { type: String, trim: true },
     password: { type: String, required: true, trim: true },

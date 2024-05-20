@@ -108,7 +108,8 @@ class MessageService {
     sortOrder?: "asc" | "desc",
     doPopulate = true,
     pageNumber?: number,
-    populateFields?: string[]
+    populateFields?: string[],
+    not?: string,
   ) {
     pageNumber ??= 1;
     populateFields ??= ["userId", "chatId", "groupId"];
@@ -119,7 +120,8 @@ class MessageService {
       sortBy,
       sortOrder,
       doPopulate,
-      pageNumber
+      pageNumber,
+      not,
     );
   }
 
@@ -136,7 +138,7 @@ class MessageService {
     messageId: string,
     content: string,
     deliveredAt: Date,
-    seenAt: Date
+    seenAt: Date,
   ) {
     try {
       return (await Message.findByIdAndUpdate(
@@ -144,7 +146,7 @@ class MessageService {
         { content, deliveredAt, seenAt },
         {
           new: true,
-        }
+        },
       ).lean()) as InstanceType<typeof Message>;
     } catch (error) {
       console.error("Error updating message by ID:", error);
@@ -160,7 +162,7 @@ class MessageService {
   static async deleteById(messageId: string) {
     try {
       return (await Message.findByIdAndDelete(
-        messageId
+        messageId,
       ).lean()) as InstanceType<typeof Message>;
     } catch (error) {
       console.error("Error deleting message by ID:", error);
@@ -168,4 +170,5 @@ class MessageService {
     }
   }
 }
+
 export default MessageService;
