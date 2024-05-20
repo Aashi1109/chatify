@@ -1,0 +1,1952 @@
+openapi: 3.0.3
+info:
+  title: Chatify API
+  description: Chatify API for managing chats and data for Chatify frontend
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api
+    description: Local Development server
+tags:
+  - name: User
+    description: Endpoints to manage users
+  - name: Auth
+    description: Endpoints to manage users authentication
+  - name: Chats
+    description: Endpoints to manage chats
+  - name: Groups
+    description: Endpoints to manage groups
+  - name: Messages
+    description: Endpoints to manage messages
+  - name: FileData
+    description: Endpoints to manage files data
+components:
+  schemas:
+    # Error schemas
+    ClientError:
+      description: Validation error from server (400)
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: Fields missing, Invalid ID, invalid access token
+        success:
+          type: boolean
+          description: Indicates whether the request was successful or not
+          example: false
+    ServerError:
+      description: Internal server error from server (500)
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: Internal server error
+        success:
+          type: boolean
+          description: Indicates whether the request was successful or not
+          example: false
+    UnauthorizedError:
+      type: object
+      description: Unauthorized error when trying to access the server with invalid authorization.
+      properties:
+        message:
+          type: string
+          description: Error message indicating that the user is unauthorized.
+          example: Invalid credentials provided.
+        success:
+          type: boolean
+          description: The HTTP status code.Indicates whether the request was successful or not.
+          example: false
+    NotFoundError:
+      description: Resource error from server (404)
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: Document not found or User not found
+        success:
+          type: boolean
+          description: Indicates whether the request was successful or not
+          example: false
+
+    # auth route schemas
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: The username of the user.
+          example: johndoe
+        password:
+          type: string
+          format: password
+          description: The password of the user.
+          example: mypassword123
+    LoginResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              description: The JWT token for authentication.
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            userId:
+              type: string
+              description: The ID of the authenticated user.
+              example: 60c72b2f9b1e8e001c8e4b77
+
+    # user route schemas
+    User:
+      description: User's data object from server
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the user, Mongoose ID
+          example: 66334b36354c1f9b14b8a54f
+        username:
+          type: string
+          description: Unique username for the user
+          example: johndoe, madeline73
+        createdAt:
+          type: string
+          description: Timestamp at which user is created
+          example: '2021-04-20T12:00:00.000Z'
+        updatedAt:
+          type: string
+          description: Timestamp at which user is created
+          example: '2021-04-20T12:00:00.000Z'
+        profileImage:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL of the image
+              example: https://res.cloudinary.com/demo/image/upload/v1618879123/demo/demo.jpg
+            fileDataId:
+              type: string
+              description: File data id for the image file, Mongoose ObjectId
+              example: 66334b36354c1f9b14b8a54f
+            publicId:
+              type: string
+              description: Cloudinary id of file if it is uploaded there
+              example: Cloudinary/demo293219312930
+            filename:
+              type: string
+              description: Original filename of the image
+              example: demo
+          required:
+            - url
+            - filename
+        role:
+          type: string
+          description: Role of the user
+          enum:
+            - admin
+            - user
+        isActive:
+          type: boolean
+          description: Indicates whether the user is active or not
+          example: true
+        lastSeenAt:
+          type: string
+          description: Last time user has last accessed the application
+          example: '2021-04-20T12:00:00.000Z'
+        name:
+          type: string
+          description: Name of the user
+          example: John doe
+        about:
+          type: string
+          description: Something about the user
+          example: John like doing doe
+      required:
+        - profileImage
+        - isActive
+        - lastSeenAt
+        - role
+        - username
+        - name
+        - _id
+        - about
+        - createdAt
+        - updatedAt
+    UserUpdate:
+      description: User's update data object required by server
+      type: object
+      properties:
+        username:
+          type: string
+          description: Unique username for the user
+          example: johndoe, madeline73
+        profileImage:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL of the image
+              example: https://res.cloudinary.com/demo/image/upload/v1618879123/demo/demo.jpg
+            fileDataId:
+              type: string
+              description: File data id for the image file, Mongoose ObjectId
+              example: 66334b36354c1f9b14b8a54f
+            publicId:
+              type: string
+              description: Cloudinary id of file if it is uploaded there
+              example: Cloudinary/demo293219312930
+            filename:
+              type: string
+              description: Original filename of the image
+              example: demo
+          required:
+            - url
+            - filename
+        role:
+          type: string
+          description: Role of the user
+          enum:
+            - admin
+            - user
+        isActive:
+          type: boolean
+          description: Indicates whether the user is active or not
+          example: true
+        lastSeenAt:
+          type: string
+          description: Last time user has last accessed the application
+          example: '2021-04-20T12:00:00.000Z'
+        name:
+          type: string
+          description: Name of the user
+        about:
+          type: string
+          description: Something about the user
+    UserCreate:
+      description: User's create data object required by server
+      type: object
+      properties:
+        username:
+          type: string
+          description: Unique username for the user
+          example: johndoe, madeline73
+        profileImage:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL of the image
+              example: https://res.cloudinary.com/demo/image/upload/v1618879123/demo/demo.jpg
+            fileDataId:
+              type: string
+              description: File data id for the image file, Mongoose ObjectId
+              example: 66334b36354c1f9b14b8a54f
+            publicId:
+              type: string
+              description: Cloudinary id of file if it is uploaded there
+              example: Cloudinary/demo293219312930
+            filename:
+              type: string
+              description: Original filename of the image
+              example: demo
+          required:
+            - url
+            - filename
+            - fileDataId
+        role:
+          type: string
+          description: Role of the user
+          enum:
+            - admin
+            - user
+        name:
+          type: string
+          description: Name of the user
+        about:
+          type: string
+          description: Something about the user
+        password:
+          type: string
+          description: Password chosen by the user
+        confirmPassword:
+          type: string
+          description: Same password
+      required:
+        - profileImage
+        - username
+        - password
+        - confirmPassword
+        - about
+        - name
+    UserUpdatePassword:
+      description: User's update password data object required by server
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          description: Previous password of user
+        newPassword:
+          type: string
+          description: New password of user
+      required:
+        - oldPassword
+        - newPassword
+
+    # chats routes schemas
+    Chat:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        receiverId:
+          type: string
+        messages:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # filedata routes schemas
+    FileData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the file data
+          example: 60c72b2f9b1e8e001c8e4b77
+        path:
+          type: string
+          description: The file path or URL
+          example: https://example.com/path/to/file
+        name:
+          type: string
+          description: The name of the file
+          example: example.jpg
+        size:
+          type: integer
+          description: The size of the file in bytes
+          example: 1024
+        format:
+          type: string
+          description: The format of the file
+          example: jpg
+        fileMetadata:
+          type: object
+          description: Metadata related to the file
+          properties:
+            publicId:
+              type: string
+              description: The public ID of the file
+              example: abc123
+        storageType:
+          type: string
+          description: The type of storage (e.g., Cloudinary, Local)
+          example: Cloudinary
+        userId:
+          type: string
+          description: The ID of the user who uploaded the file
+          example: 60c72b2f9b1e8e001c8e4b78
+    FileDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/FileData'
+    UploadFile:
+      type: object
+      required:
+        - file
+        - format
+        - name
+        - preview
+        - size
+        - uploadTo
+        - userId
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The file to upload
+        format:
+          type: string
+          description: The format of the file
+          example: jpg
+        name:
+          type: string
+          description: The name of the file
+          example: example.jpg
+        preview:
+          type: string
+          description: A preview URL or data for the file
+          example: data:image/jpeg;base64,...
+        size:
+          type: integer
+          description: The size of the file in bytes
+          example: 1024
+        uploadTo:
+          type: string
+          description: The storage type (e.g., Cloudinary, Local)
+          example: Cloudinary
+        userId:
+          type: string
+          description: The ID of the user uploading the file
+          example: 60c72b2f9b1e8e001c8e4b78
+    CloudinaryOptions:
+      type: object
+      properties:
+        options:
+          type: object
+          description: Options for retrieving Cloudinary file information
+          example: { }
+    CloudinaryFile:
+      type: object
+      properties:
+        data:
+          type: object
+          description: Cloudinary file information
+          example:
+            public_id: abc123
+            url: https://res.cloudinary.com/example/image/upload/v1619701234/abc123.jpg
+
+    # Groups schemas
+    Group:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the group
+          example: "60a7c7f1b5b8c50015d7dab5"
+        creatorId:
+          type: string
+          description: ID of the creator of the group
+          example: "609f27c154a7e818e8c3d173"
+        name:
+          type: string
+          description: Name of the group
+          example: "Group Name"
+        description:
+          type: string
+          description: Description of the group
+          example: "Group Description"
+        image:
+          type: string
+          description: URL of the group image
+          example: "https://example.com/group-image.jpg"
+        messages:
+          type: array
+          description: Array of messages in the group
+          items:
+            type: string
+            example: "Message content"
+    GroupCreationRequest:
+      type: object
+      properties:
+        creatorId:
+          type: string
+          description: ID of the creator of the group
+        name:
+          type: string
+          description: Name of the group
+        description:
+          type: string
+          description: Description of the group
+        image:
+          type: string
+          description: URL of the group image
+        messages:
+          type: array
+          items:
+            type: string
+          description: Array of messages in the group
+    GroupUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated name of the group
+        description:
+          type: string
+          description: Updated description of the group
+        image:
+          type: string
+          description: Updated URL of the group image
+    UserGroup:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the user group entry
+          example: "60a7c7f1b5b8c50015d7dab6"
+        groupId:
+          type: string
+          description: ID of the group associated with the user group entry
+          example: "60a7c7f1b5b8c50015d7dab5"
+        userId:
+          type: string
+          description: ID of the user associated with the user group entry
+          example: "609f27c154a7e818e8c3d173"
+
+    # Messages
+    Message:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: The unique identifier of the message.
+        userId:
+          type: string
+          description: The ID of the user who sent the message.
+        chatId:
+          type: string
+          description: The ID of the chat associated with the message.
+        content:
+          type: string
+          description: The content of the message.
+        sentAt:
+          type: string
+          format: date-time
+          description: The timestamp when the message was sent.
+        groupId:
+          type: string
+          description: The ID of the group associated with the message.
+        type:
+          type: string
+          description: The type of message (e.g., text, image, video).
+        seenAt:
+          type: string
+          format: date-time
+          description: The timestamp when the message was seen.
+        deliveredAt:
+          type: string
+          format: date-time
+          description: The timestamp when the message was delivered.
+      required:
+        - userId
+        - chatId
+        - content
+      example:
+        _id: 60a97d22c4a9a314b8541a3c
+        userId: 6093cf793b8b980d088347f5
+        chatId: 60a97d1bc4a9a314b8541a3b
+        content: Hello, how are you?
+        sentAt: "2022-05-22T12:00:00Z"
+        groupId: 60a97d22c4a9a314b8541a3d
+        type: text
+        seenAt: "2022-05-22T12:05:00Z"
+        deliveredAt: "2022-05-22T12:03:00Z"
+    MessageCreate:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The ID of the user who sent the message.
+        chatId:
+          type: string
+          description: The ID of the chat associated with the message.
+        content:
+          type: string
+          description: The content of the message.
+        sentAt:
+          type: string
+          format: date-time
+          description: The timestamp when the message was sent.
+        groupId:
+          type: string
+          description: The ID of the group associated with the message.
+        type:
+          type: string
+          description: The type of message (e.g., text, image, video).
+      required:
+        - userId
+        - chatId
+        - content
+      example:
+        userId: 6093cf793b8b980d088347f5
+        chatId: 60a97d1bc4a9a314b8541a3b
+        content: Hello, how are you?
+        sentAt: "2022-05-22T12:00:00Z"
+        groupId: 60a97d22c4a9a314b8541a3d
+        type: text
+    MessageUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The updated content of the message.
+        seenAt:
+          type: string
+          format: date-time
+          description: The timestamp when the message was seen.
+        deliveredAt:
+          type: string
+          format: date-time
+          description: The timestamp when the message was delivered.
+      example:
+        content: How are you doing?
+        seenAt: "2022-05-22T12:05:00Z"
+        deliveredAt: "2022-05-22T12:03:00Z"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    LimitQueryParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    PageNumberQueryParam:
+      name: pageNumber
+      in: query
+      schema:
+        type: integer
+        default: 1
+      description: Page number for pagination
+    DoPopulateQueryParam:
+      name: populate
+      in: query
+      schema:
+        type: boolean
+      description: Populate reference fields
+    SortByQueryParam:
+      name: sortBy
+      in: query
+      schema:
+        type: string
+        enum:
+          - createdAt
+          - updatedAt
+      description: Sort results by a field
+    SortOrderQueryParam:
+      name: sortOrder
+      in: query
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+      description: Sort order (ascending or descending)
+    NotQueryParam:
+      name: not
+      in: query
+      schema:
+        type: string
+      description: ID of the document not to be included in results
+paths:
+  # users routes
+  /users/{id}:
+    get:
+      summary: Get user
+      security:
+        - bearerAuth: [ ]
+      description: Get a user with the specified id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+          description: User found with particular id and data returned
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: Invalid id provided, not of mongoose ObjectID
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+          description: Unauthorized - Invalid credentials provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: User not found with particular id
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: Something happened wrong at server
+      tags:
+        - User
+    patch:
+      security:
+        - bearerAuth: [ ]
+      description: Update a user with provided id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+        required: true
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: User with username already exists
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+          description: Unauthorized - Invalid credentials provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: User not found with particular id
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: Something happened wrong at server
+      tags:
+        - User
+    delete:
+      security:
+        - bearerAuth: [ ]
+      description: Deletes a user with provided id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: User with username already exists or invalid id provided
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+          description: Unauthorized - Invalid credentials provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: User not found with particular id
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: Something happened wrong at server
+      tags:
+        - User
+  /users:
+    get:
+      description: Get all the users in the db
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+          description: Users found with data returned
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: Something happened wrong at server
+      tags:
+        - User
+    post:
+      description: Creates a new user with the specified data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: Validation error because of either username already exists or confirmPassword and password is different or invalid role provided
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: Something went wrong at server
+      tags:
+        - User
+  /users/query:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/PageNumberQueryParam"
+        - $ref: "#/components/parameters/DoPopulateQueryParam"
+        - $ref: "#/components/parameters/SortByQueryParam"
+        - $ref: "#/components/parameters/SortOrderQueryParam"
+        - $ref: "#/components/parameters/NotQueryParam"
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: ID of the user
+        - name: username
+          in: query
+          schema:
+            type: string
+          description: Username of the user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+          description: Successful request and response is returned
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: Validation error message
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: Internal Server Error
+      tags:
+        - User
+  /users/{id}/updatePasswordById:
+    patch:
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdatePassword'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: Password updated successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: Validation error message e.g. Invalid old password
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+          description: Unauthorized - Invalid credentials provided.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+          description: Internal Server Error
+      tags:
+        - User
+
+  # authentication routes
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: User login
+      description: Login a user with their username and password to receive an authentication token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request - Username and password are required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Not Found - User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  # filedata routes
+  /filedata/query:
+    get:
+      tags:
+        - FileData
+      summary: Get all file data
+      security:
+        - bearerAuth: [ ]
+      description: Retrieve all file data
+      responses:
+        '200':
+          description: Successfully retrieved file data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FileDataArray'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+  /filedata/upload:
+    post:
+      tags:
+        - FileData
+      summary: Upload a file
+      description: Upload a file with its metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FileData'
+        '400':
+          description: Error uploading file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+  /filedata/cloudinary/{id}:
+    post:
+      tags:
+        - FileData
+      summary: Get Cloudinary file by public ID
+      security:
+        - bearerAuth: [ ]
+      description: Retrieve Cloudinary file information by public ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudinaryOptions'
+      responses:
+        '200':
+          description: Successfully retrieved Cloudinary file information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CloudinaryFile'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+  /filedata/{id}:
+    get:
+      tags:
+        - FileData
+      summary: Get file data by ID
+      security:
+        - bearerAuth: [ ]
+      description: Retrieve file data by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved file data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FileData'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+    delete:
+      tags:
+        - FileData
+      summary: Delete file data by ID
+      security:
+        - bearerAuth: [ ]
+      description: Delete file data by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted file data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FileData'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+
+  # chats routes
+  /chats/query:
+    get:
+      summary: Get chats by query parameters
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/PageNumberQueryParam"
+        - $ref: "#/components/parameters/DoPopulateQueryParam"
+        - $ref: "#/components/parameters/SortByQueryParam"
+        - $ref: "#/components/parameters/SortOrderQueryParam"
+        - $ref: "#/components/parameters/NotQueryParam"
+        - name: chatId
+          in: query
+          schema:
+            type: string
+          description: ID of the chat
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: ID of the user
+        - name: receiverId
+          in: query
+          schema:
+            type: string
+          description: ID of the receiver
+      responses:
+        '200':
+          description: Successfully retrieved chat data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chat'
+        '401':
+          description: Unauthorized missing token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Chats
+  /chats/create:
+    post:
+      summary: Create a new chat
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                receiverId:
+                  type: string
+                messages:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Chat created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Chat'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Chats
+  /chats/{chatId}:
+    delete:
+      summary: Delete a chat by its ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chat deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Chats deleted successfully
+                  data:
+                    $ref: '#/components/schemas/Chat'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Chats
+    patch:
+      summary: Update a chat by its ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messages:
+                  type: array
+                  items:
+                    type: string
+                optype:
+                  type: string
+                  enum:
+                    - add
+                    - delete
+      responses:
+        '200':
+          description: Chat updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Chat'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Chats
+    get:
+      summary: Get a chat by its ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved chat data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chat'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Chats
+  /chats/interaction/{userId}/{receiverId}:
+    get:
+      summary: Get chats by user and interacting user IDs
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: receiverId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved chat data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chat'
+        '401':
+          description: Unauthorized - Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Something went wrong at the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Chats
+
+  # groups routes
+  /groups/query:
+    get:
+      summary: Get groups by query parameters
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/PageNumberQueryParam"
+        - $ref: "#/components/parameters/DoPopulateQueryParam"
+        - $ref: "#/components/parameters/SortByQueryParam"
+        - $ref: "#/components/parameters/SortOrderQueryParam"
+        - $ref: "#/components/parameters/NotQueryParam"
+        - in: query
+          name: groupId
+          schema:
+            type: string
+          description: ID of the group
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: ID of the user
+        - in: query
+          name: creatorId
+          schema:
+            type: string
+          description: ID of the creator
+      responses:
+        '200':
+          description: Successfully retrieved groups
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Group'
+        '400':
+          description: Client validation error missing on invalid fields provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '401':
+          description: Unauthorized access error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Groups
+  /groups/create:
+    post:
+      summary: Create a new group
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupCreationRequest'
+      responses:
+        '201':
+          description: Group created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      group:
+                        $ref: '#/components/schemas/Group'
+                      usergroup:
+                        $ref: '#/components/schemas/UserGroup'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Groups
+  /groups/{groupId}:
+    get:
+      summary: Get group by ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: groupId
+          required: true
+          schema:
+            type: string
+            description: ID of the group to retrieve
+      responses:
+        '200':
+          description: Successfully retrieved group
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Groups
+    patch:
+      summary: Update group by ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: groupId
+          required: true
+          schema:
+            type: string
+            description: ID of the group to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupUpdateRequest'
+      responses:
+        '200':
+          description: Group updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Groups
+    delete:
+      summary: Delete group by ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: groupId
+          required: true
+          schema:
+            type: string
+            description: ID of the group to delete
+      responses:
+        '200':
+          description: Group deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Groups
+
+  # messages routes
+  /messages/query:
+    get:
+      summary: Get messages by query
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/PageNumberQueryParam"
+        - $ref: "#/components/parameters/DoPopulateQueryParam"
+        - $ref: "#/components/parameters/SortByQueryParam"
+        - $ref: "#/components/parameters/SortOrderQueryParam"
+        - $ref: "#/components/parameters/NotQueryParam"
+        - in: query
+          name: chatId
+          schema:
+            type: string
+          description: ID of the chat associated with the messages
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: ID of the user associated with the messages
+        - in: query
+          name: groupId
+          schema:
+            type: string
+          description: ID of the group associated with the messages
+        - in: query
+          name: messageId
+          schema:
+            type: string
+          description: ID of the message
+      responses:
+        '200':
+          description: Successfully retrieved messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '401':
+          description: Unauthorized - Invalid credentials provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Messages
+  /messages:
+    get:
+      summary: Get all messages
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Successfully retrieved messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '401':
+          description: Unauthorized - Invalid credentials provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Messages
+    post:
+      summary: Create a new message
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Message'
+        '400':
+          description: Bad request - Invalid message data provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '401':
+          description: Unauthorized - Invalid credentials provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Messages
+  /messages/{messageId}:
+    get:
+      summary: Get a message by ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved the message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Message'
+        '401':
+          description: Unauthorized - Invalid credentials provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Messages
+    patch:
+      summary: Update a message by ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageUpdate'
+      responses:
+        '200':
+          description: Message updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Message'
+        '400':
+          description: Bad request - Invalid message data provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
+        '401':
+          description: Unauthorized - Invalid credentials provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Messages
+    delete:
+      summary: Delete a message by ID
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Message deleted successfully
+        '401':
+          description: Unauthorized - Invalid credentials provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      tags:
+        - Messages
