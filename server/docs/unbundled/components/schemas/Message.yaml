@@ -1,0 +1,46 @@
+type: object
+properties:
+  _id:
+    type: string
+    description: The unique identifier of the message.
+  userId:
+    type: string
+    description: The ID of the user who sent the message.
+  chatId:
+    type: string
+    description: The ID of the chat associated with the message.
+  content:
+    type: string
+    description: The content of the message.
+  sentAt:
+    type: string
+    format: date-time
+    description: The timestamp when the message was sent.
+  groupId:
+    type: string
+    description: The ID of the group associated with the message.
+  type:
+    type: string
+    description: The type of message (e.g., text, image, video).
+  seenAt:
+    type: string
+    format: date-time
+    description: The timestamp when the message was seen.
+  deliveredAt:
+    type: string
+    format: date-time
+    description: The timestamp when the message was delivered.
+required:
+  - userId
+  - chatId
+  - content
+example:
+  _id: 60a97d22c4a9a314b8541a3c
+  userId: 6093cf793b8b980d088347f5
+  chatId: 60a97d1bc4a9a314b8541a3b
+  content: Hello, how are you?
+  sentAt: '2022-05-22T12:00:00Z'
+  groupId: 60a97d22c4a9a314b8541a3d
+  type: text
+  seenAt: '2022-05-22T12:05:00Z'
+  deliveredAt: '2022-05-22T12:03:00Z'

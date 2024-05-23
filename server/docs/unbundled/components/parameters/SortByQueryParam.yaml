@@ -1,0 +1,8 @@
+name: sortBy
+in: query
+schema:
+  type: string
+  enum:
+    - createdAt
+    - updatedAt
+description: Sort results by a field

@@ -1,0 +1,32 @@
+get:
+  tags:
+    - FileData
+  summary: Get all file data
+  security:
+    - bearerAuth: []
+  description: Retrieve all file data
+  responses:
+    '200':
+      description: Successfully retrieved file data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\FileDataArray.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml

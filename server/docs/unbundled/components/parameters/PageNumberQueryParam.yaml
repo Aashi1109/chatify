@@ -1,0 +1,6 @@
+name: pageNumber
+in: query
+schema:
+  type: integer
+  default: 1
+description: Page number for pagination

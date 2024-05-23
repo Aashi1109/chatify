@@ -1,0 +1,5 @@
+name: not
+in: query
+schema:
+  type: string
+description: ID of the document not to be included in results

@@ -1,0 +1,5 @@
+name: limit
+in: query
+schema:
+  type: integer
+description: Limit the number of results

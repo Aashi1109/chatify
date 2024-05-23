@@ -1,0 +1,88 @@
+get:
+  tags:
+    - FileData
+  summary: Get file data by ID
+  security:
+    - bearerAuth: []
+  description: Retrieve file data by ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Successfully retrieved file data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\FileData.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: File not found
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+delete:
+  tags:
+    - FileData
+  summary: Delete file data by ID
+  security:
+    - bearerAuth: []
+  description: Delete file data by ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Successfully deleted file data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\FileData.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: File not found
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml

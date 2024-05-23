@@ -1,0 +1,38 @@
+type: object
+required:
+  - file
+  - format
+  - name
+  - preview
+  - size
+  - uploadTo
+  - userId
+properties:
+  file:
+    type: string
+    format: binary
+    description: The file to upload
+  format:
+    type: string
+    description: The format of the file
+    example: jpg
+  name:
+    type: string
+    description: The name of the file
+    example: example.jpg
+  preview:
+    type: string
+    description: A preview URL or data for the file
+    example: data:image/jpeg;base64,...
+  size:
+    type: integer
+    description: The size of the file in bytes
+    example: 1024
+  uploadTo:
+    type: string
+    description: The storage type (e.g., Cloudinary, Local)
+    example: Cloudinary
+  userId:
+    type: string
+    description: The ID of the user uploading the file
+    example: 60c72b2f9b1e8e001c8e4b78

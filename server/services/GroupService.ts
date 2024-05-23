@@ -1,6 +1,7 @@
 import {IGroups} from "@/definitions/interfaces";
 import {Groups} from "@models";
 import {getByFilter} from "@utils/helpers";
+import {FlattenMaps, Require_id} from "mongoose";
 
 /**
  * Service class for CRUD operations on Groups model.
@@ -71,6 +72,21 @@ class GroupService {
     }
   }
 
+  /**
+   * Retrieves groups based on the specified filter criteria.
+   *
+   * @param {Object} filter - The filter criteria for retrieving groups.
+   * @param {string} [filter.creatorId] - The ID of the creator to filter groups by.
+   * @param {string} [filter._id] - The ID of the group to filter by.
+   * @param {number} [limit] - The maximum number of groups to retrieve.
+   * @param {"createdAt" | "updatedAt"} [sortBy] - The field to sort the results by.
+   * @param {"asc" | "desc"} [sortOrder] - The order to sort the results in.
+   * @param {boolean} [doPopulate=true] - Whether to populate specified fields.
+   * @param {string[]} [populateFields] - The fields to populate in the results.
+   * @param {number} [pageNumber] - The page number for pagination.
+   * @param {string} [not] - A field value to exclude from the results.
+   * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A promise that resolves to an array of groups matching the filter criteria.
+   */
   static async getGroupsByFilter(
     filter: {
       creatorId?: string;
@@ -79,11 +95,13 @@ class GroupService {
     limit?: number,
     sortBy?: "createdAt" | "updatedAt",
     sortOrder?: "asc" | "desc",
-    doPopulate = true,
+    doPopulate: boolean = true,
     populateFields?: string[],
+    pageNumber?: number,
     not?: string,
-  ) {
+  ): Promise<Require_id<FlattenMaps<IGroups>>[]> {
     populateFields ??= ["messages", "creatorId"];
+    pageNumber ??= 1;
 
     return getByFilter(Groups)(
       filter,
@@ -91,7 +109,9 @@ class GroupService {
       limit,
       sortBy,
       sortOrder,
-      doPopulate,not
+      doPopulate,
+      pageNumber,
+      not,
     );
   }
 }

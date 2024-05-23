@@ -1,0 +1,14 @@
+type: object
+required:
+  - username
+  - password
+properties:
+  username:
+    type: string
+    description: The username of the user.
+    example: johndoe
+  password:
+    type: string
+    format: password
+    description: The password of the user.
+    example: mypassword123

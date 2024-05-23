@@ -1,0 +1,55 @@
+description: User's create data object required by server
+type: object
+properties:
+  username:
+    type: string
+    description: Unique username for the user
+    example: johndoe, madeline73
+  profileImage:
+    type: object
+    properties:
+      url:
+        type: string
+        description: URL of the image
+        example: https://res.cloudinary.com/demo/image/upload/v1618879123/demo/demo.jpg
+      fileDataId:
+        type: string
+        description: File data id for the image file, Mongoose ObjectId
+        example: 66334b36354c1f9b14b8a54f
+      publicId:
+        type: string
+        description: Cloudinary id of file if it is uploaded there
+        example: Cloudinary/demo293219312930
+      filename:
+        type: string
+        description: Original filename of the image
+        example: demo
+    required:
+      - url
+      - filename
+      - fileDataId
+  role:
+    type: string
+    description: Role of the user
+    enum:
+      - admin
+      - user
+  name:
+    type: string
+    description: Name of the user
+  about:
+    type: string
+    description: Something about the user
+  password:
+    type: string
+    description: Password chosen by the user
+  confirmPassword:
+    type: string
+    description: Same password
+required:
+  - profileImage
+  - username
+  - password
+  - confirmPassword
+  - about
+  - name

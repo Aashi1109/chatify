@@ -1,0 +1,6 @@
+type: object
+properties:
+  options:
+    type: object
+    description: Options for retrieving Cloudinary file information
+    example: {}

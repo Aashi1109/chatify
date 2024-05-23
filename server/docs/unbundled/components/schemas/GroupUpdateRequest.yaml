@@ -1,0 +1,11 @@
+type: object
+properties:
+  name:
+    type: string
+    description: Updated name of the group
+  description:
+    type: string
+    description: Updated description of the group
+  image:
+    type: string
+    description: Updated URL of the group image

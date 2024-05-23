@@ -1,0 +1,14 @@
+type: object
+properties:
+  _id:
+    type: string
+    description: Unique identifier for the user group entry
+    example: 60a7c7f1b5b8c50015d7dab6
+  groupId:
+    type: string
+    description: ID of the group associated with the user group entry
+    example: 60a7c7f1b5b8c50015d7dab5
+  userId:
+    type: string
+    description: ID of the user associated with the user group entry
+    example: 609f27c154a7e818e8c3d173

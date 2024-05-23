@@ -1,0 +1,10 @@
+description: Internal server error from server (500)
+properties:
+  message:
+    type: string
+    description: Error message
+    example: Internal server error
+  success:
+    type: boolean
+    description: Indicates whether the request was successful or not
+    example: false

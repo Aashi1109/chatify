@@ -1,10 +1,16 @@
-import { IGroups } from "@definitions/interfaces";
+import {IGroups} from "@definitions/interfaces";
 import ClientError from "@exceptions/clientError";
 import GroupService from "@services/GroupService";
 import UserGroupService from "@services/UserGroupsService";
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 
-const createGroup = async (req: Request, res: Response) => {
+/**
+ * Creates a new group.
+ * @param {Request} req - The request object containing the group details.
+ * @param {Response} res - The response object for sending responses.
+ * @returns {Promise<Response>} A promise that resolves to the response object with the created group data.
+ */
+const createGroup = async (req: Request, res: Response): Promise<Response> => {
   const { creatorId, description, image, messages, name } = req.body as IGroups;
 
   // create group
@@ -22,13 +28,19 @@ const createGroup = async (req: Request, res: Response) => {
     userId: creatorId,
   });
 
-  res.status(201).json({
+  return res.status(201).json({
     success: true,
     data: { group: newGroup, usergroup: newUserGroup },
   });
 };
 
-const updateGroup = async (req: Request, res: Response) => {
+/**
+ * Updates an existing group.
+ * @param {Request} req - The request object containing the group ID and update details.
+ * @param {Response} res - The response object for sending responses.
+ * @returns {Promise<Response>} A promise that resolves to the response object with the updated group data.
+ */
+const updateGroup = async (req: Request, res: Response): Promise<Response> => {
   const { groupId } = req.params;
 
   // find the group with matching groupId
@@ -39,55 +51,91 @@ const updateGroup = async (req: Request, res: Response) => {
 
   // update the group
   const updatedGroup = await GroupService.updateGroup(groupId, req.body);
-  res.status(200).json({
+
+  return res.status(200).json({
     success: true,
     data: updatedGroup,
   });
 };
 
-const deleteGroup = async (req: Request, res: Response) => {
+/**
+ * Deletes an existing group.
+ * @param {Request} req - The request object containing the group ID.
+ * @param {Response} res - The response object for sending responses.
+ * @returns {Promise<Response>} A promise that resolves to the response object with the deleted group data.
+ */
+const deleteGroup = async (req: Request, res: Response): Promise<Response> => {
   const { groupId } = req.params;
   const existingGroup = await GroupService.getGroupById(groupId);
   if (!existingGroup) {
     throw new ClientError(`Group ${groupId} does not exist`);
   }
   const deletedGroup = await GroupService.deleteGroup(groupId);
-  res.status(200).json({
+
+  return res.status(200).json({
     success: true,
     data: deletedGroup,
   });
 };
 
-const getGroupById = async (req: Request, res: Response) => {
+/**
+ * Retrieves a group by its ID.
+ * @param {Request} req - The request object containing the group ID.
+ * @param {Response} res - The response object for sending responses.
+ * @returns {Promise<Response>} A promise that resolves to the response object with the group data.
+ */
+
+const getGroupById = async (req: Request, res: Response): Promise<Response> => {
   const { groupId } = req.params;
   const existingGroup = await GroupService.getGroupById(groupId);
   if (!existingGroup) {
     throw new ClientError(`Group ${groupId} does not exist`);
   }
-  res.status(200).json({
+
+  return res.status(200).json({
     success: true,
     data: existingGroup,
   });
 };
 
-const getAllGroups = async (req: Request, res: Response) => {
+/**
+ * Retrieves all groups.
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object for sending responses.
+ * @returns {Promise<Response>} A promise that resolves to the response object with the list of all groups.
+ */
+const getAllGroups = async (req: Request, res: Response): Promise<Response> => {
   const groups = await UserGroupService.getAllUserGroups();
-  res.status(200).json({
+
+  return res.status(200).json({
     success: true,
     data: groups,
   });
 };
 
 /**
- * Retrieves a chat by its ID from the database.
- * @param {Request} req - The request object containing the room ID.
+ * Retrieves groups by query parameters.
+ * @param {Request} req - The request object containing query parameters.
  * @param {Response} res - The response object for sending responses.
- * @throws {NotFoundError} Throws a NotFoundError if the chat with the specified ID is not found.
+ * @returns {Promise<Response>} A promise that resolves to the response object with the list of groups matching the query.
+ * @throws {ClientError} Throws a ClientError if none of GroupId, CreatorId, or UserId are provided.
  */
-const getGroupsByQuery = async (req: Request, res: Response) => {
+const getGroupsByQuery = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   // options to configure query parameters
-  let { limit, populate, sortBy, sortOrder, groupId, userId, creatorId, not } =
-    req.query;
+  let {
+    limit,
+    populate,
+    sortBy,
+    sortOrder,
+    groupId,
+    userId,
+    creatorId,
+    not,
+    pageNumber,
+  } = req.query;
 
   if (!groupId && !userId && !creatorId) {
     throw new ClientError(
@@ -113,10 +161,11 @@ const getGroupsByQuery = async (req: Request, res: Response) => {
     sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
     !!populate,
     null,
+    +pageNumber,
     not as string,
   );
 
-  res.json({ success: true, data: userChats });
+  return res.json({ success: true, data: userChats });
 };
 
 export {

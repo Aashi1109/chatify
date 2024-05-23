@@ -1,0 +1,13 @@
+type: object
+description: >-
+  Unauthorized error when trying to access the server with invalid
+  authorization.
+properties:
+  message:
+    type: string
+    description: Error message indicating that the user is unauthorized.
+    example: Invalid credentials provided.
+  success:
+    type: boolean
+    description: The HTTP status code.Indicates whether the request was successful or not.
+    example: false

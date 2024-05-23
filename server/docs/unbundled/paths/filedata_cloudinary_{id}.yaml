@@ -1,0 +1,50 @@
+post:
+  tags:
+    - FileData
+  summary: Get Cloudinary file by public ID
+  security:
+    - bearerAuth: []
+  description: Retrieve Cloudinary file information by public ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: false
+    content:
+      application/json:
+        schema:
+          $ref: ..\components\schemas\CloudinaryOptions.yaml
+  responses:
+    '200':
+      description: Successfully retrieved Cloudinary file information
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\CloudinaryFile.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: File not found
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml

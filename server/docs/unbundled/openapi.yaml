@@ -1,0 +1,66 @@
+openapi: 3.0.3
+info:
+  title: Chatify API
+  description: Chatify API for managing chats and data for Chatify frontend
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api
+    description: Local Development server
+tags:
+  - name: User
+    description: Endpoints to manage users
+  - name: Auth
+    description: Endpoints to manage users authentication
+  - name: Chats
+    description: Endpoints to manage chats
+  - name: Groups
+    description: Endpoints to manage groups
+  - name: Messages
+    description: Endpoints to manage messages
+  - name: FileData
+    description: Endpoints to manage files data
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /users/{id}:
+    $ref: paths/users_{id}.yaml
+  /users:
+    $ref: paths/users.yaml
+  /users/query:
+    $ref: paths/users_query.yaml
+  /users/{id}/updatePasswordById:
+    $ref: paths/users_{id}_updatePasswordById.yaml
+  /login:
+    $ref: paths/login.yaml
+  /filedata/query:
+    $ref: paths/filedata_query.yaml
+  /filedata/upload:
+    $ref: paths/filedata_upload.yaml
+  /filedata/cloudinary/{id}:
+    $ref: paths/filedata_cloudinary_{id}.yaml
+  /filedata/{id}:
+    $ref: paths/filedata_{id}.yaml
+  /chats/query:
+    $ref: paths/chats_query.yaml
+  /chats/create:
+    $ref: paths/chats_create.yaml
+  /chats/{chatId}:
+    $ref: paths/chats_{chatId}.yaml
+  /chats/interaction/{userId}/{receiverId}:
+    $ref: paths/chats_interaction_{userId}_{receiverId}.yaml
+  /groups/query:
+    $ref: paths/groups_query.yaml
+  /groups/create:
+    $ref: paths/groups_create.yaml
+  /groups/{groupId}:
+    $ref: paths/groups_{groupId}.yaml
+  /messages/query:
+    $ref: paths/messages_query.yaml
+  /messages:
+    $ref: paths/messages.yaml
+  /messages/{messageId}:
+    $ref: paths/messages_{messageId}.yaml

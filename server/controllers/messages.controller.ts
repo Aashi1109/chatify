@@ -4,12 +4,16 @@ import MessageService from "@services/MessageService";
 import {Request, Response} from "express";
 
 /**
- * Create a new message for a particular room
+ * Create message
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
- * @throws {NotFoundError} Throws a NotFoundError if the room or user with the specified ID is not found.
+ * @throws {ClientError} Throws a ClientError if userId, chatId or content not provided.
+ * @return {Promise<Response>} Promise resolved when message is created
  */
-const createMessage = async (req: Request, res: Response) => {
+const createMessage = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { userId, chatId, content, sentAt, groupId, type } = req.body;
 
   if (!content) {
@@ -30,22 +34,26 @@ const createMessage = async (req: Request, res: Response) => {
     groupId,
     type,
   });
-  res.status(201).json({ data: createdMessage });
+  return res.status(201).json({ data: createdMessage, success: true });
 };
 
 /**
- * Get all the messages for a room
+ * Get all the messages
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
+ * @return {Promise<Response>} Promise resolved with all the messages
  */
-const getAllMessages = async (req: Request, res: Response) => {
+const getAllMessages = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const messages = await MessageService.getAll();
 
-  res.status(200).json({ data: messages });
+  return res.status(200).json({ data: messages, success: true });
 };
 
 /**
- * Updates message for a room
+ * Updates a particular message
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
  * @throws {NotFoundError} Throws a NotFoundError if the room or message with the specified ID is not found.
@@ -72,39 +80,51 @@ const updateMessageById = async (req: Request, res: Response) => {
     seenAt || previousMessage[0]?.seenAt,
     deliveredAt || previousMessage[0]?.deliveredAt,
   );
-  res.status(200).json({ data: updatedMessage });
+  return res.status(200).json({ data: updatedMessage, success: true });
 };
 
 /**
- * Delete message for a specific room
+ * Delete specific message
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
+ * @return {Promise<Response>} Promise resolved with deleted message data
  */
-const deleteMessageById = async (req: Request, res: Response) => {
+const deleteMessageById = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { messageId } = req.params;
 
   const deleteRoom = await MessageService.deleteById(messageId);
-  res.status(204).json({ data: deleteRoom });
+  return res.status(204).json({ data: deleteRoom, success: true });
 };
 
 /**
  * Get a message by its id
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
+ * @return {Promise<Response>} Promise resolved with message data for that id
  */
-const getMessageById = async (req: Request, res: Response) => {
+const getMessageById = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { messageId } = req.params;
   const existingMessage = await MessageService.getById(messageId);
 
-  res.status(200).json({ data: existingMessage });
+  return res.status(200).json({ data: existingMessage, success: true });
 };
 
 /**
- * Get a messages for a specific chat
+ * Get messages by query parameters
  * @param {Request} req Express Request object
  * @param {Response} res Express Response object
+ * @return {Promise<Response>} Promise resolved with messages data for passed query parameters
  */
-const getMessageByQuery = async (req: Request, res: Response) => {
+const getMessageByQuery = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const {
     chatId,
     userId,
@@ -148,7 +168,7 @@ const getMessageByQuery = async (req: Request, res: Response) => {
     not as string,
   );
 
-  res.status(200).json({ data: existingMessage });
+  return res.status(200).json({ data: existingMessage, success: true });
 };
 
 export {

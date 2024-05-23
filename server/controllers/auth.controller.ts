@@ -35,7 +35,10 @@ const login = async (req: Request, res: Response) => {
 
   res
     .status(200)
-    .json({ data: { token, userId: existingUser._id.toString() } });
+    .json({
+      data: { token, userId: existingUser._id.toString() },
+      success: true,
+    });
 };
 
 const logOut = (req: Request, res: Response, next: NextFunction) => {};

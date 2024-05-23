@@ -1,0 +1,61 @@
+get:
+  description: Get all the users in the db
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: ..\components\schemas\User.yaml
+      description: Users found with data returned
+    '500':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+      description: Something happened wrong at server
+  tags:
+    - User
+post:
+  description: Creates a new user with the specified data
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ..\components\schemas\UserCreate.yaml
+  responses:
+    '201':
+      description: User created successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\User.yaml
+    '400':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+      description: >-
+        Validation error because of either username already exists or
+        confirmPassword and password is different or invalid role provided
+    '500':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+      description: Something went wrong at server
+  tags:
+    - User

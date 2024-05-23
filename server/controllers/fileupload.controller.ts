@@ -37,7 +37,10 @@ const uploadFile = async (req: Request, res: Response) => {
  * @param {Response} res - The response object.
  * @returns {Promise<Response>} The response object with created file data.
  */
-const createFileData = async (req: Request, res: Response) => {
+const createFileData = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { format, name, size, path, fileMetadata, storageType, userId } =
     req.body as IFileData;
   const fileDataSave = await FileDataService.create({
@@ -50,7 +53,10 @@ const createFileData = async (req: Request, res: Response) => {
     userId,
   });
 
-  return res.status(201).type("json").send({ data: fileDataSave });
+  return res
+    .status(201)
+    .type("json")
+    .send({ data: fileDataSave, success: true });
 };
 
 /**
@@ -59,13 +65,16 @@ const createFileData = async (req: Request, res: Response) => {
  * @param {Response} res - The response object.
  * @returns {Promise<Response>} The response object with Cloudinary file information.
  */
-const getCloudinaryFileByPublicId = async (req: Request, res: Response) => {
+const getCloudinaryFileByPublicId = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { id } = req.params;
 
   const { options } = req.body;
   const cloudinaryService = new CloudinaryService(config.cloudinary.folderPath);
   const result = await cloudinaryService.getAssetInfo(id, options ?? {});
-  return res.status(200).type("json").send({ data: result });
+  return res.status(200).type("json").send({ data: result, success: true });
 };
 
 /**
@@ -74,10 +83,13 @@ const getCloudinaryFileByPublicId = async (req: Request, res: Response) => {
  * @param {Response} res - The response object.
  * @returns {Promise<Response>} The response object with the file data.
  */
-const getFileDataById = async (req: Request, res: Response) => {
+const getFileDataById = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { id } = req.params;
   const fileData = await FileDataService.getById(id);
-  return res.status(200).type("json").send({ data: fileData });
+  return res.status(200).type("json").send({ data: fileData, success: true });
 };
 
 /**
@@ -86,7 +98,10 @@ const getFileDataById = async (req: Request, res: Response) => {
  * @param {Response} res - The response object.
  * @returns {Promise<Response>} The response object with the deleted file data.
  */
-const deleteFileDataById = async (req: Request, res: Response) => {
+const deleteFileDataById = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { id } = req.params;
   const fileData = await FileDataService.deleteById(id);
   const isCloudinaryFile = fileData.storageType === EUploadTypes.Cloudinary;
@@ -104,7 +119,7 @@ const deleteFileDataById = async (req: Request, res: Response) => {
     const filePath = fileData.path;
   }
 
-  return res.status(200).type("json").send({ data: fileData });
+  return res.status(200).type("json").send({ data: fileData, success: true });
 };
 
 /**
@@ -113,10 +128,13 @@ const deleteFileDataById = async (req: Request, res: Response) => {
  * @param {Response} res - The response object.
  * @returns {Promise<Response>} The response object with all file data.
  */
-const getAllFileData = async (req: Request, res: Response) => {
+const getAllFileData = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const fileData = await FileDataService.getAll();
 
-  return res.status(200).type("json").send({ data: fileData });
+  return res.status(200).type("json").send({ data: fileData, success: true });
 };
 
 export {

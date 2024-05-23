@@ -1,0 +1,17 @@
+type: object
+properties:
+  content:
+    type: string
+    description: The updated content of the message.
+  seenAt:
+    type: string
+    format: date-time
+    description: The timestamp when the message was seen.
+  deliveredAt:
+    type: string
+    format: date-time
+    description: The timestamp when the message was delivered.
+example:
+  content: How are you doing?
+  seenAt: '2022-05-22T12:05:00Z'
+  deliveredAt: '2022-05-22T12:03:00Z'

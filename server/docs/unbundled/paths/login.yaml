@@ -1,0 +1,43 @@
+post:
+  tags:
+    - Auth
+  summary: User login
+  description: >-
+    Login a user with their username and password to receive an authentication
+    token.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ..\components\schemas\LoginRequest.yaml
+  responses:
+    '200':
+      description: Successful login
+      content:
+        application/json:
+          schema:
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\LoginResponse.yaml
+    '400':
+      description: Bad Request - Username and password are required.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: Not Found - User not found.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml

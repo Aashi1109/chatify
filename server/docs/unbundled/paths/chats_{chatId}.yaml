@@ -1,0 +1,156 @@
+delete:
+  summary: Delete a chat by its ID
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: chatId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Chat deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Chats deleted successfully
+              data:
+                $ref: ..\components\schemas\Chat.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: Chat not found
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Chats
+patch:
+  summary: Update a chat by its ID
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: chatId
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            messages:
+              type: array
+              items:
+                type: string
+            optype:
+              type: string
+              enum:
+                - add
+                - delete
+  responses:
+    '200':
+      description: Chat updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\Chat.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: Chat not found
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Chats
+get:
+  summary: Get a chat by its ID
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: chatId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Successfully retrieved chat data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: ..\components\schemas\Chat.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '404':
+      description: Chat not found
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Chats

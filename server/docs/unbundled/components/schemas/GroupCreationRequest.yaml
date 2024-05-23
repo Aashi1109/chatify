@@ -1,0 +1,43 @@
+type: object
+properties:
+  creatorId:
+    type: string
+    description: ID of the creator of the group
+  name:
+    type: string
+    description: Name of the group
+  description:
+    type: string
+    description: Description of the group
+  image:
+    type: object
+    description: Image data associated with the group
+    properties:
+      url:
+        type: string
+        description: URL of the image
+        example: https://res.cloudinary.com/example/image/upload/v161
+      filename:
+        type: string
+        description: Original filename of the image
+        example: group-image
+      fileDataId:
+        type: string
+        description: File data id for the image file, Mongoose ObjectId
+        example: 66334b36354c1f9b14b8a54f
+      publicId:
+        type: string
+        description: Cloudinary id of file if it is uploaded there
+        example: Cloudinary/group-image-123456
+    required:
+      - url
+      - filename
+      - fileDataId
+  messages:
+    type: array
+    items:
+      type: string
+    description: Array of messages in the group
+required:
+  - creatorId
+  - name

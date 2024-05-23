@@ -1,0 +1,154 @@
+get:
+  summary: Get user
+  security:
+    - bearerAuth: []
+  description: Get a user with the specified id
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\User.yaml
+      description: User found with particular id and data returned
+    '400':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+      description: Invalid id provided, not of mongoose ObjectID
+    '401':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+      description: Unauthorized - Invalid credentials provided.
+    '404':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+      description: User not found with particular id
+    '500':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+      description: Something happened wrong at server
+  tags:
+    - User
+patch:
+  security:
+    - bearerAuth: []
+  description: Update a user with provided id
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ..\components\schemas\UserUpdate.yaml
+    required: true
+  responses:
+    '200':
+      description: User updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\User.yaml
+    '400':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+      description: User with username already exists
+    '401':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+      description: Unauthorized - Invalid credentials provided.
+    '404':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+      description: User not found with particular id
+    '500':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+      description: Something happened wrong at server
+  tags:
+    - User
+delete:
+  security:
+    - bearerAuth: []
+  description: Deletes a user with provided id
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: User deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\User.yaml
+    '400':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+      description: User with username already exists or invalid id provided
+    '401':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+      description: Unauthorized - Invalid credentials provided.
+    '404':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\NotFoundError.yaml
+      description: User not found with particular id
+    '500':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+      description: Something happened wrong at server
+  tags:
+    - User

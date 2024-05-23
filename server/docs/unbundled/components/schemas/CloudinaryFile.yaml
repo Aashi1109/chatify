@@ -1,0 +1,8 @@
+type: object
+properties:
+  data:
+    type: object
+    description: Cloudinary file information
+    example:
+      public_id: abc123
+      url: https://res.cloudinary.com/example/image/upload/v1619701234/abc123.jpg

@@ -2,10 +2,10 @@ import * as cors from "cors";
 import * as express from "express";
 import { createServer } from "http";
 import * as morgan from "morgan";
-import * as path from "path";
 import { Server } from "socket.io";
 import * as swaggerUI from "swagger-ui-express";
-import * as swaggerJsdoc from "swagger-jsdoc";
+import * as Yaml from "yaml";
+import * as fs from "fs";
 
 import config from "@config";
 import authRouter from "@routes/auth.routes";
@@ -24,7 +24,6 @@ import {
 } from "@definitions/enums";
 import checkJwt from "@middlewares/checkJwt";
 import { errorHandler } from "@middlewares/errorHandler";
-import options from "@swagger/options";
 
 const app = express();
 const server = createServer(app);
@@ -32,8 +31,6 @@ const io = new Server(server);
 
 // cors setup to allow requests from the frontend only for now
 app.use(cors(config.corsOptions));
-
-app.use(express.static(path.join(__dirname, "public")));
 
 // parse requests of content-type - application/json
 app.use(express.json({ limit: config.express.fileSizeLimit }));
@@ -57,8 +54,14 @@ app.use(config.apiPrefixes.groups, [checkJwt], groupsRouter);
 // app.use("/api/chat");
 
 // swagger docs
-const specs = swaggerJsdoc(options);
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+// load yaml file
+const openapiYamlFile = fs.readFileSync(
+  __dirname + "/docs/openapi.yaml",
+  "utf8",
+);
+const swaggerDocument = Yaml.parse(openapiYamlFile);
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 // when a user connects
 io.on(ESocketConnectionEvents.CONNECT, (socket) => {
@@ -115,6 +118,10 @@ app.get("/", (req, res) => {
     description: "Chatify backend service",
     version: "1.0.0",
   });
+});
+
+app.use("*", (req, res) => {
+  res.status(404).json({ message: "Requested url not found Not found" });
 });
 
 // adding errorHandler as last middleware to handle all error

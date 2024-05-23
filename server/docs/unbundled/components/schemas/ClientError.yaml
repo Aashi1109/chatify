@@ -1,0 +1,10 @@
+description: Validation error from server (400)
+properties:
+  message:
+    type: string
+    description: Error message
+    example: Fields missing, Invalid ID, invalid access token
+  success:
+    type: boolean
+    description: Indicates whether the request was successful or not
+    example: false

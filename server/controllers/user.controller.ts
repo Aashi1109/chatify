@@ -33,7 +33,7 @@ const getUserById = async (
   const safeCopyUser = generateUserSafeCopy(userData);
 
   // Send response with user data
-  return res.status(200).json({ data: safeCopyUser });
+  return res.status(200).json({ data: safeCopyUser, success: true });
 };
 
 /**
@@ -70,7 +70,7 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
 
   const safeCopyUser = generateUserSafeCopy(createdUser);
 
-  return res.status(201).json({ data: safeCopyUser });
+  return res.status(201).json({ data: safeCopyUser, success: true });
 };
 
 /**
@@ -140,6 +140,7 @@ const deleteUserById = async (
     data: deleteResp
       ? generateUserSafeCopy(deleteResp?.toObject())
       : deleteResp,
+    success: true,
   });
 };
 
@@ -185,7 +186,7 @@ const updateUserById = async (req: ICustomRequest, res: Response) => {
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
 
-  return res.status(200).json({ data: safeCopyUser });
+  return res.status(200).json({ data: safeCopyUser, success: true });
 };
 
 /**
@@ -238,7 +239,7 @@ const updateUserPasswordById = async (
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
 
-  return res.status(200).json({ data: safeCopyUser });
+  return res.status(200).json({ data: safeCopyUser, success: true });
 };
 
 /**
@@ -250,7 +251,7 @@ const updateUserPasswordById = async (
 const getAllUsers = async (_: Request, res: Response): Promise<Response> => {
   const data = await UserService.getAllUsers();
   const safeCopyUsers = data.map((user) => generateUserSafeCopy(user));
-  return res.status(200).json({ data: safeCopyUsers });
+  return res.status(200).json({ data: safeCopyUsers, success: true });
 };
 
 export {

@@ -1,0 +1,36 @@
+post:
+  tags:
+    - FileData
+  summary: Upload a file
+  description: Upload a file with its metadata
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ..\components\schemas\UploadFile.yaml
+  responses:
+    '201':
+      description: File uploaded successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\FileData.yaml
+    '400':
+      description: Error uploading file
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '500':
+      description: Something went wrong at the server
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml

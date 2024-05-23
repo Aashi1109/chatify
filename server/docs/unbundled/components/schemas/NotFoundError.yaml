@@ -1,0 +1,10 @@
+description: Resource error from server (404)
+properties:
+  message:
+    type: string
+    description: Error message
+    example: Document not found or User not found
+  success:
+    type: boolean
+    description: Indicates whether the request was successful or not
+    example: false

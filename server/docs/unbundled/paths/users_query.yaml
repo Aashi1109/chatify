@@ -1,0 +1,47 @@
+get:
+  parameters:
+    - $ref: ..\components\parameters\LimitQueryParam.yaml
+    - $ref: ..\components\parameters\PageNumberQueryParam.yaml
+    - $ref: ..\components\parameters\DoPopulateQueryParam.yaml
+    - $ref: ..\components\parameters\SortByQueryParam.yaml
+    - $ref: ..\components\parameters\SortOrderQueryParam.yaml
+    - $ref: ..\components\parameters\NotQueryParam.yaml
+    - name: userId
+      in: query
+      schema:
+        type: string
+      description: ID of the user
+    - name: username
+      in: query
+      schema:
+        type: string
+      description: Username of the user
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: ..\components\schemas\User.yaml
+      description: Successful request and response is returned
+    '400':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+      description: Validation error message
+    '500':
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+      description: Internal Server Error
+  tags:
+    - User

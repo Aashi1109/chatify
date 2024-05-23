@@ -1,0 +1,5 @@
+name: populate
+in: query
+schema:
+  type: boolean
+description: Populate reference fields

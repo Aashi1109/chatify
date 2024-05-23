@@ -1,0 +1,38 @@
+type: object
+properties:
+  id:
+    type: string
+    description: The unique identifier of the file data
+    example: 60c72b2f9b1e8e001c8e4b77
+  path:
+    type: string
+    description: The file path or URL
+    example: https://example.com/path/to/file
+  name:
+    type: string
+    description: The name of the file
+    example: example.jpg
+  size:
+    type: integer
+    description: The size of the file in bytes
+    example: 1024
+  format:
+    type: string
+    description: The format of the file
+    example: jpg
+  fileMetadata:
+    type: object
+    description: Metadata related to the file
+    properties:
+      publicId:
+        type: string
+        description: The public ID of the file
+        example: abc123
+  storageType:
+    type: string
+    description: The type of storage (e.g., Cloudinary, Local)
+    example: Cloudinary
+  userId:
+    type: string
+    description: The ID of the user who uploaded the file
+    example: 60c72b2f9b1e8e001c8e4b78

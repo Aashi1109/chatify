@@ -1,0 +1,120 @@
+get:
+  summary: Get group by ID
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: groupId
+      required: true
+      schema:
+        type: string
+        description: ID of the group to retrieve
+  responses:
+    '200':
+      description: Successfully retrieved group
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\Group.yaml
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Groups
+patch:
+  summary: Update group by ID
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: groupId
+      required: true
+      schema:
+        type: string
+        description: ID of the group to update
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ..\components\schemas\GroupUpdateRequest.yaml
+  responses:
+    '200':
+      description: Group updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\Group.yaml
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Groups
+delete:
+  summary: Delete group by ID
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: groupId
+      required: true
+      schema:
+        type: string
+        description: ID of the group to delete
+  responses:
+    '200':
+      description: Group deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: ..\components\schemas\Group.yaml
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Groups

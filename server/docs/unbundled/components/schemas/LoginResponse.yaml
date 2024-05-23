@@ -1,0 +1,13 @@
+type: object
+properties:
+  data:
+    type: object
+    properties:
+      token:
+        type: string
+        description: The JWT token for authentication.
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      userId:
+        type: string
+        description: The ID of the authenticated user.
+        example: 60c72b2f9b1e8e001c8e4b77

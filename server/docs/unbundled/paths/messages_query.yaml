@@ -1,0 +1,60 @@
+get:
+  summary: Get messages by query
+  security:
+    - bearerAuth: []
+  parameters:
+    - $ref: ..\components\parameters\LimitQueryParam.yaml
+    - $ref: ..\components\parameters\PageNumberQueryParam.yaml
+    - $ref: ..\components\parameters\DoPopulateQueryParam.yaml
+    - $ref: ..\components\parameters\SortByQueryParam.yaml
+    - $ref: ..\components\parameters\SortOrderQueryParam.yaml
+    - $ref: ..\components\parameters\NotQueryParam.yaml
+    - in: query
+      name: chatId
+      schema:
+        type: string
+      description: ID of the chat associated with the messages
+    - in: query
+      name: userId
+      schema:
+        type: string
+      description: ID of the user associated with the messages
+    - in: query
+      name: groupId
+      schema:
+        type: string
+      description: ID of the group associated with the messages
+    - in: query
+      name: messageId
+      schema:
+        type: string
+      description: ID of the message
+  responses:
+    '200':
+      description: Successfully retrieved messages
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: ..\components\schemas\Message.yaml
+    '401':
+      description: Unauthorized - Invalid credentials provided
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\UnauthorizedError.yaml
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Messages

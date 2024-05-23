@@ -1,0 +1,28 @@
+type: object
+properties:
+  _id:
+    type: string
+    description: Unique identifier for the group
+    example: 60a7c7f1b5b8c50015d7dab5
+  creatorId:
+    type: string
+    description: ID of the creator of the group
+    example: 609f27c154a7e818e8c3d173
+  name:
+    type: string
+    description: Name of the group
+    example: Group Name
+  description:
+    type: string
+    description: Description of the group
+    example: Group Description
+  image:
+    type: string
+    description: URL of the group image
+    example: https://example.com/group-image.jpg
+  messages:
+    type: array
+    description: Array of messages in the group
+    items:
+      type: string
+      example: Message content

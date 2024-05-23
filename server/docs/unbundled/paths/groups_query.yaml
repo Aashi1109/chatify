@@ -1,0 +1,61 @@
+get:
+  summary: Get groups by query parameters
+  security:
+    - bearerAuth: []
+  parameters:
+    - $ref: ..\components\parameters\LimitQueryParam.yaml
+    - $ref: ..\components\parameters\PageNumberQueryParam.yaml
+    - $ref: ..\components\parameters\DoPopulateQueryParam.yaml
+    - $ref: ..\components\parameters\SortByQueryParam.yaml
+    - $ref: ..\components\parameters\SortOrderQueryParam.yaml
+    - $ref: ..\components\parameters\NotQueryParam.yaml
+    - in: query
+      name: groupId
+      schema:
+        type: string
+      description: ID of the group
+    - in: query
+      name: userId
+      schema:
+        type: string
+      description: ID of the user
+    - in: query
+      name: creatorId
+      schema:
+        type: string
+      description: ID of the creator
+  responses:
+    '200':
+      description: Successfully retrieved groups
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: ..\components\schemas\Group.yaml
+    '400':
+      description: Client validation error missing on invalid fields provided
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '401':
+      description: Unauthorized access error
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ClientError.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ..\components\schemas\ServerError.yaml
+  tags:
+    - Groups

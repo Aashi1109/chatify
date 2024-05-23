@@ -3,6 +3,10 @@ info:
   title: Chatify API
   description: Chatify API for managing chats and data for Chatify frontend
   version: 1.0.0
+  contact:
+    email: aashishpal50@gmail.com
+    name: Ashish Pal
+    url: https://portfolio1109.netlify.app
 servers:
   - url: http://localhost:5000/api
     description: Local Development server
@@ -19,6 +23,7 @@ tags:
     description: Endpoints to manage messages
   - name: FileData
     description: Endpoints to manage files data
+
 components:
   schemas:
     # Error schemas
@@ -459,13 +464,37 @@ components:
           type: string
           description: Description of the group
         image:
-          type: string
-          description: URL of the group image
+          type: object
+          description: Image data associated with the group
+          properties:
+            url:
+              type: string
+              description: URL of the image
+              example: https://res.cloudinary.com/example/image/upload/v161
+            filename:
+              type: string
+              description: Original filename of the image
+              example: group-image
+            fileDataId:
+              type: string
+              description: File data id for the image file, Mongoose ObjectId
+              example: 66334b36354c1f9b14b8a54f
+            publicId:
+              type: string
+              description: Cloudinary id of file if it is uploaded there
+              example: Cloudinary/group-image-123456
+          required:
+            - url
+            - filename
+            - fileDataId
         messages:
           type: array
           items:
             type: string
           description: Array of messages in the group
+      required:
+        - creatorId
+        - name
     GroupUpdateRequest:
       type: object
       properties:
@@ -664,6 +693,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/User'
           description: User found with particular id and data returned
@@ -717,6 +749,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/User'
         '400':
@@ -763,6 +798,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/User'
         '400':
@@ -801,6 +839,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -829,6 +870,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/User'
         '400':
@@ -871,6 +915,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -910,9 +957,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
           description: Password updated successfully
         '400':
           content:
@@ -953,8 +1004,14 @@ paths:
           description: Successful login
           content:
             application/json:
+
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Bad Request - Username and password are required.
           content:
@@ -991,6 +1048,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/FileDataArray'
         '401':
@@ -1025,6 +1085,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/FileData'
         '400':
@@ -1067,6 +1130,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/CloudinaryFile'
         '401':
@@ -1109,6 +1175,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/FileData'
         '401':
@@ -1150,6 +1219,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/FileData'
         '401':
@@ -1207,6 +1279,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -1259,6 +1334,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/Chat'
         '400':
@@ -1294,6 +1372,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   message:
                     type: string
                     example: Chats deleted successfully
@@ -1353,6 +1434,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/Chat'
         '400':
@@ -1399,6 +1483,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -1447,6 +1534,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -1735,6 +1825,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -1766,6 +1859,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     type: array
                     items:
@@ -1802,6 +1898,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/Message'
         '400':
@@ -1843,6 +1942,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/Message'
         '401':
@@ -1889,6 +1991,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   data:
                     $ref: '#/components/schemas/Message'
         '400':
@@ -1950,3 +2055,6 @@ paths:
                 $ref: '#/components/schemas/ServerError'
       tags:
         - Messages
+
+
+
