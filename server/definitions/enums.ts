@@ -11,23 +11,25 @@ enum ESocketConnectionEvents {
 
 enum ESocketAuthEvents {
   // Authentication events
-  LOGIN = "login",
-  LOGOUT = "logout",
+  LOGIN = "auth:login",
+  LOGOUT = "auth:logout",
 }
 
 enum ESocketMessageEvents {
   // Chat events
-  MESSAGE = "message",
-  TYPING = "typing",
-  STOP_TYPING = "stopTyping",
-  NEW_MESSAGE = "newMessage",
-  MESSAGE_READ = "messageRead",
+  TYPING = "message:typing",
+  NEW_MESSAGE = "message:create",
+  MESSAGE_UPDATE = "message:update",
+  MESSAGE_DELETE = "message:delete",
 }
 
 enum ESocketGroupEvents {
   // User events
-  GROUP_JOINED = "groupJoined",
-  GROUP_LEFT = "groupLeft",
+  GROUP_JOINED = "group:join",
+  GROUP_LEFT = "group:left",
+  GROUP_NEW = "group:new",
+  GROUP_UPDATE = "group:update",
+  GROUP_DELETE = "group:delete",
 }
 enum ESocketErrorEvents {
   // Error event
@@ -35,10 +37,8 @@ enum ESocketErrorEvents {
 }
 
 enum ESocketUserEvents {
-  ONLINE = "online",
-  OFFLINE = "offline",
-  DISCONNECTED = "user_disconnected",
-  CONNECTED = "user_connected",
+  ONLINE = "user:online",
+  OFFLINE = "user:offline",
 }
 
 enum EMessageType {

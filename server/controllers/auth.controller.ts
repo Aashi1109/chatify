@@ -4,7 +4,7 @@ import {NotFoundError} from "@exceptions";
 import ClientError from "@exceptions/clientError";
 import UnauthorizedError from "@exceptions/unauthorizedError";
 import UserService from "@services/UserService";
-import {generateAccessToken, validatePassword} from "@utils/helpers";
+import {generateAccessToken, validatePassword} from "@lib/helpers";
 
 /**
  * Logins the user by creating a new access token
@@ -33,12 +33,10 @@ const login = async (req: Request, res: Response) => {
 
   const token = await generateAccessToken(existingUser);
 
-  res
-    .status(200)
-    .json({
-      data: { token, userId: existingUser._id.toString() },
-      success: true,
-    });
+  res.status(200).json({
+    data: { token, userId: existingUser._id.toString() },
+    success: true,
+  });
 };
 
 const logOut = (req: Request, res: Response, next: NextFunction) => {};

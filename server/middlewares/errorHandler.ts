@@ -1,4 +1,5 @@
 import CustomError, { IResponseError } from "@exceptions/customError";
+import logger from "@logger";
 import { NextFunction, Request, Response } from "express";
 
 /**
@@ -15,7 +16,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error(err);
+  logger.error(err);
 
   // Check if the error is an instance of CustomError
   if (!(err instanceof CustomError)) {

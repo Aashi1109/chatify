@@ -2,7 +2,7 @@ import { EUserRoles } from "@definitions/enums";
 import UserService from "@services/UserService";
 import { NextFunction, Request, Response } from "express";
 
-import { parseUserRole } from "@utils/helpers";
+import { parseUserRole } from "@lib/helpers";
 import { ICustomRequest } from "@definitions/interfaces";
 
 const checkRoles =

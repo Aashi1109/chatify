@@ -2,7 +2,7 @@ import UserHomePage from "@/components/UserHomePage";
 
 const Page = () => {
   return (
-    <div className="grid-layout gap-8 h-full">
+    <div className="flex flex-1 flex-col gap-8 h-full p-8">
       <UserHomePage />
     </div>
   );

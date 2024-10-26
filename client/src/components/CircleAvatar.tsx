@@ -1,18 +1,26 @@
-const CircleAvatar: React.FC<{
+import { FC } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const CircleAvatar: FC<{
   size: number;
   imageUrl: string;
   alt: string | null;
 }> = ({ size, imageUrl, alt }) => {
+  const fallbackText = alt
+    ?.split(" ")
+    .map((tx) => (tx.length ? tx[0] : "").toUpperCase())
+    .join("");
+
   return (
-    <div className="flex-1">
-      <img
+    <Avatar>
+      <AvatarImage
         height={size}
         width={size}
         alt={alt ?? "Circle Avatar"}
         src={imageUrl}
-        className="rounded-full border-[2px] border-white object-contain"
       />
-    </div>
+      <AvatarFallback>{fallbackText ?? ""}</AvatarFallback>
+    </Avatar>
   );
 };
 

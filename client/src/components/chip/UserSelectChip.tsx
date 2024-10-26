@@ -1,6 +1,7 @@
 import { ChipItemI, IUser } from "@/definitions/interfaces";
 import React from "react";
-import Button from "../Button";
+import { Button } from "@/components/ui/button.tsx";
+import { Plus } from "lucide-react";
 
 const UserSelectChip: React.FC<{
   user: IUser;
@@ -28,18 +29,15 @@ const UserSelectChip: React.FC<{
           <p>@{user.username}</p>
         </div>
 
-        <div>
-          <Button
-            callback={() =>
-              handleChipItemClick({ id: user._id as string, text: user.name })
-            }
-            iconSize={15}
-            iconUrl="/assets/plus.png"
-            applyInvertFilter={true}
-            classes="py-1 px-2"
-            text="Add"
-          />
-        </div>
+        <Button
+          onClick={() =>
+            handleChipItemClick({ id: user._id as string, text: user.name })
+          }
+          className="py-1 px-2 text-center"
+        >
+          <Plus className={"w-4 h-4"} />
+          <span>Add</span>
+        </Button>
       </div>
     </div>
   );

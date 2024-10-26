@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "server/"
+  ],
+  "ext": "ts, js, yaml",
+  "delay": 500
+}

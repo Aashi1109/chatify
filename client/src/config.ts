@@ -5,7 +5,7 @@ import { ChatInfoItemI, ChipItemI } from "./definitions/interfaces";
 // dotenv.config();
 // { path: __dirname + "../.env.local" }
 const config = {
-  apiURL: import.meta.env.VITE_CHATIFY_API_URL || "",
+  apiURL: "/api/" || "",
 };
 
 export default config;

@@ -1,6 +1,6 @@
 import { IChats } from "@definitions/interfaces";
 import { Chats } from "@models";
-import { getByFilter } from "@utils/helpers";
+import { getByFilter } from "@lib/helpers";
 import { FlattenMaps, Require_id } from "mongoose";
 
 class ChatsService {

@@ -56,12 +56,13 @@ export interface IUserChat {
 }
 
 export interface IMessage {
+  id?: string;
   userId: string;
   chatId: string;
   content: string;
-  sentAt: Date;
-  deliveredAt?: Date;
-  seenAt?: Date;
+  sentAt: string;
+  deliveredAt?: string;
+  seenAt?: string;
   groupId?: string;
   type: EMessageType;
   isEdited?: boolean;

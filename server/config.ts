@@ -33,6 +33,11 @@ const config = {
     origin: ["http://localhost:3000", "https://editor.swagger.io"],
     optionsSuccessStatus: 200,
   },
+  log: {
+    filename: "chatify_server.log",
+    level: "debug", // provide in lowercase. Possible values 'info', 'debug', 'warning', 'error'
+    path: "./logs/",
+  },
 };
 
 export default config;

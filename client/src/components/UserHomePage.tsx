@@ -1,71 +1,79 @@
 import { getUserChats, getUserData } from "@/actions/form";
-import { IUser, IUserChat } from "@/definitions/interfaces";
+import { setChats, setUserData } from "@/features/chatSlice";
+import { useAppDispatch, useAppSelector } from "@/hook";
+import { getToken, getUserId } from "@/lib/helpers/generalHelper";
 import { socket } from "@/socket";
-import { getToken } from "@/utils/generalHelper";
 import { useEffect, useState } from "react";
 import ChatWindow from "./ChatWindow";
 import InfoWindow from "./InfoWindow";
 import TopBar from "./TopBar";
+import { showToaster } from "./toasts/Toaster";
+import { EToastType } from "@/definitions/enums";
 
 function UserHomePage() {
-  const [userData, setUserData] = useState<IUser | null>(null);
-  const [userChats, setUserChats] = useState<IUserChat[] | null>(null);
-
   // const [isConnected, setIsConnected] = useState(false);
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [transport, setTransport] = useState("N/A");
 
-  const userId = null;
-  const interactionId = null;
+  const userId = getUserId();
 
-  // useEffect(() => {
-  //   // if (socket.connected) {
-  //   //   onConnect();
-  //   // }
+  const dispatcher = useAppDispatch();
+  const userData = useAppSelector((state) => state.chat.currentUserData);
 
-  //   function onConnect() {
-  //     setIsConnected(true);
-  //     setTransport(socket.io.engine.transport.name);
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
+    }
 
-  //     socket.io.engine.on("upgrade", (transport) => {
-  //       setTransport(transport.name);
-  //     });
-  //   }
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket.io.engine.transport.name);
 
-  //   function onDisconnect() {
-  //     setIsConnected(false);
-  //     setTransport("N/A");
-  //   }
+      socket.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+    }
 
-  //   socket.on("connect", onConnect);
-  //   socket.on("disconnect", onDisconnect);
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+    }
 
-  //   return () => {
-  //     socket.off("connect", onConnect);
-  //     socket.off("disconnect", onDisconnect);
-  //   };
-  // }, []);
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("connect_error", (err) => {
+      showToaster(EToastType.Error, err.message || "Something went wrong");
+    });
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
 
   useEffect(() => {
     const token = getToken();
+
     if (token) {
-      getUserData(userId!).then((data) => setUserData(data));
+      getUserData(token, userId!).then((data) => {
+        dispatcher(setUserData(data));
+      });
       getUserChats(token, userId!).then((chats) => {
-        console.log(chats);
-        setUserChats(chats);
+        dispatcher(setChats(chats));
       });
     }
-  }, [userId, interactionId]);
+  }, [dispatcher, userId]);
   // const userData = await getUserData(userId!, token);
 
   if (!userData) return null;
 
   return (
     <>
-      {/* <Sidebar userData={userData} /> */}
-      <TopBar userData={userData} />
-      <InfoWindow userChats={userChats} />
-      <ChatWindow />
+      <TopBar />
+      <div className="flex gap-8 flex-1">
+        <InfoWindow />
+        <ChatWindow />
+      </div>
     </>
   );
 }

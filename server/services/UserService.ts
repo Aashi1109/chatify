@@ -2,7 +2,7 @@ import NotFoundError from "@exceptions/notFoundError";
 import { User } from "@models";
 import { FlattenMaps, Require_id } from "mongoose";
 import { IUser } from "@definitions/interfaces";
-import { getByFilter } from "@utils/helpers";
+import { getByFilter } from "@lib/helpers";
 
 class UserService {
   /**
@@ -99,42 +99,18 @@ class UserService {
   /**
    * Updates a user in the database with the provided information.
    * @param {string} id - The ID of the user to update.
-   * @param {string} username - The updated username of the user.
-   * @param {string} name - The updated name of the user.
-   * @param {object} profileImage - The updated profile image URL of the user.
-   * @param {string} about - The updated about information of the user.
-   * @param {string} role - The updated role information of the user.
-   * @param {string} password - The updated password information of the user.
-   * @param {string} salt - The updated salt information of the user.
-   * @param {boolean} isActive - The updated online status of the user.
-   * @param {Date} lastSeenAt - The updated last seen time of the user.
+   * @param {IUser} updateData - The data to update the user with.
    * @returns {Promise<InstanceType<typeof User>>} A Promise that resolves with the updated user.
    * @throws {Error} Throws an error if the update fails for any other reason.
    */
   static async updateUser(
     id: string,
-    username: string,
-    name: string,
-    profileImage: object,
-    about: string,
-    role: string,
-    password: string,
-    salt: string,
-    isActive: boolean,
-    lastSeenAt: Date,
+    updateData: Partial<IUser>,
   ): Promise<InstanceType<typeof User>> {
     return (await User.findByIdAndUpdate(
       id,
       {
-        username,
-        name,
-        profileImage,
-        about,
-        role,
-        password,
-        salt,
-        lastSeenAt,
-        isActive,
+        ...updateData,
       },
       { new: true },
     ).lean()) as InstanceType<typeof User>;

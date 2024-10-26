@@ -1,16 +1,19 @@
 import { getAllUser } from "@/actions/form";
 import { IUser } from "@/definitions/interfaces";
-import { getToken, updateQueryString } from "@/utils/generalHelper";
+import { getToken, getUserId } from "@/lib/helpers/generalHelper";
 import { useEffect, useState } from "react";
 import UserChip from "../chip/UserChip";
+import { toggleModal } from "@/features/uiSlice.ts";
+import { useAppDispatch } from "@/hook";
 
-const NewChat: React.FC<{ toogleModal: () => void }> = ({ toogleModal }) => {
+const NewChatForm = () => {
   const [users, setUsers] = useState<IUser[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<typeof users>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const userId = null;
-  const currentTab = null;
+  const userId = getUserId();
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const token = getToken();
@@ -41,8 +44,8 @@ const NewChat: React.FC<{ toogleModal: () => void }> = ({ toogleModal }) => {
       users.filter(
         (user) =>
           user.name.toLowerCase().includes(enteredValue.toLowerCase()) ||
-          user.username.toLowerCase().includes(enteredValue.toLowerCase())
-      )
+          user.username.toLowerCase().includes(enteredValue.toLowerCase()),
+      ),
     );
   };
 
@@ -54,8 +57,7 @@ const NewChat: React.FC<{ toogleModal: () => void }> = ({ toogleModal }) => {
           <p
             className="text-3xl cursor-pointer"
             onClick={() => {
-              toogleModal();
-              updateQueryString(searchParams, "interactionId", "", "remove");
+              dispatch(toggleModal());
             }}
           >
             &times;
@@ -74,7 +76,7 @@ const NewChat: React.FC<{ toogleModal: () => void }> = ({ toogleModal }) => {
         {/* render all the available users */}
         <div className="max-h-96 min-h-72 overflow-auto flex flex-col gap-2">
           {filteredUsers.map((user) => (
-            <UserChip user={user} key={user._id} toogleModal={toogleModal} />
+            <UserChip user={user} key={user._id} />
           ))}
         </div>
       </div>
@@ -82,4 +84,4 @@ const NewChat: React.FC<{ toogleModal: () => void }> = ({ toogleModal }) => {
   );
 };
 
-export default NewChat;
+export default NewChatForm;

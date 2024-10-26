@@ -59,12 +59,7 @@ const Toaster = ({
   );
 };
 
-export const showToaster = ({
-  toastType,
-  toastText,
-}: {
-  toastType: EToastType;
-  toastText: string;
-}) => toast(<Toaster toastText={toastText} toastType={toastType} />, {});
+export const showToaster = (toastType: EToastType, toastText: string) =>
+  toast(<Toaster toastText={toastText} toastType={toastType} />, {});
 
 export default Toaster;

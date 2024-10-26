@@ -1032,13 +1032,20 @@ paths:
                 $ref: '#/components/schemas/NotFoundError'
 
   # filedata routes
-  /filedata/query:
+  /files/query:
     get:
       tags:
         - FileData
       summary: Get all file data
       security:
         - bearerAuth: [ ]
+      parameters:
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/PageNumberQueryParam"
+        - $ref: "#/components/parameters/DoPopulateQueryParam"
+        - $ref: "#/components/parameters/SortByQueryParam"
+        - $ref: "#/components/parameters/SortOrderQueryParam"
+        - $ref: "#/components/parameters/NotQueryParam"
       description: Retrieve all file data
       responses:
         '200':
@@ -1065,7 +1072,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerError'
-  /filedata/upload:
+  /files/upload:
     post:
       tags:
         - FileData
@@ -1102,7 +1109,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerError'
-  /filedata/cloudinary/{id}:
+  /files/cloudinary/{id}:
     post:
       tags:
         - FileData
@@ -1153,7 +1160,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerError'
-  /filedata/{id}:
+  /files/{id}:
     get:
       tags:
         - FileData

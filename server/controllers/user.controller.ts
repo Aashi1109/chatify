@@ -3,7 +3,7 @@ import {Request, Response} from "express";
 import {EUserRoles} from "@definitions/enums";
 import ClientError from "@exceptions/clientError";
 import UserService from "@services/UserService";
-import {generateUserSafeCopy, hashPassword, validateJwtTokenId, validatePassword,} from "@utils/helpers";
+import {generateUserSafeCopy, hashPassword, validateJwtTokenId, validatePassword,} from "@lib/helpers";
 import {NotFoundError} from "@exceptions";
 import {ICustomRequest} from "@definitions/interfaces";
 
@@ -171,18 +171,15 @@ const updateUserById = async (req: ICustomRequest, res: Response) => {
     }
   }
 
-  const updatedUser = await UserService.updateUser(
-    id,
+  const updatedUser = await UserService.updateUser(id, {
     username,
-    name || existingUser.name,
-    profileImage || existingUser.profileImage,
-    about || existingUser.about,
-    role || existingUser.role,
-    existingUser.password,
-    existingUser.salt,
-    isActive ?? existingUser.isActive,
-    lastSeenAt ?? existingUser.lastSeenAt,
-  );
+    name: name || existingUser.name,
+    profileImage: profileImage || existingUser.profileImage,
+    about: about || existingUser.about,
+    role: role || existingUser.role,
+    isActive: isActive ?? existingUser.isActive,
+    lastSeenAt: lastSeenAt ?? existingUser.lastSeenAt,
+  });
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
 
@@ -224,18 +221,10 @@ const updateUserPasswordById = async (
 
   const { salt, hashedPassword } = await hashPassword(newPassword);
 
-  const updatedUser = await UserService.updateUser(
-    id,
-    existingUser.username,
-    existingUser.name,
-    existingUser.profileImage,
-    existingUser.about,
-    existingUser.role,
-    hashedPassword,
+  const updatedUser = await UserService.updateUser(id, {
+    password: hashedPassword,
     salt,
-    existingUser.isActive,
-    existingUser.lastSeenAt,
-  );
+  });
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);
 

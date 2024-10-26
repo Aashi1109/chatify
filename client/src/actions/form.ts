@@ -1,12 +1,12 @@
-// "use server";
+"use server";
 
 import config from "@/config";
 import { IFileInterface, IGroups, IUser } from "@/definitions/interfaces";
-import { createUrlWithQueryParams } from "@/utils/generalHelper";
+import { createUrlWithQueryParams } from "@/lib/helpers/generalHelper";
 import axios from "axios";
 
 const checkUsernameExists = async (username: string) => {
-  const requestUrl = `${config.apiURL}user/?username=` + username;
+  const requestUrl = `${config.apiURL}users/query?username=` + username;
   try {
     const response = await fetch(requestUrl);
     const data = await response.json();
@@ -38,7 +38,7 @@ const loginUser = async (username: string, password: string) => {
 };
 
 const uploadFile = async (fileData: IFileInterface) => {
-  const requestUrl = `${config.apiURL}file/upload`;
+  const requestUrl = `${config.apiURL}files/upload`;
   try {
     const modifiedData = { ...fileData, uploadTo: "cloudinary" };
     delete modifiedData.file;
@@ -62,9 +62,9 @@ const createUser = async (
   confirmPassword: string,
   profileImage: object,
   about: string,
-  role: string
+  role: string,
 ) => {
-  const requestUrl = `${config.apiURL}user/create`;
+  const requestUrl = `${config.apiURL}users`;
 
   try {
     const response = await fetch(requestUrl, {
@@ -87,11 +87,16 @@ const createUser = async (
   }
 };
 
-const getUserData = async (userId: string): Promise<IUser | null> => {
-  const requestUrl = `${config.apiURL}user/${userId}`;
+const getUserData = async (
+  token: string,
+  userId: string,
+): Promise<IUser | null> => {
+  const requestUrl = `${config.apiURL}users/${userId}`;
 
   try {
-    const response = await axios(requestUrl);
+    const response = await axios(requestUrl, {
+      headers: { Authorization: "Bearer " + token },
+    });
     const data = response.data;
     return data?.data;
   } catch (error) {
@@ -101,7 +106,7 @@ const getUserData = async (userId: string): Promise<IUser | null> => {
 };
 
 const getUserChats = async (token: string, userId: string) => {
-  const requestUrl = `${config.apiURL}chats/?userId=${userId}`;
+  const requestUrl = `${config.apiURL}chats/query?userId=${userId}&populate=true`;
 
   try {
     const response = await axios(requestUrl, {
@@ -122,7 +127,7 @@ const getUserChatData = async (
     limit?: number;
     sortBy?: "createdAt" | "updatedAt";
     sortOrder?: "asc" | "desc";
-  } = {}
+  } = {},
 ) => {
   const requestUrl = `${config.apiURL}chats/${chatId}`;
 
@@ -139,7 +144,7 @@ const getUserChatData = async (
 };
 
 const getAllUser = async (token: string, not?: null | string) => {
-  const requestUrl = `${config.apiURL}user/?not=${not}`;
+  const requestUrl = `${config.apiURL}users/query?not=${not}`;
   try {
     const response = await axios(requestUrl, {
       headers: { Authorization: "Bearer " + token },
@@ -154,7 +159,7 @@ const getAllUser = async (token: string, not?: null | string) => {
 const getChatDataByInteraction = async (
   token: string,
   userId: string,
-  receiverId: string
+  receiverId: string,
 ) => {
   const requestUrl = `${config.apiURL}chats/interaction/${userId}/${receiverId}`;
   try {
@@ -171,7 +176,7 @@ const getChatDataByInteraction = async (
 const createChatData = async (
   token: string,
   userId: string,
-  receiverId: string
+  receiverId: string,
 ): Promise<object | any> => {
   const requestUrl = `${config.apiURL}chats/create`;
   try {
@@ -214,6 +219,45 @@ const createGroup = async (token: string, groupData: IGroups) => {
     throw error;
   }
 };
+
+const getMessagesByQuery = async (token: string, params: any) => {
+  try {
+    // Convert params to query string
+    const queryString = new URLSearchParams(params).toString();
+    const requestUrl = `${config.apiURL}messages/query?${queryString}`;
+    const response = await axios(requestUrl, {
+      headers: { Authorization: "Bearer " + token },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error getting messages : ", error);
+    throw error;
+  }
+};
+
+const createMessage = async (
+  token: string,
+  data: {
+    content: string;
+    chatId: string;
+    userId: string;
+    sentAt: Date;
+    groupId?: string;
+  },
+) => {
+  const requestUrl = `${config.apiURL}messages`;
+  try {
+    const response = await axios(requestUrl, {
+      method: "POST",
+      data: data,
+      headers: { Authorization: "Bearer " + token },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating message : ", error);
+    throw error;
+  }
+};
 export {
   checkUsernameExists,
   createChatData,
@@ -227,4 +271,6 @@ export {
   getUserData,
   loginUser,
   uploadFile,
+  getMessagesByQuery,
+  createMessage,
 };

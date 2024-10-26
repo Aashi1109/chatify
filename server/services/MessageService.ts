@@ -1,6 +1,6 @@
 import { IMessage } from "@definitions/interfaces";
 import { Message } from "@models";
-import { getByFilter } from "@utils/helpers";
+import { getByFilter } from "@lib/helpers";
 
 class MessageService {
   /**

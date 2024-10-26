@@ -1,5 +1,5 @@
 import { IFileInterface } from "@/definitions/interfaces";
-import { formatBytes } from "@/utils/generalHelper";
+import { formatBytes } from "@/lib/helpers/generalHelper";
 import React, { useEffect, useState } from "react";
 
 interface UPPropsInterface {

@@ -1,8 +1,8 @@
 import { useAppDispatch, useAppSelector } from "@/hook";
 
 import { setAuth } from "@/features/authSlice";
+import { getLocalStorageItem, getToken } from "@/lib/helpers/generalHelper";
 import { Auth, Page } from "@/pages";
-import { getLocalStorageItem, getToken } from "@/utils/generalHelper";
 import { useEffect } from "react";
 
 const App = () => {

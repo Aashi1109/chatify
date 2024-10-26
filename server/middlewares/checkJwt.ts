@@ -3,6 +3,7 @@ import { verify } from "jsonwebtoken";
 
 import config from "@config";
 import { ICustomRequest } from "@definitions/interfaces";
+import { ClientError } from "@exceptions";
 
 const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   const token = <string>req.headers["authorization"];
@@ -16,7 +17,7 @@ const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
     (req as ICustomRequest).token = jwtPayload;
   } catch (error) {
-    return res.status(401).json({ message: "Missing or invalid token" });
+    throw new ClientError("Missing or invalid token");
   }
 
   return next();

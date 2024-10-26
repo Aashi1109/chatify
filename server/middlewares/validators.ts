@@ -1,8 +1,11 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 
 import ClientError from "@exceptions/clientError";
 import fileValidationSchema from "@schemas/fileValidationSchema";
-import {messageCreateValidationSchema, messageUpdateValidationSchema,} from "@schemas/messageValidationSchema";
+import {
+  messageCreateValidationSchema,
+  messageUpdateValidationSchema,
+} from "@schemas/messageValidationSchema";
 import userValidationSchema from "@schemas/userValidationSchema";
 import mongoose from "mongoose";
 
@@ -31,7 +34,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
 const validateCreateMessage = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { error, value } = messageCreateValidationSchema.validate(req.body);
 
@@ -44,7 +47,7 @@ const validateCreateMessage = (
 const validateUpdateMessage = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { error, value } = messageUpdateValidationSchema.validate(req.body);
 
@@ -57,7 +60,7 @@ const validateUpdateMessage = (
 const validateFileUploadData = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { error, value } = fileValidationSchema.validate(req.body);
 
@@ -76,20 +79,18 @@ const validateMongooseIds =
     for (const paramName of paramIds) {
       const id = req.query?.[paramName];
       // console.log(req.query);
-
+      // if not provided then continue
+      if (!id) {
+        continue;
+      }
       // Normalize the ID
       const normalizedId = id == "null" || id == "undefined" ? null : id;
       // console.log(`${paramName} ->`, normalizedId, typeof id);
 
-      // if not provided then continue
-      if (!normalizedId) {
-        continue;
-      }
-
       // Check if the normalized ID is a valid Mongoose ObjectId
       if (!mongoose.Types.ObjectId.isValid(normalizedId as string)) {
         errorMessages.push(
-          `Invalid ID provided: ${paramName} -> ${normalizedId}, expecting Mongoose ObjectId`,
+          `Invalid ID provided: ${paramName} -> ${normalizedId}, expecting Mongoose ObjectId`
         );
       }
     }
@@ -98,7 +99,7 @@ const validateMongooseIds =
     if (errorMessages.length) {
       throw new ClientError(
         `Provided id(s) validation failed`,
-        errorMessages.join(", "),
+        errorMessages.join(", ")
       );
     }
     return next();

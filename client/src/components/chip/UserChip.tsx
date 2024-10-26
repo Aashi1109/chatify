@@ -1,19 +1,18 @@
 import { createChatData, getChatDataByInteraction } from "@/actions/form";
 import { IUser } from "@/definitions/interfaces";
-import { getToken, updateQueryString } from "@/utils/generalHelper";
+import { setInteractionData } from "@/features/chatSlice";
+import { useAppDispatch } from "@/hook";
+import { getToken, getUserId } from "@/lib/helpers/generalHelper";
 import React from "react";
-import Button from "../Button";
+import { toggleModal } from "@/features/uiSlice.ts";
+import { Button } from "@/components/ui/button.tsx";
+import { Send } from "lucide-react";
 
-const UserChip: React.FC<{ user: IUser; toogleModal: () => void }> = ({
-  user,
-  toogleModal,
-}) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
+const UserChip: React.FC<{ user: IUser }> = ({ user }) => {
+  const dispatcher = useAppDispatch();
   const handleButtonClick = async (id: string) => {
     const token = getToken();
-    const userId = searchParams.get("userId");
+    const userId = getUserId();
 
     if (!token || !userId) {
       return;
@@ -36,17 +35,11 @@ const UserChip: React.FC<{ user: IUser; toogleModal: () => void }> = ({
     }
 
     if (interactionId) {
-      const query = updateQueryString(
-        searchParams,
-        "interactionId",
-        interactionId,
-        "upadd"
-      );
-
-      router.push(`?${query}`);
+      dispatcher(setInteractionData(user));
+      // dispatcher(setInteractionData(chatData[0]));
 
       setTimeout(() => {
-        toogleModal();
+        dispatcher(toggleModal());
       }, 500);
     }
   };
@@ -73,12 +66,11 @@ const UserChip: React.FC<{ user: IUser; toogleModal: () => void }> = ({
 
         <div>
           <Button
-            callback={() => handleButtonClick(user._id as string)}
-            iconSize={30}
-            iconUrl="/assets/send.png"
-            applyInvertFilter={false}
-            classes="p-1"
-          />
+            onClick={() => handleButtonClick(user._id as string)}
+            className="p-1"
+          >
+            <Send className={"h-7 w-7"} />
+          </Button>
         </div>
       </div>
     </div>

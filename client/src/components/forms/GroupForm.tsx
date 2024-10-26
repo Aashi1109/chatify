@@ -1,4 +1,5 @@
 import { createGroup, getAllUser, uploadFile } from "@/actions/form";
+import LoadingButton from "@/components/ui/LoadingButton.tsx";
 import { EToastType } from "@/definitions/enums";
 import {
   ChipItemI,
@@ -6,8 +7,10 @@ import {
   IGroups,
   IUser,
 } from "@/definitions/interfaces";
+import { toggleModal } from "@/features/uiSlice.ts";
+import { useAppDispatch } from "@/hook";
+import { getToken, getUserId } from "@/lib/helpers/generalHelper";
 import groupValidationSchema from "@/schemas/groupValidationSchema";
-import { getToken } from "@/utils/generalHelper";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import UserSelectChip from "../chip/UserSelectChip";
@@ -18,11 +21,13 @@ import { showToaster } from "../toasts/Toaster";
 let fileData: IFileInterface | null = null;
 const GroupForm = () => {
   const [selectedUsers, setSelectedUsers] = useState<ChipItemI[] | null>(null);
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [users, setUsers] = useState<IUser[] | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
-  const userId = null;
+  const dispatch = useAppDispatch();
+
+  const userId = getUserId();
 
   const setFileData = (file: IFileInterface[]) => {
     fileData = file.length ? file[0] : null;
@@ -67,18 +72,15 @@ const GroupForm = () => {
     const createdGroupData = await createGroup(token!, groupCreationData);
 
     if (createdGroupData?.success) {
-      showToaster({
-        toastText: "Group created successfully",
-        toastType: EToastType.Success,
-      });
+      showToaster(EToastType.Success, "Group created successfully");
 
       // close modal
       // TODO close modal and route to new group
     } else {
-      showToaster({
-        toastText: createdGroupData?.message || "Group creation failed",
-        toastType: EToastType.Error,
-      });
+      showToaster(
+        EToastType.Error,
+        createdGroupData?.message || "Group creation failed"
+      );
     }
   };
 
@@ -127,13 +129,12 @@ const GroupForm = () => {
     <div className="modal-form max-h-[90vh] overflow-y-scroll flex-grow-0">
       <div className="flex flex-col gap-8">
         <div className="flex justify-between items-center">
-          <p className="text-xl">New chat</p>
+          <p className="text-xl">Create group</p>
           <p
             className="text-3xl cursor-pointer"
-            // onClick={() => {
-            //   toogleModal();
-            //   updateQueryString(searchParams, "interactionId", "", "remove");
-            // }}
+            onClick={() => {
+              dispatch(toggleModal());
+            }}
           >
             &times;
           </p>
@@ -152,7 +153,7 @@ const GroupForm = () => {
             onSubmit={handleSubmit}
             validationSchema={groupValidationSchema}
           >
-            {({ touched, errors, isSubmitting }) => (
+            {({ touched, errors }) => (
               <Form
                 className="flex flex-col gap-4 w-full sm:w-3/5"
                 id="group-form"
@@ -226,15 +227,16 @@ const GroupForm = () => {
             </div>
           </div>
         )}
-        <button
+        <LoadingButton
           type="submit"
           form="group-form"
           className="button"
-          ref={buttonRef}
           disabled={isFormSubmitting}
+          isLoading={isFormSubmitting}
+          ref={buttonRef}
         >
           Create group
-        </button>
+        </LoadingButton>
       </div>
     </div>
   );

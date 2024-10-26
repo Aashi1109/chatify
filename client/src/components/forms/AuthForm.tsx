@@ -1,28 +1,32 @@
 import { createUser, loginUser, uploadFile } from "@/actions/form";
 import { EToastType, EUserRoles } from "@/definitions/enums";
 import { IFileInterface } from "@/definitions/interfaces";
+import { debounce, handleOnunloadLTClear } from "@/lib/helpers/generalHelper";
 import authFormValidationSchemaWrapper, {
   validateUsername,
 } from "@/schemas/authFormValidation";
-import { handleOnunloadLTClear } from "@/utils/generalHelper";
 import { Field, Form, Formik } from "formik";
 
+import FileInput from "@/components/inputs/FileInput";
+import ProfileImageInput from "@/components/inputs/ProfileImageInput";
+import { showToaster } from "@/components/toasts/Toaster";
+import { setAuth } from "@/features/authSlice";
 import { useAppDispatch } from "@/hook";
-import { setAuth } from "@/store/slices/authSlice";
-import React, { useState } from "react";
-import FileInput from "../inputs/FileInput";
-import ProfileImageInput from "../inputs/ProfileImageInput";
-import { showToaster } from "../toasts/Toaster";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import SpinningLoader from "../ui/SpinningLoader";
+import { Button } from "../ui/button";
 
 const fileData: { profileImage: null | IFileInterface } = {
   profileImage: null,
 };
+
 const AuthForm: React.FC<{
   setFormValue?: (formData: object) => void;
 
   isLogin?: boolean;
 }> = ({ setFormValue, isLogin }) => {
-  const dispatch = useAppDispatch();
+  const dispatcher = useAppDispatch();
 
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
   const [isLoginForm, setIsLoginForm] = useState(isLogin ?? true);
@@ -45,6 +49,117 @@ const AuthForm: React.FC<{
     }
   };
 
+  async function handleFormSubmit(
+    setSubmitting: (isSubmitting: boolean) => void,
+    values: {
+      username: string;
+      password: string;
+      confirmPassword: string;
+      about: string;
+      name: string;
+      rememberMe: boolean;
+    },
+    isLoginForm: boolean,
+    dispatch: typeof dispatcher,
+    setFormValue: ((formData: object) => void) | undefined
+  ) {
+    try {
+      setSubmitting(true);
+      const { username, about, confirmPassword, name, password, rememberMe } =
+        values;
+      let doLoginProcess = false;
+
+      // if is login form then don't check for profile image
+      if (!isLoginForm) {
+        if (!fileData.profileImage) {
+          // call popup function
+          showToaster(EToastType.Error, "Profile image not provided");
+        } else {
+          const uploadFileResult = await uploadFile(fileData.profileImage);
+
+          if (uploadFileResult?.data) {
+            const profileImageData = {
+              url: uploadFileResult.data?.fileMetadata?.secure_url ?? "",
+              filename: fileData?.profileImage?.name ?? "",
+              publicId: uploadFileResult.data?.fileMetadata?.public_id ?? "",
+              fileDataId: uploadFileResult.data?._id?.toString() ?? "",
+            };
+            const createUserResponse = await createUser(
+              username,
+              name,
+              password,
+              confirmPassword,
+              profileImageData,
+              about,
+              // TODO for now setting all user role as admin fix it later in later versions
+              EUserRoles.Admin
+            );
+
+            // console.log(createUserResponse);
+            if (createUserResponse?.data?._id) {
+              // call popup function
+              showToaster(EToastType.Success, "User created successfully");
+              doLoginProcess = true;
+            }
+          } else {
+            // call popup function
+            showToaster(EToastType.Error, "Profile image not uploaded");
+
+            setSubmitting(false);
+          }
+        }
+      } else {
+        doLoginProcess = true;
+      }
+
+      if (doLoginProcess) {
+        // login the user with credentials
+        const loginResult = await loginUser(values.username, values.password);
+        // if response contains token then login successfull
+        // else show error message to user
+        if (loginResult?.data) {
+          const token = loginResult.data?.token;
+          const userId = loginResult.data?.userId;
+
+          // console.log(token, userId);
+          showToaster(EToastType.Success, "Login successful");
+
+          if (!!token && !!userId) {
+            localStorage.setItem("token", token);
+            localStorage.setItem("userId", userId);
+
+            // if remember me is disable then don't save token
+            if (!values.rememberMe) {
+              window.addEventListener("unload", handleOnunloadLTClear);
+            } else {
+              window.removeEventListener("unload", handleOnunloadLTClear);
+            }
+
+            dispatch(
+              setAuth({
+                accessToken: token,
+              })
+            );
+
+            // save token and route to homepage
+            // router.replace(`/?userId=${userId}&current=chats`);
+          }
+        } else if (loginResult?.message) {
+          showToaster(EToastType.Error, loginResult?.message);
+        }
+      }
+      setSubmitting(false);
+
+      //
+      setFormValue &&
+        setFormValue({ ...values, ...fileData, isLogin: isLoginForm });
+    } catch (error: any) {
+      showToaster(EToastType.Error, error?.message || "Something went wrong");
+    }
+  }
+
+  const debouncedHandleFormSubmit = debounce(handleFormSubmit, 500);
+
   const formInitialValues = {
     username: "",
     password: "",
@@ -55,131 +170,22 @@ const AuthForm: React.FC<{
   };
 
   return (
-    <div className="rounded-xl p-8 bg-[--primary-hex] min-w-[300px] md:min-w-[500px]">
+    <div className="rounded-xl p-8 bg-[--primary-hex] w-[95vw] sm:max-w-[500px]">
       <div className="flex flex-col items-center mb-8 gap-2">
         <p className="text-2xl">Welcome back</p>
-        <p className="font-light">Please enter your details to sign in.</p>
+        <p className="font-light">Please enter your details to continue.</p>
       </div>
 
       <Formik
         initialValues={formInitialValues}
         onSubmit={async (values, { setSubmitting }) => {
-          setSubmitting(true);
-          const {
-            username,
-            about,
-            confirmPassword,
-            name,
-            password,
-            rememberMe,
-          } = values;
-          let doLoginProcess = false;
-
-          // if is login form then don't check for profile image
-          if (!isLoginForm) {
-            if (!fileData.profileImage) {
-              // call popup function
-              showToaster({
-                toastText: "Profile image not provided",
-                toastType: EToastType.Error,
-              });
-            } else {
-              const uploadFileResult = await uploadFile(fileData.profileImage);
-
-              if (uploadFileResult?.data) {
-                const profileImageData = {
-                  url: uploadFileResult.data?.fileMetadata?.secure_url ?? "",
-                  filename: fileData?.profileImage?.name ?? "",
-                  publicId:
-                    uploadFileResult.data?.fileMetadata?.public_id ?? "",
-                  fileDataId: uploadFileResult.data?._id?.toString() ?? "",
-                };
-                const createUserResponse = await createUser(
-                  username,
-                  name,
-                  password,
-                  confirmPassword,
-                  profileImageData,
-                  about,
-                  // TODO for now setting all user role as admin fix it later in later versions
-                  EUserRoles.Admin
-                );
-
-                // console.log(createUserResponse);
-
-                if (createUserResponse?.data?._id) {
-                  // call popup function
-                  showToaster({
-                    toastText: "User created successfully",
-                    toastType: EToastType.Success,
-                  });
-                  doLoginProcess = true;
-                }
-              } else {
-                // call popup function
-                showToaster({
-                  toastText: "Profile image not uploaded",
-                  toastType: EToastType.Error,
-                });
-
-                setSubmitting(false);
-              }
-            }
-          } else {
-            doLoginProcess = true;
-          }
-
-          if (doLoginProcess) {
-            // login the user with credentials
-            const loginResult = await loginUser(
-              values.username,
-              values.password
-            );
-            // if response contains token then login successfull
-            // else show error message to user
-            if (loginResult?.data) {
-              const token = loginResult.data?.token;
-              const userId = loginResult.data?.userId;
-
-              // console.log(token, userId);
-
-              showToaster({
-                toastText: "Login successful",
-                toastType: EToastType.Success,
-              });
-
-              if (!!token && !!userId) {
-                localStorage.setItem("token", token);
-                localStorage.setItem("userId", userId);
-
-                // if remember me is disable then don't save token
-                if (!values.rememberMe) {
-                  window.addEventListener("unload", handleOnunloadLTClear);
-                } else {
-                  window.removeEventListener("unload", handleOnunloadLTClear);
-                }
-
-                dispatch(
-                  setAuth({
-                    accessToken: token,
-                  })
-                );
-
-                // save token and route to homepage
-                // router.replace(`/?userId=${userId}&current=chats`);
-              }
-            } else if (loginResult?.message) {
-              showToaster({
-                toastText: loginResult?.message,
-                toastType: EToastType.Error,
-              });
-            }
-          }
-          setSubmitting(false);
-
-          //
-          setFormValue &&
-            setFormValue({ ...values, ...fileData, isLogin: isLoginForm });
+          await debouncedHandleFormSubmit(
+            setSubmitting,
+            values,
+            isLoginForm,
+            dispatcher,
+            setFormValue
+          );
         }}
         validationSchema={authFormValidationSchemaWrapper(isLoginForm)}
       >
@@ -320,9 +326,17 @@ const AuthForm: React.FC<{
               </div>
             )}
 
-            <button type="submit" disabled={isSubmitting} className="button">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className={cn("button flex-center gap-2", {
+                "opacity-80": isSubmitting,
+                "opacity-100": !isSubmitting,
+              })}
+            >
+              {isSubmitting && <SpinningLoader size={15} />}
               {isLoginForm ? "Sign in" : "Sign up"}
-            </button>
+            </Button>
 
             <p className="font-light text-center">
               {isLoginForm

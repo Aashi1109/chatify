@@ -1,16 +1,12 @@
 import { inboxChipItems } from "@/config";
-import {
-  ChatInfoItemI,
-  IChat,
-  IUser,
-  IUserChat,
-} from "@/definitions/interfaces";
-import Button from "./Button";
+import { ChatInfoItemI, IChat, IUser } from "@/definitions/interfaces";
+import { useAppSelector } from "@/hook";
 import ChatInfoList from "./chatinfo/ChatInfoList";
 import ChipItem from "./chip/ChipItem";
 import ChipList from "./chip/ChipList";
 
-const InfoWindow = ({ userChats }: { userChats: IUserChat[] | null }) => {
+const InfoWindow = () => {
+  const userChats = useAppSelector((state) => state.chat.chats);
   const formattedChats = userChats?.map((ch) => {
     const data: ChatInfoItemI = {
       imageUrl: "",
@@ -19,14 +15,18 @@ const InfoWindow = ({ userChats }: { userChats: IUserChat[] | null }) => {
       lastChatText: "",
       isUserActive: false,
       chatsNotRead: 0,
+      chatId: undefined,
     };
 
     // if user data is there then extract variables from it
     const isUserDataPresent = typeof ch?.receiverId === "object";
     const isChatDataPresent = typeof ch?.chatId === "object";
 
+    data["chatId"] = ch?._id;
+
     if (isUserDataPresent) {
       const userData = ch?.receiverId;
+      data["user"] = userData;
       data["imageUrl"] = (userData as IUser).profileImage.url;
       data["userName"] = (userData as IUser).name as string;
       data["isUserActive"] = (userData as IUser)?.isActive ?? false;
@@ -48,34 +48,32 @@ const InfoWindow = ({ userChats }: { userChats: IUserChat[] | null }) => {
   });
 
   return (
-    <section className="section-bg col-span-3 py-6 flex gap-4 flex-col overflow-y-auto">
-      <div className="flex justify-between items-center px-6">
+    <section className="section-bg p-6 flex gap-4 flex-col overflow-y-auto min-w-[300px]">
+      <div className="flex justify-between items-center">
         <div className="flex-center gap-2">
-          <p className="text-white text-xl">Inbox</p>
+          <p className="text-xl">Inbox</p>
           <ChipItem
             chipData={{ id: 1, text: "3 New" }}
             callback={() => {}}
             classes="rounded-lg bg-[--danger-hex] text-sm"
           />
         </div>
-        <Button
-          iconUrl="/assets/menu.png"
-          iconSize={20}
-          classes="p-2"
-          // text="New chat"
-          callback={() => {}}
-        />
+        {/*<Button*/}
+        {/*  iconUrl="/assets/menu.png"*/}
+        {/*  iconSize={20}*/}
+        {/*  classes="p-2"*/}
+        {/*  // text="New chat"*/}
+        {/*  callback={() => {}}*/}
+        {/*/>*/}
       </div>
 
       {/* Render chip list */}
-      <div className="px-6">
-        <ChipList
-          chipItems={inboxChipItems}
-          callback={() => {}}
-          chipItemClasses="hover:bg-gray-600 rounded-md text-bold text-sm cursor-pointer text-tertiary"
-          chipListClasses="p-2 bg-gray-700 rounded-lg justify-between"
-        />
-      </div>
+      <ChipList
+        chipItems={inboxChipItems}
+        callback={() => {}}
+        chipItemClasses="hover:bg-gray-400 dark:hover:bg-gray-500 rounded-md text-bold text-sm cursor-pointer text-tertiary"
+        chipListClasses="p-2 bg-gray-300 rounded-lg justify-between dark:bg-gray-600"
+      />
 
       {/* Render chats info for each chat */}
       {!userChats || !userChats?.length ? (
