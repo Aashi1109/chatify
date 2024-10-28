@@ -1,8 +1,9 @@
-import {IGroups} from "@definitions/interfaces";
+import { IGroups, IRequestPagination } from "@definitions/interfaces";
 import ClientError from "@exceptions/clientError";
+import { createFilterFromParams } from "@lib/helpers";
 import GroupService from "@services/GroupService";
 import UserGroupService from "@services/UserGroupsService";
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 /**
  * Creates a new group.
@@ -121,48 +122,27 @@ const getAllGroups = async (req: Request, res: Response): Promise<Response> => {
  * @throws {ClientError} Throws a ClientError if none of GroupId, CreatorId, or UserId are provided.
  */
 const getGroupsByQuery = async (
-  req: Request,
-  res: Response,
+  req: IRequestPagination,
+  res: Response
 ): Promise<Response> => {
-  // options to configure query parameters
-  let {
-    limit,
-    populate,
-    sortBy,
-    sortOrder,
-    groupId,
-    userId,
-    creatorId,
-    not,
-    pageNumber,
-  } = req.query;
+  let { groupId, userId, creatorId, not } = req.query;
 
   if (!groupId && !userId && !creatorId) {
     throw new ClientError(
-      "GroupId, CreatorId, or UserId is required but nothing provided",
+      "GroupId, CreatorId, or UserId is required but nothing provided"
     );
   }
 
-  const filter: { _id?: string; userId?: string; creatorId?: string } = {};
-  if (groupId) {
-    filter._id = groupId as string;
-  }
-  if (userId) {
-    filter.userId = userId as string;
-  }
-  if (creatorId) {
-    filter.creatorId = creatorId as string;
-  }
+  const filter = createFilterFromParams({
+    _id: groupId,
+    userId,
+    creatorId,
+  });
 
   const userChats = await GroupService.getGroupsByFilter(
     filter,
-    +limit,
-    sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
-    sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate,
-    null,
-    +pageNumber,
-    not as string,
+    req.pagination,
+    not as string
   );
 
   return res.json({ success: true, data: userChats });

@@ -1,17 +1,16 @@
 // initial state for auth slice
 
+import { IUser } from "@/definitions/interfaces";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IAuthSlice {
   isAuthenticated: boolean;
-  accessToken: string | null;
-  refreshToken: string | null;
+  user: IUser | null | undefined;
 }
 
 const authInitialState: IAuthSlice = {
   isAuthenticated: false,
-  accessToken: null,
-  refreshToken: null,
+  user: null,
 };
 
 const authSlice = createSlice({
@@ -19,10 +18,8 @@ const authSlice = createSlice({
   initialState: authInitialState,
   reducers: {
     setAuth: (state, action: PayloadAction<Partial<IAuthSlice>>) => {
-      const accessToken = action.payload?.accessToken ?? null;
-      state.accessToken = accessToken;
-      state.isAuthenticated = !!accessToken;
-      state.refreshToken = action.payload?.refreshToken ?? null;
+      state.isAuthenticated = !!action.payload.isAuthenticated;
+      state.user = action.payload.user;
     },
   },
 });

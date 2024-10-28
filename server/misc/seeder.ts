@@ -2,8 +2,10 @@ import connectDB from "@database/connectDB";
 import { faker } from "@faker-js/faker";
 import Message from "@models/Message";
 import User from "@models/User";
+import Chats from "@models/Chats";
+import { EMessageType } from "@definitions/enums";
 
-function generateUsers(count) {
+function generateUsers(count: number) {
   const users = [];
   for (let i = 0; i < count; i++) {
     const username = faker.internet.userName();
@@ -33,62 +35,96 @@ function generateUsers(count) {
   return users;
 }
 
-function getRandomValueFromArray(arr) {
+function getRandomValueFromArray<T>(arr: T[]): T {
   const randomIndex = Math.floor(Math.random() * arr.length);
   return arr[randomIndex];
 }
 
-function generateMessages(count) {
+async function generateChats(count: number, userIds: string[]) {
+  const chats = [];
+  for (let i = 0; i < count; i++) {
+    const userId = getRandomValueFromArray(userIds);
+    let receiverId;
+    do {
+      receiverId = getRandomValueFromArray(userIds);
+    } while (receiverId === userId);
+
+    chats.push({
+      userId,
+      receiverId,
+      messages: [],
+    });
+  }
+  return chats;
+}
+
+async function generateMessages(
+  count: number,
+  userIds: string[],
+  chatIds: string[]
+) {
   const messages = [];
-  const userIds = ["663370a37e1e40d1ddf1e3b4", "66334b36354c1f9b14b8a54f"];
-  const chatId = ["663e4bc334879ac676547e06"];
   for (let i = 0; i < count; i++) {
     const content = faker.lorem.sentence();
+    const chatId = getRandomValueFromArray(chatIds);
     messages.push({
       userId: getRandomValueFromArray(userIds),
       content,
-      chatId: chatId[0],
+      chatId,
+      type: EMessageType.Text,
+      sentAt: faker.date.recent(),
     });
   }
-
   return messages;
 }
 
-async function seedUserDatabase(count) {
+async function seedDatabase(
+  userCount: number,
+  chatCount: number,
+  messageCount: number
+) {
   try {
     await connectDB();
-    // Remove existing users
+
+    // Remove existing data
     await User.deleteMany();
-
-    // Generate fake users
-    const users = generateUsers(count);
-
-    // Insert users into the database
-    await User.insertMany(users);
-
-    console.log(`Database seeded with ${count} users successfully`);
-  } catch (error) {
-    console.error("Error seeding database:", error);
-  } finally {
-  }
-}
-async function seedMessageDatabase(count) {
-  try {
-    await connectDB();
-    // Remove existing users
+    await Chats.deleteMany();
     await Message.deleteMany();
 
-    // Generate fake users
-    const users = generateMessages(count);
+    // Generate and insert users
+    const users = generateUsers(userCount);
+    const insertedUsers = await User.insertMany(users);
+    const userIds = insertedUsers.map((user) => user._id.toString());
 
-    // Insert users into the database
-    await Message.insertMany(users);
+    console.log(`Database seeded with ${userCount} users successfully`);
 
-    console.log(`Database seeded with ${count} messages successfully`);
+    // Generate and insert chats
+    const chats = await generateChats(chatCount, userIds);
+    const insertedChats = await Chats.insertMany(chats);
+    const chatIds = insertedChats.map((chat) => chat._id.toString());
+
+    console.log(`Database seeded with ${chatCount} chats successfully`);
+
+    // Generate and insert messages
+    const messages = await generateMessages(messageCount, userIds, chatIds);
+    await Message.insertMany(messages);
+
+    console.log(`Database seeded with ${messageCount} messages successfully`);
+
+    // Update chats with message IDs
+    for (const chat of insertedChats) {
+      const chatMessages = await Message.find({ chatId: chat._id });
+      chat.messages = chatMessages.map((message) => message._id);
+      await chat.save();
+    }
+
+    console.log("Chats updated with message IDs successfully");
   } catch (error) {
     console.error("Error seeding database:", error);
   } finally {
+    process.exit(0);
   }
 }
 
-seedMessageDatabase(2000);
+// Seed the database with 100 users, 200 chats, and 1000 messages
+seedDatabase(100, 200, 1000);

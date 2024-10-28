@@ -1,8 +1,7 @@
 import { ChipItemI } from "@/definitions/interfaces";
 
-import clsx from "clsx";
-import { twMerge } from "tailwind-merge";
 import ChipItem from "./ChipItem";
+import { cn } from "@/lib/utils";
 
 const ChipList: React.FC<{
   chipItems: Array<ChipItemI>;
@@ -22,15 +21,13 @@ const ChipList: React.FC<{
   const selectedChip = "chats";
   return (
     <div
-      className={twMerge(
-        clsx(
-          "flex justify-around items-center",
-          {
-            "flex-row": orientation === "horizontal",
-            "flex-col": orientation === "vertical",
-          },
-          chipListClasses
-        )
+      className={cn(
+        "flex justify-around items-center",
+        {
+          "flex-row": orientation === "horizontal",
+          "flex-col": orientation === "vertical",
+        },
+        chipListClasses
       )}
     >
       {chipItems.map((chipItem) => (

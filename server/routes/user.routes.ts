@@ -10,7 +10,7 @@ import {
   updateUserPasswordById,
 } from "@controllers/user.controller";
 import asyncHandler from "@middlewares/asyncHandler";
-import checkJwt from "@middlewares/checkJwt";
+import userParser from "@middlewares/userParser";
 import { validateMongooseIds, validateUser } from "@middlewares/validators";
 
 const router = Router();
@@ -23,22 +23,25 @@ router
 router.get(
   "/query",
   [validateMongooseIds(["not", "userId"])],
-  asyncHandler(getUserByQuery),
+  asyncHandler(getUserByQuery)
 );
 
 router
   .route("/:id")
-  .get([validateMongooseIds(["id"]), checkJwt], asyncHandler(getUserById))
-  .patch([validateMongooseIds(["id"]), checkJwt], asyncHandler(updateUserById))
+  .get([validateMongooseIds(["id"]), userParser], asyncHandler(getUserById))
+  .patch(
+    [validateMongooseIds(["id"]), userParser],
+    asyncHandler(updateUserById)
+  )
   .delete(
-    [validateMongooseIds(["id"]), checkJwt],
-    asyncHandler(deleteUserById),
+    [validateMongooseIds(["id"]), userParser],
+    asyncHandler(deleteUserById)
   );
 
 router.patch(
   "/:id/updatePasswordById",
-  [validateMongooseIds(["id"]), checkJwt],
-  asyncHandler(updateUserPasswordById),
+  [validateMongooseIds(["id"]), userParser],
+  asyncHandler(updateUserPasswordById)
 );
 
 export default router;

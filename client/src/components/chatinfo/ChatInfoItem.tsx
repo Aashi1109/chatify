@@ -5,11 +5,9 @@ import {
   setInteractionMessages,
 } from "@/features/chatSlice";
 import { useAppDispatch } from "@/hook";
-import { getToken } from "@/lib/helpers/generalHelper";
-import clsx from "clsx";
 import React from "react";
-import { twMerge } from "tailwind-merge";
 import CircleAvatar from "../CircleAvatar";
+import { cn } from "@/lib/utils";
 
 const ChatInfoItem: React.FC<{
   chatData: ChatInfoItemI;
@@ -30,11 +28,7 @@ const ChatInfoItem: React.FC<{
 
   // const formattedLastTime = formatTimeAgo(lastChatTime);
   const handleChatInfoItemClick = async () => {
-    const token = getToken();
-    if (!token) {
-      return;
-    }
-    const messagesResp = await getMessagesByQuery(token, { chatId: chatId });
+    const messagesResp = await getMessagesByQuery({ chatId: chatId });
     if (messagesResp.success) {
       dispatcher(setInteractionData(user));
       dispatcher(setInteractionMessages(messagesResp?.data || []));
@@ -43,16 +37,18 @@ const ChatInfoItem: React.FC<{
 
   return (
     <div
-      className={twMerge(
-        clsx(
-          "flex-center py-4 px-2 cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 hover:scale-[1.01] chat-list-item",
-          classes,
-        ),
+      className={cn(
+        "flex-center py-4 px-2 cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 hover:scale-[1.01] chat-list-item",
+        classes
       )}
       onClick={handleChatInfoItemClick}
     >
       <div className="relative mr-4">
-        <CircleAvatar size={50} alt={"user image"} imageUrl={imageUrl} />
+        <CircleAvatar
+          alt={"user image"}
+          imageUrl={imageUrl}
+          fallback={user.name?.slice(0, 1)?.toUpperCase()}
+        />
         {isUserActive && (
           <div className="h-3 w-3 rounded-full border-2 bg-green-600 absolute top-0 right-0"></div>
         )}

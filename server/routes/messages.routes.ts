@@ -7,7 +7,6 @@ import {
   updateMessageById,
 } from "@controllers/messages.controller";
 import asyncHandler from "@middlewares/asyncHandler";
-import checkJwt from "@middlewares/checkJwt";
 import {
   validateCreateMessage,
   validateMongooseIds,
@@ -19,27 +18,25 @@ const router = Router();
 
 router.get(
   "/query",
-  [validateMongooseIds(["chatId", "userId", "groupId", "messageId"]), checkJwt],
-  asyncHandler(getMessageByQuery),
+  [validateMongooseIds(["chatId", "userId", "groupId", "messageId"])],
+  asyncHandler(getMessageByQuery)
 );
+
 router
   .route("")
-  .get([checkJwt], asyncHandler(getAllMessages))
-  .post([checkJwt, validateCreateMessage], asyncHandler(createMessage));
+  .get(asyncHandler(getAllMessages))
+  .post([validateCreateMessage], asyncHandler(createMessage));
 
 router
   .route("/:messageId")
-  .get(
-    [validateMongooseIds(["messageId"]), checkJwt],
-    asyncHandler(getMessageById),
-  )
+  .get([validateMongooseIds(["messageId"])], asyncHandler(getMessageById))
   .patch(
-    [validateMongooseIds(["messageId"]), checkJwt, validateUpdateMessage],
-    asyncHandler(updateMessageById),
+    [validateMongooseIds(["messageId"]), validateUpdateMessage],
+    asyncHandler(updateMessageById)
   )
   .delete(
-    [validateMongooseIds(["messageId"]), checkJwt],
-    asyncHandler(deleteMessageById),
+    [validateMongooseIds(["messageId"])],
+    asyncHandler(deleteMessageById)
   );
 
 export default router;

@@ -22,3 +22,11 @@ export enum EMessageType {
   Image = "image",
   File = "file",
 }
+
+export enum ESocketMessageEvents {
+  // Chat events
+  TYPING = "message:typing",
+  NEW_MESSAGE = "message:create",
+  MESSAGE_UPDATE = "message:update",
+  MESSAGE_DELETE = "message:delete",
+}

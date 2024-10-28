@@ -1,4 +1,4 @@
-import { IChats } from "@definitions/interfaces";
+import { IChats, IPagination } from "@definitions/interfaces";
 import { Chats } from "@models";
 import { getByFilter } from "@lib/helpers";
 import { FlattenMaps, Require_id } from "mongoose";
@@ -9,39 +9,17 @@ class ChatsService {
    * @param {string} userId - The ID of the user to retrieve chats for.
    * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves with an array of user chats.
    */
-  static async getChatsByUserId(
-    userId: string,
+  static async getChatsForUser(
+    userId: string
   ): Promise<Require_id<FlattenMaps<IChats>>[]> {
     try {
-      return await ChatsService.getChatsByFilter({ userId });
-    } catch (error) {
-      console.error("Error fetching user chats by user ID:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Retrieves user chats by user ID from the database.
-   * @param {string} receiverId - The ID of the user with whom interaction is going on.
-   * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves with an array of user chats.
-   */
-  static async getChatsByReceiverId(receiverId: string) {
-    try {
-      return await ChatsService.getChatsByFilter({ receiverId });
-    } catch (error) {
-      console.error("Error fetching user chats by user ID:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Retrieves user chats by user ID from the database.
-   * @param {string} chatId - The ID of the chat to retrieve.
-   * @returns {Promise<any[]>} A Promise that resolves with an array of user chats.
-   */
-  static async getChatsByChatId(chatId: string) {
-    try {
-      return await ChatsService.getChatsByFilter({ _id: chatId });
+      return await ChatsService.getChatsByFilter(
+        {
+          userId,
+          receiverId: userId,
+        },
+        null
+      );
     } catch (error) {
       console.error("Error fetching user chats by user ID:", error);
       throw error;
@@ -54,12 +32,7 @@ class ChatsService {
    * @param {string} [filter.userId] - The ID of the user whose chats to retrieve.
    * @param {string} [filter._id] - The ID of the chat to retrieve.
    * @param {string} [filter.receiverId] - The ID of the chat receiver.
-   * @param {number} [limit] - Limit the number of chats to retrieve.
-   * @param {"createdAt" | "updatedAt"} [sortBy] - Sort chats by creation or update time.
-   * @param {"asc" | "desc"} [sortOrder] - Sort order for chats.
-   * @param {boolean} [doPopulate=true] - Flag to specify whether to populate fields. Defaults to true.
-   * @param {number} [pageNumber=1] - Current page number to fetch data from
-   * @param {string[]} [populateFields] - Fields to populate in the retrieved chats.
+   * @param {object} pagination - The pagination object for query.
    * @param {string} [not] - ID of the document not to include in the chats results.
    * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A Promise that resolves to an array of retrieved chat objects.
    * @throws {Error} If there's an error fetching user chats by the provided filter.
@@ -70,25 +43,15 @@ class ChatsService {
       _id?: string;
       receiverId?: string;
     },
-    limit?: number,
-    sortBy?: "createdAt" | "updatedAt",
-    sortOrder?: "asc" | "desc",
-    doPopulate: boolean = true,
-    pageNumber: number = 1,
-    populateFields?: string[],
-    not?: string,
+    pagination?: IPagination,
+    not?: string
   ): Promise<Require_id<FlattenMaps<IChats>>[]> {
-    populateFields ??= ["userId", "receiverId", "messages"];
-    return getByFilter(Chats)(
-      filter,
-      populateFields,
-      limit,
-      sortBy,
-      sortOrder,
-      doPopulate,
-      pageNumber,
-      not,
-    );
+    if (pagination) pagination.populateFields ??= ["participants", "messages"];
+    const _inFields = [...new Set([filter.userId, filter.receiverId])];
+    const filteredFields = _inFields.filter(Boolean);
+    return getByFilter(Chats)({ _id: filter?._id }, pagination, not, {
+      participants: { $in: filteredFields },
+    });
   }
 
   /**
@@ -101,12 +64,11 @@ class ChatsService {
   static async createChat(
     userId: string,
     receiverId: string,
-    messages?: string[],
+    messages?: string[]
   ) {
     try {
       const newUserChat = new Chats({
-        userId,
-        receiverId,
+        participants: [userId, receiverId],
         messages: messages ?? [],
       });
       await newUserChat.save();
@@ -125,7 +87,7 @@ class ChatsService {
    */
   static async updateChatById(
     chatId: string,
-    updateData: { messages: IChats["messages"]; optype: IChats["optype"] },
+    updateData: { messages: IChats["messages"]; optype: IChats["optype"] }
   ) {
     try {
       const existingChat = await Chats.findOne({ _id: chatId });
@@ -134,10 +96,8 @@ class ChatsService {
         if (optype === "add") {
           existingChat.messages.push(...messages);
         } else if (optype === "delete") {
-        }
-        {
           existingChat.messages = existingChat.messages.filter(
-            (msg) => !messages.includes(msg),
+            (msg) => !messages.includes(msg)
           );
         }
         await existingChat.save();

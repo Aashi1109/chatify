@@ -1,8 +1,7 @@
 import { ChatInfoItemI } from "@/definitions/interfaces";
-import clsx from "clsx";
 import React from "react";
 import ChatInfoItem from "./ChatInfoItem";
-import { twMerge } from "tailwind-merge";
+import { cn } from "@/lib/utils";
 
 const ChatInfoList: React.FC<{
   classes?: string;
@@ -10,8 +9,9 @@ const ChatInfoList: React.FC<{
 }> = ({ chatListData, classes }) => {
   return (
     <div
-      className={twMerge(
-        clsx("flex flex-col h-full overflow-y-auto overflow-x-clip", classes)
+      className={cn(
+        "flex flex-col h-full overflow-y-auto overflow-x-clip gap-2",
+        classes
       )}
     >
       {chatListData.map((chatData, index) => (

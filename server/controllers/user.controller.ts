@@ -1,22 +1,28 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
-import {EUserRoles} from "@definitions/enums";
+import { EUserRoles } from "@definitions/enums";
 import ClientError from "@exceptions/clientError";
 import UserService from "@services/UserService";
-import {generateUserSafeCopy, hashPassword, validateJwtTokenId, validatePassword,} from "@lib/helpers";
-import {NotFoundError} from "@exceptions";
-import {ICustomRequest} from "@definitions/interfaces";
+import {
+  createFilterFromParams,
+  generateUserSafeCopy,
+  hashPassword,
+  validateJwtTokenId,
+  validatePassword,
+} from "@lib/helpers";
+import { NotFoundError } from "@exceptions";
+import { IRequestPagination, IUserRequest } from "@definitions/interfaces";
 
 /**
  * Get user data by ID.
- * @param {ICustomRequest} req - The modified request object.
+ * @param {IUserRequest} req - The modified request object.
  * @param {Response} res - The response object.
  * @throws {ClientError} Throws a ClientError if an invalid ID is provided.
  * @returns {Promise<Response>} A Promise that resolves with the user data.
  */
 const getUserById = async (
-  req: ICustomRequest,
-  res: Response,
+  req: IUserRequest,
+  res: Response
 ): Promise<Response> => {
   const id = req.params?.id;
 
@@ -65,7 +71,7 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
     profileImage,
     about,
     role,
-    salt,
+    salt
   );
 
   const safeCopyUser = generateUserSafeCopy(createdUser);
@@ -79,36 +85,18 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
  * @param {Response} res - The Express response object.
  * @throws {ClientError} If an invalid or incorrect username is provided.
  */
-const getUserByQuery = async (req: Request, res: Response) => {
-  const {
-    username,
-    userId,
-    not,
-    limit,
-    populate,
-    sortBy,
-    sortOrder,
-    pageNumber,
-  } = req.query;
-  // console.log("doPopulate -> ", !!populate);
+const getUserByQuery = async (req: IRequestPagination, res: Response) => {
+  const { username, userId, not } = req.query;
 
-  const filter: { _id?: string; username?: string } = {};
-  if (username) {
-    filter.username = username as string;
-  }
-  if (userId) {
-    filter._id = userId as string;
-  }
+  const filter = createFilterFromParams({
+    _id: userId,
+    username,
+  });
 
   const users = await UserService.getUsersByFilter(
     filter,
-    +limit,
-    sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
-    sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate,
-    +pageNumber,
-    null,
-    not as string,
+    req.pagination,
+    not as string
   );
 
   const safeCopyUsers = users.map((user) => generateUserSafeCopy(user));
@@ -124,8 +112,8 @@ const getUserByQuery = async (req: Request, res: Response) => {
  * @returns {Promise<Response>} A Promise that resolves when the user is deleted successfully.
  */
 const deleteUserById = async (
-  req: ICustomRequest,
-  res: Response,
+  req: IUserRequest,
+  res: Response
 ): Promise<Response> => {
   const { id } = req.params;
 
@@ -151,7 +139,7 @@ const deleteUserById = async (
  * @throws {ClientError} Throws a ClientError if the provided user ID is invalid or if the user with the specified ID or username is not found, or if an invalid role is provided.
  * @throws {Error} Throws an error if the update fails for any other reason.
  */
-const updateUserById = async (req: ICustomRequest, res: Response) => {
+const updateUserById = async (req: IUserRequest, res: Response) => {
   const { username, name, profileImage, about, role, lastSeenAt, isActive } =
     req.body;
   const { id } = req.params;
@@ -195,8 +183,8 @@ const updateUserById = async (req: ICustomRequest, res: Response) => {
  * @return {Promise<Response>} Promise resolved with the updated user
  */
 const updateUserPasswordById = async (
-  req: ICustomRequest,
-  res: Response,
+  req: IUserRequest,
+  res: Response
 ): Promise<Response> => {
   const { id } = req.params;
 
@@ -212,7 +200,7 @@ const updateUserPasswordById = async (
 
   const isPasswordCorrect = await validatePassword(
     existingUser.password,
-    oldPassword,
+    oldPassword
   );
 
   if (!isPasswordCorrect) {

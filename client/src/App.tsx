@@ -1,27 +1,39 @@
 import { useAppDispatch, useAppSelector } from "@/hook";
 
 import { setAuth } from "@/features/authSlice";
-import { getLocalStorageItem, getToken } from "@/lib/helpers/generalHelper";
 import { Auth, Page } from "@/pages";
 import { useEffect } from "react";
+import { getSessionOfUser } from "./actions/form";
 
 const App = () => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const token = getToken();
-    const userId = getLocalStorageItem("userId");
-    if (token && userId) {
+    const _fetchSession = async () => {
+      let user = null;
+      let isAuthenticated = false;
+      try {
+        const session = await getSessionOfUser();
+
+        if (session?.data?._id) {
+          user = session?.data;
+          isAuthenticated = true;
+        }
+      } catch (error) {
+        console.error(`Error fetching session: `, error);
+      }
+
       dispatch(
         setAuth({
-          accessToken: token,
-          isAuthenticated: true,
-          refreshToken: null,
+          isAuthenticated,
+          user,
         })
       );
-    }
-  }, []);
+    };
+
+    _fetchSession();
+  }, [dispatch]);
 
   if (isAuthenticated) {
     return <Page />;

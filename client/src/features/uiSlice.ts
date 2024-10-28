@@ -1,24 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-interface IUiSlice {
-  isModalOpen: boolean;
-}
+interface IUiSlice {}
 
 // initial state
-const uiInitialState: IUiSlice = {
-  isModalOpen: false,
-};
+const uiInitialState: IUiSlice = {};
 
 const uiSlice = createSlice({
   name: "ui",
   initialState: uiInitialState,
-  reducers: {
-    toggleModal: (state) => {
-      state.isModalOpen = !state.isModalOpen;
-    },
-  },
+  reducers: {},
 });
-
-export const { toggleModal } = uiSlice.actions;
 
 export default uiSlice.reducer;

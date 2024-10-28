@@ -1,24 +1,18 @@
-import { getUserChats, getUserData } from "@/actions/form";
-import { setChats, setUserData } from "@/features/chatSlice";
+import { getUserChats } from "@/actions/form";
+import { setChats } from "@/features/chatSlice";
 import { useAppDispatch, useAppSelector } from "@/hook";
-import { getToken, getUserId } from "@/lib/helpers/generalHelper";
 import { socket } from "@/socket";
 import { useEffect, useState } from "react";
 import ChatWindow from "./ChatWindow";
 import InfoWindow from "./InfoWindow";
 import TopBar from "./TopBar";
-import { showToaster } from "./toasts/Toaster";
-import { EToastType } from "@/definitions/enums";
 
 function UserHomePage() {
-  // const [isConnected, setIsConnected] = useState(false);
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [transport, setTransport] = useState("N/A");
 
-  const userId = getUserId();
-
-  const dispatcher = useAppDispatch();
-  const userData = useAppSelector((state) => state.chat.currentUserData);
+  const dispatch = useAppDispatch();
+  const userData = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
     if (socket.connected) {
@@ -41,9 +35,10 @@ function UserHomePage() {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("connect_error", (err) => {
-      showToaster(EToastType.Error, err.message || "Something went wrong");
-    });
+    // TODO remove this in future
+    // socket.on("connect_error", (err) => {
+    //   showToaster(EToastType.Error, err.message || "Something went wrong");
+    // });
 
     return () => {
       socket.off("connect", onConnect);
@@ -52,27 +47,17 @@ function UserHomePage() {
   }, []);
 
   useEffect(() => {
-    const token = getToken();
-
-    if (token) {
-      getUserData(token, userId!).then((data) => {
-        dispatcher(setUserData(data));
-      });
-      getUserChats(token, userId!).then((chats) => {
-        dispatcher(setChats(chats));
-      });
-    }
-  }, [dispatcher, userId]);
-  // const userData = await getUserData(userId!, token);
-
-  if (!userData) return null;
+    getUserChats(userData?._id).then(({ data }) => {
+      dispatch(setChats(data));
+    });
+  }, [dispatch, userData]);
 
   return (
     <>
       <TopBar />
-      <div className="flex gap-8 flex-1">
+      <div className="flex gap-8 h-[calc(100vh-8.5rem)]">
         <InfoWindow />
-        <ChatWindow />
+        <ChatWindow socket={socket} />
       </div>
     </>
   );

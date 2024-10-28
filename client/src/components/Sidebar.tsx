@@ -10,9 +10,9 @@ const Sidebar = ({ userData }: { userData: object | any }) => {
     <section className="section-bg col-span-2 row-span-full py-4 flex flex-col">
       <div className="flex flex-col lg:flex-row gap-0 md:gap-4 items-center p-4">
         <CircleAvatar
-          size={40}
           imageUrl={url ? url : "/assets/user.png"}
           alt={"User Icon"}
+          fallback={name?.slice(0, 1)?.toUpperCase()}
         />
         <div className="text-lg">
           Hii, <strong>{name}</strong>

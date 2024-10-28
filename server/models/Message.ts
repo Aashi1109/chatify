@@ -9,7 +9,7 @@ const messageSchema = new Schema<IMessage>(
     content: { type: String, required: true },
     sentAt: { type: Date, default: Date.now },
     deliveredAt: { type: Date },
-    seenAt: { type: Date },
+    seenAt: { type: Date, default: Date.now },
     type: {
       type: String,
       enum: EMessageType,

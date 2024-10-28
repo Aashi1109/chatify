@@ -3,7 +3,6 @@ import { IChat, IGroups, IMessage, IUser } from "@/definitions/interfaces";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IChatSlice {
-  currentUserData: IUser | null;
   interactionData: IUser | IGroups | IChat | null;
   interactionMessages: IMessage[] | null;
   chats: IChat[] | null;
@@ -11,7 +10,6 @@ interface IChatSlice {
 }
 
 const chatInitialState: IChatSlice = {
-  currentUserData: null,
   interactionData: null,
   interactionMessages: null,
   chats: null,
@@ -26,9 +24,6 @@ const chatSlice = createSlice({
   name: "chat",
   initialState: chatInitialState,
   reducers: {
-    setUserData: (state, action: PayloadAction<IUser | null>) => {
-      state.currentUserData = action.payload;
-    },
     setInteractionData: (
       state,
       action: PayloadAction<IUser | IGroups | IChat | null>
@@ -105,7 +100,6 @@ export const {
   setGroups,
   setInteractionData,
   setInteractionMessages,
-  setUserData,
   addChat,
   addInteractionMessage,
   addGroup,

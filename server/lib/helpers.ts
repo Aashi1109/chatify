@@ -2,11 +2,16 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
 import config from "@config";
-import {EUserRoles} from "@definitions/enums";
-import {ICustomRequest, IUser} from "@definitions/interfaces";
+import { EUserRoles } from "@definitions/enums";
+import {
+  IObjectKeys,
+  IPagination,
+  IUser,
+  IUserRequest,
+} from "@definitions/interfaces";
 
-import {FlattenMaps, Model, Require_id} from "mongoose";
-import {UnauthorizedError} from "@exceptions";
+import { FlattenMaps, Model, Require_id } from "mongoose";
+import { UnauthorizedError } from "@exceptions";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -18,13 +23,9 @@ const generateUserSafeCopy = (user: IUser | any): IUser => {
   // Create a shallow copy of the user object
   const _user = { ...user };
 
-  // Delete the password field from the copied user object
   delete _user.password;
-
-  // Delete the salt field from user object
   delete _user.salt;
 
-  // Return the safe copy of the user object
   return _user;
 };
 
@@ -35,7 +36,7 @@ const generateUserSafeCopy = (user: IUser | any): IUser => {
  * @throws {Error} Throws an error if hashing fails.
  */
 const hashPassword = async (
-  password: string,
+  password: string
 ): Promise<{ hashedPassword: string; salt: string }> => {
   try {
     const salt = await bcrypt.genSalt(config.saltRounds);
@@ -55,7 +56,7 @@ const hashPassword = async (
  */
 const generateAccessToken = async (user: IUser): Promise<string> => {
   try {
-    const payload = { username: user.username, role: user.role, id: user._id };
+    const payload = { username: user.username, role: user.role, _id: user._id };
     return jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn,
     });
@@ -73,7 +74,7 @@ const generateAccessToken = async (user: IUser): Promise<string> => {
  */
 const validatePassword = async (
   originalPassword: string,
-  comparePassword: string,
+  comparePassword: string
 ): Promise<boolean> => {
   try {
     return await bcrypt.compare(comparePassword, originalPassword);
@@ -106,27 +107,23 @@ const getByFilter =
      * @inner
      * @param {Object} filter - The filter object to query documents.
      * @param {Partial<Record<keyof T, any>>} filter - Optional dynamic fields to filter by.
-     * @param {string[]} populateFields - Array of fields to populate.
-     * @param {number} [limit] - Optional limit for the number of documents to return.
-     * @param {keyof T} [sortBy] - Optional field to sort by.
-     * @param {"asc"|"desc"} [sortOrder] - Optional order to sort (ascending or descending).
-     * @param {boolean} [doPopulate=true] - Whether to populate the specified fields.
-     * @param {number} [pageNumber=1] - Optional page number for pagination.
+     * @param {string[]} pagination - Object for pagination
      * @param {string} [not] - Optional page number for pagination.
+     * @param {object} [$where] - Extra filer object to include in query.
      * @returns {Promise<Require_id<FlattenMaps<T>>[]>} - A promise that resolves to an array of documents matching the query.
      */
     filter: Partial<Record<keyof T, any>>,
-    populateFields: string[],
-    limit?: number,
-    sortBy?: "createdAt" | "updatedAt",
-    sortOrder?: "asc" | "desc",
-    doPopulate = true,
-    pageNumber?: number,
+    pagination: IPagination,
     not?: string,
+    $where?: [string: any]
   ): Promise<Require_id<FlattenMaps<T>>[]> => {
     try {
-      pageNumber ??= 1;
+      let { pageNumber, limit, sortBy, sortOrder, populateFields, doPopulate } =
+        pagination || {};
+
       const skip = limit ? (pageNumber - 1) * limit : 0;
+
+      if ($where) filter = { ...filter, ...$where };
 
       let query = model.find(filter);
 
@@ -156,14 +153,32 @@ const getByFilter =
     }
   };
 
-const validateJwtTokenId = (req: ICustomRequest, id: string) => {
+const validateJwtTokenId = (req: IUserRequest, id: string) => {
   // validate if id and token being used is for the same user
-  if (req.token && req.token.payload.id !== id) {
+  console.log("req.user", req.user);
+  if (req.user && req.user._id?.toString() !== id) {
     throw new UnauthorizedError(
       "Invalid token provided",
-      "Token maybe valid but does not match with the user id provided",
+      "Token maybe valid but does not match with the user id provided"
     );
   }
+};
+
+export const getJWTPayload = async (rawToken: string) => {
+  const jwtPayload = <any>(
+    jwt.verify(rawToken?.split(" ")[0], config.jwt.secret, { complete: true })
+  );
+
+  return jwtPayload.payload;
+};
+
+export const createFilterFromParams = (params: IObjectKeys): IObjectKeys => {
+  return Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as IObjectKeys);
 };
 
 export {

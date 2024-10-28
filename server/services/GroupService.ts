@@ -1,7 +1,7 @@
-import {IGroups} from "@/definitions/interfaces";
-import {Groups} from "@models";
-import {getByFilter} from "@lib/helpers";
-import {FlattenMaps, Require_id} from "mongoose";
+import { IGroups, IPagination } from "@/definitions/interfaces";
+import { Groups } from "@models";
+import { getByFilter } from "@lib/helpers";
+import { FlattenMaps, Require_id } from "mongoose";
 
 /**
  * Service class for CRUD operations on Groups model.
@@ -13,7 +13,7 @@ class GroupService {
    * @returns {Promise<IGroups>} The created group.
    */
   static async createGroup(
-    groupData: IGroups,
+    groupData: IGroups
   ): Promise<InstanceType<typeof Groups>> {
     try {
       return (await Groups.create(groupData)).toJSON();
@@ -29,7 +29,7 @@ class GroupService {
    * @returns {Promise<IGroups | null>} The retrieved group, or null if not found.
    */
   static async getGroupById(
-    groupId: string,
+    groupId: string
   ): Promise<InstanceType<typeof Groups> | null> {
     try {
       return await Groups.findById(groupId).lean();
@@ -47,7 +47,7 @@ class GroupService {
    */
   static async updateGroup(
     groupId: string,
-    update: Partial<IGroups>,
+    update: Partial<IGroups>
   ): Promise<IGroups | null> {
     try {
       return await Groups.findByIdAndUpdate(groupId, update, {
@@ -78,12 +78,7 @@ class GroupService {
    * @param {Object} filter - The filter criteria for retrieving groups.
    * @param {string} [filter.creatorId] - The ID of the creator to filter groups by.
    * @param {string} [filter._id] - The ID of the group to filter by.
-   * @param {number} [limit] - The maximum number of groups to retrieve.
-   * @param {"createdAt" | "updatedAt"} [sortBy] - The field to sort the results by.
-   * @param {"asc" | "desc"} [sortOrder] - The order to sort the results in.
-   * @param {boolean} [doPopulate=true] - Whether to populate specified fields.
-   * @param {string[]} [populateFields] - The fields to populate in the results.
-   * @param {number} [pageNumber] - The page number for pagination.
+   * @param {object} pagination - The pagination object for query.
    * @param {string} [not] - A field value to exclude from the results.
    * @returns {Promise<Require_id<FlattenMaps<IChats>>[]>} A promise that resolves to an array of groups matching the filter criteria.
    */
@@ -92,27 +87,12 @@ class GroupService {
       creatorId?: string;
       _id?: string;
     },
-    limit?: number,
-    sortBy?: "createdAt" | "updatedAt",
-    sortOrder?: "asc" | "desc",
-    doPopulate: boolean = true,
-    populateFields?: string[],
-    pageNumber?: number,
-    not?: string,
+    pagination: IPagination,
+    not?: string
   ): Promise<Require_id<FlattenMaps<IGroups>>[]> {
-    populateFields ??= ["messages", "creatorId"];
-    pageNumber ??= 1;
+    pagination.populateFields ??= ["messages", "creatorId"];
 
-    return getByFilter(Groups)(
-      filter,
-      populateFields,
-      limit,
-      sortBy,
-      sortOrder,
-      doPopulate,
-      pageNumber,
-      not,
-    );
+    return getByFilter(Groups)(filter, pagination, not);
   }
 }
 

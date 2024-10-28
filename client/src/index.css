@@ -128,10 +128,6 @@ body {
     @apply flex flex-col gap-2;
   }
 
-  .modal-form {
-    @apply rounded-xl p-8 bg-[--primary-hex] w-[95vw] sm:max-w-[500px] border border-gray-500;
-  }
-
   /*.button {*/
   /*    @apply w-full rounded-lg text-center px-4 py-[10px] bg-white text-black mb-4 font-semibold;*/
   /*}*/

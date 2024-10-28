@@ -60,8 +60,7 @@ interface ICloudinaryResponse {
 
 interface IChats {
   messages: Types.ObjectId[];
-  userId: Types.ObjectId;
-  receiverId: Types.ObjectId;
+  participants: Types.ObjectId[];
   optype?: "add" | "delete";
 }
 
@@ -84,10 +83,10 @@ interface IUserGroups {
 }
 
 interface IMessage {
-  userId: Types.ObjectId;
+  userId: Types.ObjectId | string;
   chatId: Types.ObjectId;
   content: string;
-  sentAt: Date;
+  sentAt?: Date;
   deliveredAt?: Date;
   seenAt?: Date;
   groupId?: Types.ObjectId;
@@ -105,13 +104,30 @@ interface IFileData {
   fileMetadata?: Record<string, any>;
 }
 
-interface ICustomRequest extends Request {
-  token: JwtPayload;
+interface IUserRequest extends Request {
+  user: IUser;
+}
+
+export interface IPagination {
+  limit?: number;
+  sortBy?: "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  pageNumber?: number;
+  doPopulate?: boolean;
+  populateFields?: string[];
+}
+
+export interface IRequestPagination extends Request {
+  pagination: IPagination;
+}
+
+export interface IObjectKeys {
+  [key: string]: any;
 }
 
 export {
   IChats,
-  ICustomRequest,
+  IUserRequest,
   ICloudinaryImageUploadOptions,
   ICloudinaryResponse,
   IFileData,

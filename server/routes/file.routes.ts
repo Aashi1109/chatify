@@ -7,23 +7,23 @@ import {
   uploadFile,
 } from "@controllers/fileupload.controller";
 import asyncHandler from "@middlewares/asyncHandler";
-import checkJwt from "@middlewares/checkJwt";
+import userParser from "@middlewares/userParser";
 import { validateFileUploadData } from "@middlewares/validators";
 
 const router = Router();
 
-router.get("query", [checkJwt], asyncHandler(getAllFileData));
+router.get("query", [userParser], asyncHandler(getAllFileData));
 
 router.post("/upload", [validateFileUploadData], asyncHandler(uploadFile));
 router.post(
   "/cloudinary/:id",
-  [checkJwt],
-  asyncHandler(getCloudinaryFileByPublicId),
+  [userParser],
+  asyncHandler(getCloudinaryFileByPublicId)
 );
 
 router
   .route("/:id")
-  .get([checkJwt], asyncHandler(getFileDataById))
-  .delete([checkJwt], asyncHandler(deleteFileDataById));
+  .get([userParser], asyncHandler(getFileDataById))
+  .delete([userParser], asyncHandler(deleteFileDataById));
 
 export default router;

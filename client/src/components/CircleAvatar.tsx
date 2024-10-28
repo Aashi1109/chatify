@@ -1,25 +1,20 @@
 import { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClassValue } from "clsx";
+import { cn } from "@/lib/utils";
 
 const CircleAvatar: FC<{
-  size: number;
   imageUrl: string;
   alt: string | null;
-}> = ({ size, imageUrl, alt }) => {
-  const fallbackText = alt
-    ?.split(" ")
-    .map((tx) => (tx.length ? tx[0] : "").toUpperCase())
-    .join("");
-
+  fallback: string;
+  classes?: ClassValue;
+}> = ({ imageUrl, alt, fallback, classes }) => {
   return (
-    <Avatar>
-      <AvatarImage
-        height={size}
-        width={size}
-        alt={alt ?? "Circle Avatar"}
-        src={imageUrl}
-      />
-      <AvatarFallback>{fallbackText ?? ""}</AvatarFallback>
+    <Avatar className={cn(`w-10 h-10`, classes)}>
+      <AvatarImage alt={alt ?? "Circle Avatar"} src={imageUrl} />
+      <AvatarFallback className="text-foreground">
+        {fallback ?? ""}
+      </AvatarFallback>
     </Avatar>
   );
 };

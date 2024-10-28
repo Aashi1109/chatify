@@ -1,4 +1,4 @@
-import { IMessage } from "@definitions/interfaces";
+import { IMessage, IPagination } from "@definitions/interfaces";
 import { Message } from "@models";
 import { getByFilter } from "@lib/helpers";
 
@@ -92,8 +92,8 @@ class MessageService {
 
   /**
    * Get messages by filter.
-   * @param filter Filter objec to filter messages
-   * @param singleRow Whether to return first match only. Default is false which returns all messages.
+   * @param filter - Filter object to filter messages
+   * @param pagination - Whether to return first match only. Default is false which returns all messages.
    * @returns {Promise<Message[] | Message>} A promise that resolves with an array of filtered messages.
    */
   static async getMessagesByFilter(
@@ -103,26 +103,12 @@ class MessageService {
       groupId?: string;
       _id?: string;
     },
-    limit?: number,
-    sortBy?: "createdAt" | "updatedAt",
-    sortOrder?: "asc" | "desc",
-    doPopulate = true,
-    pageNumber?: number,
-    populateFields?: string[],
-    not?: string,
+    pagination?: IPagination,
+    not?: string
   ) {
-    pageNumber ??= 1;
-    populateFields ??= ["userId", "chatId", "groupId"];
-    return getByFilter(Message)(
-      filter,
-      populateFields,
-      limit,
-      sortBy,
-      sortOrder,
-      doPopulate,
-      pageNumber,
-      not,
-    );
+    if (pagination)
+      pagination.populateFields ??= ["userId", "chatId", "groupId"];
+    return getByFilter(Message)(filter, pagination, not);
   }
 
   /**
@@ -138,7 +124,7 @@ class MessageService {
     messageId: string,
     content: string,
     deliveredAt: Date,
-    seenAt: Date,
+    seenAt: Date
   ) {
     try {
       return (await Message.findByIdAndUpdate(
@@ -146,7 +132,7 @@ class MessageService {
         { content, deliveredAt, seenAt },
         {
           new: true,
-        },
+        }
       ).lean()) as InstanceType<typeof Message>;
     } catch (error) {
       console.error("Error updating message by ID:", error);
@@ -162,7 +148,7 @@ class MessageService {
   static async deleteById(messageId: string) {
     try {
       return (await Message.findByIdAndDelete(
-        messageId,
+        messageId
       ).lean()) as InstanceType<typeof Message>;
     } catch (error) {
       console.error("Error deleting message by ID:", error);

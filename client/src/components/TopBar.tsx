@@ -1,9 +1,8 @@
-import CircleAvatar from "./CircleAvatar";
-
 import { useAppSelector } from "@/hook";
 import AddNewActionDropdown from "@/components/ui/AddNewActionDropdown.tsx";
 import UserProfileActionDropdown from "@/components/ui/UserProfileActionDropdown.tsx";
 import { Bell } from "lucide-react";
+import CircleAvatar from "./CircleAvatar";
 
 const TopBar = () => {
   const userData = useAppSelector((state) => state.chat.currentUserData);
@@ -13,9 +12,9 @@ const TopBar = () => {
     <section className="flex justify-between items-center">
       <a className="flex-center gap-4 cursor-pointer" href="/">
         <CircleAvatar
-          size={40}
-          imageUrl={"/assets/logo.png"}
-          alt={"User Icon"}
+          imageUrl="/assets/logo.png"
+          alt="User Icon"
+          fallback="C"
         />
         <p className="text-2xl font-medium ">Chatify</p>
       </a>

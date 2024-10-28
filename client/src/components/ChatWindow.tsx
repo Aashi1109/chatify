@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button.tsx";
-import { IUser } from "@/definitions/interfaces.ts";
+import { IMessage, IUser } from "@/definitions/interfaces.ts";
 import {
   addInteractionMessage,
   setInteractionData,
   setInteractionMessages,
 } from "@/features/chatSlice.ts";
 import { useAppDispatch, useAppSelector } from "@/hook";
-import { getToken, getUserId } from "@/lib/helpers/generalHelper";
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
 import { cn } from "@/lib/utils";
 import { Phone, Send, X } from "lucide-react";
@@ -16,33 +15,33 @@ import ChatItemCard from "./chatitems/ChatItemCard";
 import ChatText from "./chatitems/ChatText";
 import CircleAvatar from "./CircleAvatar";
 import NewConversationGreetMessage from "./NewConversationGreetMessage";
-import { createMessage } from "@/actions/form.ts";
+import { Socket } from "socket.io-client";
+import { ESocketMessageEvents } from "@/definitions/enums";
 
-const ChatWindow = () => {
+interface IProps {
+  socket: Socket;
+}
+
+const ChatWindow = ({ socket }: IProps) => {
   const dispatch = useAppDispatch();
-  const currentUserId = getUserId();
 
-  const interactionData = useAppSelector(
-    (state) => state.chat.interactionData,
-  ) as IUser;
+  const currentUser = useAppSelector((state) => state.auth.user);
 
-  const interactionMessages = useAppSelector(
-    (state) => state.chat.interactionMessages,
+  const { interactionMessages, interactionData } = useAppSelector(
+    (state) => state.chat
   );
+  const typedInteractionData = interactionData as IUser;
 
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const [chatTextarea, setChatTextarea] = useState<string>("");
 
   const hasMessages = interactionMessages && interactionMessages?.length;
   const interactionUserImageUrl =
-    interactionData?.profileImage?.url || "/assets/user.png";
-
-  // console.log("interactionMessages", interactionMessages);
-  // console.log("interactionData", interactionData);
+    typedInteractionData?.profileImage?.url || "/assets/user.png";
 
   const isInputContentPresent = chatTextarea !== "";
   const handleGreetMessageClick = () => {
-    const greetMessage = `Hello, ${interactionData?.name}`;
+    const greetMessage = `Hello, ${typedInteractionData?.name}`;
 
     if (!isInputContentPresent) {
       setChatTextarea(greetMessage);
@@ -59,29 +58,44 @@ const ChatWindow = () => {
       return;
     }
 
-    const token = getToken();
-    if (!token) {
-      return;
-    }
-
     const messageData = {
       content: chatTextarea,
-      chatId: interactionData?._id || "",
-      userId: currentUserId || "",
-      sentAt: new Date(),
+      userId: currentUser?._id || "",
+      type: "text",
+      receiverId: typedInteractionData._id,
     };
 
     try {
-      const createdMessage = await createMessage(token, messageData);
-      if (!createdMessage || !createdMessage.success) {
-        return;
-      }
+      socket.emit(
+        ESocketMessageEvents.NEW_MESSAGE,
+        { ...messageData },
+        ({
+          data,
+          error,
+        }: {
+          data?: { chatId: string; message: IMessage };
+          error?: any;
+        }) => {
+          if (error) {
+            console.error("Error sending message:", error);
+            // Handle error (e.g., show an error message to the user)
+          } else if (data) {
+            dispatch(addInteractionMessage(data.message));
+          }
+        }
+      );
 
       setChatTextarea("");
-      dispatch(addInteractionMessage(createdMessage.data));
     } catch (error) {
       console.error("Error creating message : ", error);
       throw error;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleFormSubmit(e as unknown as SubmitEvent);
     }
   };
 
@@ -91,27 +105,29 @@ const ChatWindow = () => {
       style={{ height: "calc(100vh - 8.5rem)" }}
     >
       {/* chat head */}
-      {interactionData && (
+      {typedInteractionData && (
         <div className={twMerge("flex items-center justify-between")}>
           <div className="flex items-center gap-6 flex-1">
             <CircleAvatar
-              size={50}
               alt={"user image"}
               imageUrl={interactionUserImageUrl}
+              fallback={
+                typedInteractionData?.name?.slice(0, 1)?.toUpperCase() || ""
+              }
             />
 
             <div className="flex flex-col justify-center items-start flex-nowrap">
               <p className="font-bold text-lg text-ellipsis">
-                {interactionData?.name}
+                {typedInteractionData?.name}
               </p>
               <p className="text-sm flex-center gap-1 dark:tex">
-                {interactionData?.isActive ? (
+                {typedInteractionData?.isActive ? (
                   <>
                     <div className="h-2 w-2 rounded-full animate-pulse bg-green-600" />
                     <p>Active</p>
                   </>
                 ) : (
-                  `Last seen on ${formatTimeAgo(interactionData?.lastSeenAt)}`
+                  `Last seen on ${formatTimeAgo(typedInteractionData?.lastSeenAt)}`
                 )}
               </p>
             </div>
@@ -144,18 +160,19 @@ const ChatWindow = () => {
               {
                 "items-center": !hasMessages,
                 "items-stretch": hasMessages,
-              },
+              }
             )}
           >
             {hasMessages
               ? interactionMessages?.map((message) => {
                   return (
                     <ChatItemCard
-                      key={message.id}
+                      key={message._id}
                       imageUrl={interactionUserImageUrl}
-                      isCurrentUserChat={currentUserId === message.userId}
+                      isCurrentUserChat={currentUser?._id === message.userId}
                       RenderComponent={<ChatText text={message.content} />}
                       chatSentTime={message.sentAt}
+                      name={typedInteractionData.name}
                     />
                   );
                 })
@@ -165,7 +182,7 @@ const ChatWindow = () => {
                     onClick={handleGreetMessageClick}
                   >
                     <NewConversationGreetMessage
-                      name={interactionData.name || ""}
+                      name={typedInteractionData.name || ""}
                     />
                   </div>
                 )}
@@ -217,6 +234,7 @@ const ChatWindow = () => {
               value={chatTextarea}
               onChange={(e) => setChatTextarea(e.target.value)}
               ref={chatInputRef}
+              onKeyDown={handleKeyDown}
               // rows={1}
               // minLength={23}
             />

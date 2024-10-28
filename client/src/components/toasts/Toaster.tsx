@@ -1,5 +1,5 @@
 import { EToastType } from "@/definitions/enums";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 
 const Toaster = ({
@@ -28,7 +28,7 @@ const Toaster = ({
   return (
     <div className="flex-1 w-full h-full p-2 rounded-lg flex gap-4 max-w-80 bg-white relative overflow-y-auto">
       <div
-        className={clsx(
+        className={cn(
           {
             "bg-green-700": toastType == EToastType.Success,
             "bg-[--danger-hex]": toastType === EToastType.Error,
@@ -40,7 +40,7 @@ const Toaster = ({
       ></div>
       <div className="flex flex-col justify-around py-1">
         <p
-          className={clsx(
+          className={cn(
             {
               "text-green-700": toastType == EToastType.Success,
               "text-[--danger-hex]": toastType === EToastType.Error,

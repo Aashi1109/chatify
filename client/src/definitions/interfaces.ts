@@ -56,7 +56,7 @@ export interface IUserChat {
 }
 
 export interface IMessage {
-  id?: string;
+  _id?: string;
   userId: string;
   chatId: string;
   content: string;
@@ -80,4 +80,12 @@ export interface IGroups {
     fileDataId: string;
   };
   users?: string[];
+}
+
+export enum ESocketMessageEvents {
+  // Chat events
+  TYPING = "message:typing",
+  NEW_MESSAGE = "message:create",
+  MESSAGE_UPDATE = "message:update",
+  MESSAGE_DELETE = "message:delete",
 }

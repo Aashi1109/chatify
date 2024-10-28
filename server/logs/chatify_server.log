@@ -1,74 +1,164 @@
-{"asctime":"2024-07-14 22:24:12","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:24:18","level":"INFO","service":"Giffy Server","message":"Connected"}
-{"asctime":"2024-07-14 22:25:43","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:25:43","level":"INFO","service":"Giffy Server","message":"Connected 5YJnDtW61qw30ZAFAAAB"}
-{"asctime":"2024-07-14 22:28:08","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:28:27","level":"INFO","service":"Giffy Server","message":"Connected cD2I48KHkDQqM9QLAAAB"}
-{"asctime":"2024-07-14 22:31:36","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:31:41","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:31:41","level":"INFO","service":"Giffy Server","message":"Connected ktbcNjlv5R5kv6IlAAAB"}
-{"asctime":"2024-07-14 22:33:39","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:33:39","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:33:39","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> [object Object]"}
-{"asctime":"2024-07-14 22:33:39","level":"INFO","service":"Giffy Server","message":"Connected KJPwthR39ZModsvqAAAB"}
-{"asctime":"2024-07-14 22:36:41","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:36:41","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:36:41","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> [object Object]"}
-{"asctime":"2024-07-14 22:36:41","level":"INFO","service":"Giffy Server","message":"Connected -BMAfWdnN-AxB2QDAAAB"}
-{"asctime":"2024-07-14 22:37:26","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:37:26","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:37:26","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> [object Object]"}
-{"asctime":"2024-07-14 22:37:26","level":"INFO","service":"Giffy Server","message":"Connected HEQeeDI91dU3U762AAAB"}
-{"asctime":"2024-07-14 22:37:58","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:37:59","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:37:59","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:37:59","level":"INFO","service":"Giffy Server","message":"Connected hPf-nWN8ANYY1w93AAAB"}
-{"asctime":"2024-07-14 22:38:41","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:39:28","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:39:28","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:40:26","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:40:27","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:41:09","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:41:13","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:41:22","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:41:37","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:42:48","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:43:01","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token undefined"}
-{"asctime":"2024-07-14 22:43:26","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:44:09","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:44:11","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:44:11","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:44:11","level":"INFO","service":"Giffy Server","message":"Connected fZL3TvyExWofdqsVAAAD"}
-{"asctime":"2024-07-14 22:44:11","level":"DEBUG","service":"Giffy Server","message":"Socket object: [object Object]"}
-{"asctime":"2024-07-14 22:44:11","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:44:11","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:44:11","level":"INFO","service":"Giffy Server","message":"Connected KRoRW_bXqrbZxlV5AAAE"}
-{"asctime":"2024-07-14 22:44:11","level":"DEBUG","service":"Giffy Server","message":"Socket object: [object Object]"}
-{"asctime":"2024-07-14 22:44:32","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:44:32","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:44:32","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:44:32","level":"INFO","service":"Giffy Server","message":"Connected IPKPSLHmksnH84B0AAAD"}
-{"asctime":"2024-07-14 22:44:32","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:44:32","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:44:32","level":"INFO","service":"Giffy Server","message":"Connected RijYrrfyLd_qVlI0AAAE"}
-{"asctime":"2024-07-14 22:45:02","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:45:02","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:45:02","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:45:02","level":"INFO","service":"Giffy Server","message":"Connected hi_2jncp5ryN_jt2AAAD"}
-{"asctime":"2024-07-14 22:45:02","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:45:02","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:45:02","level":"INFO","service":"Giffy Server","message":"Connected IJN7eq7QLoym7WGJAAAE"}
-{"asctime":"2024-07-14 22:54:07","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:54:07","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:54:07","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:54:07","level":"INFO","service":"Giffy Server","message":"Connected Nyo1BRCU5P0FAJtyAAAD"}
-{"asctime":"2024-07-14 22:54:07","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:54:07","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:54:07","level":"INFO","service":"Giffy Server","message":"Connected JDHM2_rGs5ZJOrlYAAAE"}
-{"asctime":"2024-07-14 22:59:08","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:5000"}
-{"asctime":"2024-07-14 22:59:09","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:59:09","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:59:09","level":"INFO","service":"Giffy Server","message":"Connected _1bFsACMRFVsV8hIAAAC"}
-{"asctime":"2024-07-14 22:59:09","level":"DEBUG","service":"Giffy Server","message":"User 666dc3a88ef46527049d309b. Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWQiOiI2NjZkYzNhODhlZjQ2NTI3MDQ5ZDMwOWIiLCJpYXQiOjE3MjA5Mzk4MjYsImV4cCI6MTcyMzUzMTgyNn0.Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I"}
-{"asctime":"2024-07-14 22:59:09","level":"DEBUG","service":"Giffy Server","message":"Validation check for userId: 666dc3a88ef46527049d309b -> {\"header\":{\"alg\":\"HS256\",\"typ\":\"JWT\"},\"payload\":{\"username\":\"admin\",\"role\":\"admin\",\"id\":\"666dc3a88ef46527049d309b\",\"iat\":1720939826,\"exp\":1723531826},\"signature\":\"Tc4Pltq-nCTittJY3A2dwSwwiPyWFukip8VTTbZ597I\"}"}
-{"asctime":"2024-07-14 22:59:09","level":"INFO","service":"Giffy Server","message":"Connected dN0SSL6ePMmHnuNUAAAE"}
+{"asctime":"2024-10-27 12:46:12","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 12:46:39","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 12:47:11","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 12:48:42","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 12:53:31","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 12:56:59","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 13:00:26","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:08:15","level":"DEBUG","service":"Giffy Server","message":"socket.handshake, {\"headers\":{\"host\":\"localhost:3001\",\"connection\":\"close\",\"sec-ch-ua-platform\":\"\\\"macOS\\\"\",\"user-agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36\",\"accept\":\"*/*\",\"sec-ch-ua\":\"\\\"Chromium\\\";v=\\\"130\\\", \\\"Google Chrome\\\";v=\\\"130\\\", \\\"Not?A_Brand\\\";v=\\\"99\\\"\",\"dnt\":\"1\",\"sec-ch-ua-mobile\":\"?0\",\"sec-fetch-site\":\"same-origin\",\"sec-fetch-mode\":\"cors\",\"sec-fetch-dest\":\"empty\",\"referer\":\"http://localhost:3000/\",\"accept-encoding\":\"gzip, deflate, br, zstd\",\"accept-language\":\"en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7\",\"cookie\":\"jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1cmFtYSIsInJvbGUiOiJhZG1pbiIsIl9pZCI6IjY3MWNjZjAxNzkwZGE1OTU3NjA2MjMwZSIsImlhdCI6MTczMDAwMDc2NiwiZXhwIjoxNzMyNTkyNzY2fQ.MAbW92kLkgg-zX_IfMASnVOI5Ajj8WYSH7fVCO1uHHU\"},\"time\":\"Sun Oct 27 2024 15:07:46 GMT+0530 (India Standard Time)\",\"address\":\"::1\",\"xdomain\":false,\"secure\":false,\"issued\":1730021866030,\"url\":\"/socket.io/?EIO=4&transport=polling&t=PBDLheH\",\"query\":{\"EIO\":\"4\",\"transport\":\"polling\",\"t\":\"PBDLheH\"},\"auth\":{}}"}
+{"asctime":"2024-10-27 15:08:22","level":"DEBUG","service":"Giffy Server","message":"User undefined. Token undefined"}
+{"asctime":"2024-10-27 15:08:37","level":"DEBUG","service":"Giffy Server","message":"socket.handshake, {\"headers\":{\"host\":\"localhost:3001\",\"connection\":\"close\",\"sec-ch-ua-platform\":\"\\\"macOS\\\"\",\"user-agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36\",\"accept\":\"*/*\",\"sec-ch-ua\":\"\\\"Chromium\\\";v=\\\"130\\\", \\\"Google Chrome\\\";v=\\\"130\\\", \\\"Not?A_Brand\\\";v=\\\"99\\\"\",\"dnt\":\"1\",\"sec-ch-ua-mobile\":\"?0\",\"sec-fetch-site\":\"same-origin\",\"sec-fetch-mode\":\"cors\",\"sec-fetch-dest\":\"empty\",\"referer\":\"http://localhost:3000/\",\"accept-encoding\":\"gzip, deflate, br, zstd\",\"accept-language\":\"en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7\",\"cookie\":\"jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1cmFtYSIsInJvbGUiOiJhZG1pbiIsIl9pZCI6IjY3MWNjZjAxNzkwZGE1OTU3NjA2MjMwZSIsImlhdCI6MTczMDAwMDc2NiwiZXhwIjoxNzMyNTkyNzY2fQ.MAbW92kLkgg-zX_IfMASnVOI5Ajj8WYSH7fVCO1uHHU\"},\"time\":\"Sun Oct 27 2024 15:08:33 GMT+0530 (India Standard Time)\",\"address\":\"::1\",\"xdomain\":false,\"secure\":false,\"issued\":1730021913279,\"url\":\"/socket.io/?EIO=4&transport=polling&t=PBDLtAd\",\"query\":{\"EIO\":\"4\",\"transport\":\"polling\",\"t\":\"PBDLtAd\"},\"auth\":{}}"}
+{"asctime":"2024-10-27 15:08:37","level":"DEBUG","service":"Giffy Server","message":"User undefined. Token undefined"}
+{"asctime":"2024-10-27 15:13:15","level":"DEBUG","service":"Giffy Server","message":"socket.handshake, {\"headers\":{\"host\":\"localhost:3001\",\"connection\":\"close\",\"sec-ch-ua-platform\":\"\\\"macOS\\\"\",\"user-agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36\",\"accept\":\"*/*\",\"sec-ch-ua\":\"\\\"Chromium\\\";v=\\\"130\\\", \\\"Google Chrome\\\";v=\\\"130\\\", \\\"Not?A_Brand\\\";v=\\\"99\\\"\",\"dnt\":\"1\",\"sec-ch-ua-mobile\":\"?0\",\"sec-fetch-site\":\"same-origin\",\"sec-fetch-mode\":\"cors\",\"sec-fetch-dest\":\"empty\",\"referer\":\"http://localhost:3000/\",\"accept-encoding\":\"gzip, deflate, br, zstd\",\"accept-language\":\"en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7\",\"cookie\":\"jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1cmFtYSIsInJvbGUiOiJhZG1pbiIsIl9pZCI6IjY3MWNjZjAxNzkwZGE1OTU3NjA2MjMwZSIsImlhdCI6MTczMDAwMDc2NiwiZXhwIjoxNzMyNTkyNzY2fQ.MAbW92kLkgg-zX_IfMASnVOI5Ajj8WYSH7fVCO1uHHU\"},\"time\":\"Sun Oct 27 2024 15:08:52 GMT+0530 (India Standard Time)\",\"address\":\"::1\",\"xdomain\":false,\"secure\":false,\"issued\":1730021932998,\"url\":\"/socket.io/?EIO=4&transport=polling&t=PBDLx-k\",\"query\":{\"EIO\":\"4\",\"transport\":\"polling\",\"t\":\"PBDLx-k\"},\"auth\":{}}"}
+{"asctime":"2024-10-27 15:13:15","level":"DEBUG","service":"Giffy Server","message":"User undefined. Token undefined"}
+{"asctime":"2024-10-27 15:13:18","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:13:42","level":"INFO","service":"Giffy Server","message":"Connected KIIUtmlLsvICKD4JAAAB"}
+{"asctime":"2024-10-27 15:14:04","level":"INFO","service":"Giffy Server","message":"Connected -JCXuar-YizOVqcFAAAE"}
+{"asctime":"2024-10-27 15:16:59","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:19:27","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:31:31","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:32:02","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:32:39","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:33:59","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:35:59","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:36:23","level":"INFO","service":"Giffy Server","message":"Connected rDl86nXZx3iC7eIPAAAB"}
+{"asctime":"2024-10-27 15:37:02","level":"INFO","service":"Giffy Server","message":"Connected NiA7eI6K63oHUptWAAAD"}
+{"asctime":"2024-10-27 15:46:23","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:46:29","level":"INFO","service":"Giffy Server","message":"Connected SXSQccZ-R4v6eEPIAAAB"}
+{"asctime":"2024-10-27 15:48:09","level":"INFO","service":"Giffy Server","message":"Connected cm47xNtmcGPodlhiAAAD"}
+{"asctime":"2024-10-27 15:49:11","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 15:49:12","level":"INFO","service":"Giffy Server","message":"Connected RGnuZiJcjcNIiLFRAAAB"}
+{"asctime":"2024-10-27 16:06:24","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:06:54","level":"INFO","service":"Giffy Server","message":"Connected kzhEf8wQr3zrlTXdAAAB"}
+{"asctime":"2024-10-27 16:07:30","level":"INFO","service":"Giffy Server","message":"Connected KXOu6l8dzAlOUk6XAAAD"}
+{"asctime":"2024-10-27 16:08:03","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:08:03","level":"INFO","service":"Giffy Server","message":"Connected V95eZb8vR6qj0VreAAAB"}
+{"asctime":"2024-10-27 16:11:20","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:11:21","level":"INFO","service":"Giffy Server","message":"Connected j0yWcsFmT7nEDHYIAAAB"}
+{"asctime":"2024-10-27 16:11:41","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:11:43","level":"INFO","service":"Giffy Server","message":"Connected 6ohT1GjE4RxY4gATAAAB"}
+{"asctime":"2024-10-27 16:11:46","level":"INFO","service":"Giffy Server","message":"Connected L-tmIMu64ZG1A6h4AAAD"}
+{"asctime":"2024-10-27 16:14:05","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:14:08","level":"INFO","service":"Giffy Server","message":"Connected k7dj_lZ9bQx0BaydAAAB"}
+{"asctime":"2024-10-27 16:14:08","level":"INFO","service":"Giffy Server","message":"Connected ZY84GipbVMVUy1BIAAAD"}
+{"asctime":"2024-10-27 16:16:07","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:16:09","level":"INFO","service":"Giffy Server","message":"Connected kT2u9u0zOKgWCE6GAAAB"}
+{"asctime":"2024-10-27 16:16:22","level":"INFO","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat 671ccc98bb7a5ba01afa8b69"}
+{"asctime":"2024-10-27 16:20:34","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 16:20:34","level":"INFO","service":"Giffy Server","message":"Connected IR3eJeEwvxB0sS-1AAAD"}
+{"asctime":"2024-10-27 16:26:50","level":"INFO","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat 671ccc98bb7a5ba01afa8b69"}
+{"asctime":"2024-10-27 16:26:52","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:26:57","level":"INFO","service":"Giffy Server","message":"Connected bLxj_wNtAu_GxOrmAAAB"}
+{"asctime":"2024-10-27 16:37:42","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 16:37:43","level":"INFO","service":"Giffy Server","message":"Connected hY9ce14yNDa-DvhhAAAD"}
+{"asctime":"2024-10-27 16:43:23","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat 671ccc98bb7a5ba01afa8b69"}
+{"asctime":"2024-10-27 16:45:14","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat 671ccc98bb7a5ba01afa8b69"}
+{"asctime":"2024-10-27 16:46:24","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:46:28","level":"INFO","service":"Giffy Server","message":"Connected 3OrL5SAI7KcJNx3CAAAB"}
+{"asctime":"2024-10-27 16:48:59","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:49:01","level":"INFO","service":"Giffy Server","message":"Connected 4Dk6VOOy_suYzoQEAAAB"}
+{"asctime":"2024-10-27 16:52:33","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:52:34","level":"INFO","service":"Giffy Server","message":"Connected oHb9P1tvxKi-ZtBNAAAB"}
+{"asctime":"2024-10-27 16:53:16","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 16:55:23","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 16:55:23","level":"INFO","service":"Giffy Server","message":"Connected n3KCJydSjy4h3fCUAAAF"}
+{"asctime":"2024-10-27 16:55:58","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 16:56:20","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 16:56:22","level":"INFO","service":"Giffy Server","message":"Connected Gb4aEjKYx8KoNfHQAAAB"}
+{"asctime":"2024-10-27 16:56:40","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 16:57:12","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 16:57:15","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 16:57:15","level":"INFO","service":"Giffy Server","message":"Connected MmFGlBrssuFFzDYiAAAD"}
+{"asctime":"2024-10-27 16:57:30","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 16:57:53","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 16:57:53","level":"INFO","service":"Giffy Server","message":"Connected tG-DIoPC6pj9EBtWAAAF"}
+{"asctime":"2024-10-27 16:58:05","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 16:58:05","level":"INFO","service":"Giffy Server","message":"Connected OoCI5OAUjA9urCD8AAAH"}
+{"asctime":"2024-10-27 21:26:53","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:26:55","level":"INFO","service":"Giffy Server","message":"Connected x8GJv5SXetYnx-RhAAAB"}
+{"asctime":"2024-10-27 21:27:26","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:30:24","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:40:00","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:40:05","level":"INFO","service":"Giffy Server","message":"Connected mkCxdbrdjHwIePnMAAAB"}
+{"asctime":"2024-10-27 21:40:11","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:40:27","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:41:47","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:42:44","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:43:18","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:43:20","level":"INFO","service":"Giffy Server","message":"Connected _sCWGOT8Ve8aA98iAAAB"}
+{"asctime":"2024-10-27 21:44:02","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:45:35","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:45:36","level":"INFO","service":"Giffy Server","message":"Connected PNtIhj01ZSK4aPCCAAAD"}
+{"asctime":"2024-10-27 21:46:04","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:46:46","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:46:46","level":"INFO","service":"Giffy Server","message":"Connected ITsWDSlvYHOb83RpAAAB"}
+{"asctime":"2024-10-27 21:47:34","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:47:36","level":"INFO","service":"Giffy Server","message":"Connected aLeVN-ghVyT_5CI6AAAB"}
+{"asctime":"2024-10-27 21:47:41","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:48:21","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:48:57","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:49:00","level":"INFO","service":"Giffy Server","message":"Connected TGrKyhMyyAHOs7lHAAAB"}
+{"asctime":"2024-10-27 21:49:07","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat undefined"}
+{"asctime":"2024-10-27 21:49:45","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:50:03","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-27 21:50:11","level":"INFO","service":"Giffy Server","message":"Connected mF43Z7x4al-GV8d2AAAB"}
+{"asctime":"2024-10-27 21:50:18","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:50:19","level":"INFO","service":"Giffy Server","message":"Connected M3Sj3U1vE-Fiv6ipAAAD"}
+{"asctime":"2024-10-27 21:50:28","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat 671dca0187c62d9ad756d355"}
+{"asctime":"2024-10-27 21:51:40","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:51:41","level":"INFO","service":"Giffy Server","message":"Connected vswDSCPwgn44WciyAAAF"}
+{"asctime":"2024-10-27 21:54:27","level":"ERROR","service":"Giffy Server","message":"Missing or invalid token"}
+{"asctime":"2024-10-27 21:56:04","level":"ERROR","service":"Giffy Server","message":"Provided id(s) validation failed"}
+{"asctime":"2024-10-27 21:56:10","level":"ERROR","service":"Giffy Server","message":"Provided id(s) validation failed"}
+{"asctime":"2024-10-27 21:56:50","level":"INFO","service":"Giffy Server","message":"Connected z_8IFFlybg8tm2rKAAAJ"}
+{"asctime":"2024-10-27 21:57:23","level":"INFO","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c disconnected"}
+{"asctime":"2024-10-27 21:57:23","level":"INFO","service":"Giffy Server","message":"Connected r-gzuIvlibjy3uJhAAAL"}
+{"asctime":"2024-10-27 21:57:39","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:57:39","level":"INFO","service":"Giffy Server","message":"Connected n_nw1A4kMVx32v15AAAN"}
+{"asctime":"2024-10-27 21:57:57","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:57:57","level":"INFO","service":"Giffy Server","message":"Connected Ibf7Uoybois58plNAAAP"}
+{"asctime":"2024-10-27 21:58:15","level":"DEBUG","service":"Giffy Server","message":"New message from user 671ccf01790da5957606230e in chat 671e6a0aa1d1b6d4f3a5cd62"}
+{"asctime":"2024-10-27 21:58:23","level":"INFO","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c disconnected"}
+{"asctime":"2024-10-27 21:58:23","level":"INFO","service":"Giffy Server","message":"Connected cffIFgRWJVPrFOb4AAAR"}
+{"asctime":"2024-10-27 21:58:28","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:58:28","level":"INFO","service":"Giffy Server","message":"Connected n4tBj3Qgbh2j9SPhAAAT"}
+{"asctime":"2024-10-27 21:58:34","level":"INFO","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c disconnected"}
+{"asctime":"2024-10-27 21:58:34","level":"INFO","service":"Giffy Server","message":"Connected mSquVeVvGvnloN2-AAAV"}
+{"asctime":"2024-10-27 21:59:07","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 21:59:07","level":"INFO","service":"Giffy Server","message":"Connected TbvbWIFtT0NEEMxsAAAX"}
+{"asctime":"2024-10-27 22:01:21","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 22:01:22","level":"INFO","service":"Giffy Server","message":"Connected M5bn3AUNvnCRO2cqAAAZ"}
+{"asctime":"2024-10-27 22:31:24","level":"INFO","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c disconnected"}
+{"asctime":"2024-10-27 22:34:27","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-27 22:34:28","level":"INFO","service":"Giffy Server","message":"Connected e6iCsTn2VvYRDiX-AAAb"}
+{"asctime":"2024-10-28 09:58:02","level":"INFO","service":"Giffy Server","message":"Connected UrF8mHIRrqH0B1sFAAAd"}
+{"asctime":"2024-10-28 10:18:47","level":"INFO","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c disconnected"}
+{"asctime":"2024-10-28 10:23:25","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 10:23:25","level":"INFO","service":"Giffy Server","message":"Connected G79f5iE0lllkB7V3AAAf"}
+{"asctime":"2024-10-28 10:31:08","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-28 10:31:09","level":"INFO","service":"Giffy Server","message":"Connected CqA4Wc1VIEHlF-uhAAAB"}
+{"asctime":"2024-10-28 10:31:29","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 10:31:29","level":"INFO","service":"Giffy Server","message":"Connected fIl6BvDANTNC_8DbAAAD"}
+{"asctime":"2024-10-28 10:32:51","level":"ERROR","service":"Giffy Server","message":"Provided id(s) validation failed"}
+{"asctime":"2024-10-28 10:32:51","level":"ERROR","service":"Giffy Server","message":"Provided id(s) validation failed"}
+{"asctime":"2024-10-28 10:34:01","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-28 10:34:02","level":"INFO","service":"Giffy Server","message":"Connected J0KdBn52XDFAMr0UAAAB"}
+{"asctime":"2024-10-28 10:34:02","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 10:34:03","level":"INFO","service":"Giffy Server","message":"Connected dGMUN44Mdx1GzFT1AAAD"}
+{"asctime":"2024-10-28 10:35:50","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-28 10:35:52","level":"INFO","service":"Giffy Server","message":"Connected kiZp6QV65PLkzyoVAAAB"}
+{"asctime":"2024-10-28 10:37:16","level":"INFO","service":"Giffy Server","message":"Connected KjAsW0OGo1Npr5DWAAAE"}
+{"asctime":"2024-10-28 10:37:27","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 10:51:49","level":"ERROR","service":"Giffy Server","message":"Missing or invalid token"}
+{"asctime":"2024-10-28 10:51:49","level":"ERROR","service":"Giffy Server","message":"Missing or invalid token"}
+{"asctime":"2024-10-28 10:51:49","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 10:51:49","level":"INFO","service":"Giffy Server","message":"Connected vzZw7D3fi_k-74P0AAAP"}
+{"asctime":"2024-10-28 11:00:31","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 11:00:31","level":"INFO","service":"Giffy Server","message":"Connected O_itZIdPszIIdwd3AAAT"}
+{"asctime":"2024-10-28 11:01:46","level":"INFO","service":"Giffy Server","message":"Connected ykTQ6zHKlVwJ4G85AAAW"}
+{"asctime":"2024-10-28 11:02:06","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 11:09:42","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 11:09:43","level":"INFO","service":"Giffy Server","message":"Connected j_Ys_Mnw6TxxExZmAAAY"}
+{"asctime":"2024-10-28 11:09:52","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-28 11:09:53","level":"INFO","service":"Giffy Server","message":"Connected LlNow6q-x-tdFbH9AAAa"}
+{"asctime":"2024-10-28 11:12:35","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}

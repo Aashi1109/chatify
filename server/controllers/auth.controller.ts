@@ -1,10 +1,11 @@
-import {NextFunction, Request, Response} from "express";
+import { Request, Response } from "express";
 
-import {NotFoundError} from "@exceptions";
+import { NotFoundError } from "@exceptions";
 import ClientError from "@exceptions/clientError";
 import UnauthorizedError from "@exceptions/unauthorizedError";
 import UserService from "@services/UserService";
-import {generateAccessToken, validatePassword} from "@lib/helpers";
+import { generateAccessToken, validatePassword } from "@lib/helpers";
+import { IUserRequest } from "@definitions/interfaces";
 
 /**
  * Logins the user by creating a new access token
@@ -12,7 +13,7 @@ import {generateAccessToken, validatePassword} from "@lib/helpers";
  * @param res Response object containing the response
  */
 const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, password, rememberUser } = req.body;
 
   if (!(username && password)) {
     throw new ClientError("Username and password are required");
@@ -26,19 +27,33 @@ const login = async (req: Request, res: Response) => {
 
   const isPasswordValid = await validatePassword(
     existingUser.password,
-    password,
+    password
   );
+
   if (!existingUser || !isPasswordValid)
     throw new UnauthorizedError("Invalid credentials provided");
 
   const token = await generateAccessToken(existingUser);
 
-  res.status(200).json({
-    data: { token, userId: existingUser._id.toString() },
+  res.cookie("jwt", token, {
+    maxAge: rememberUser ? 30 * 60 * 24 * 60 * 1000 : null,
+  });
+
+  return res.status(200).json({
+    data: { user: existingUser },
     success: true,
   });
 };
 
-const logOut = (req: Request, res: Response, next: NextFunction) => {};
+const logOut = (req: Request, res: Response) => {
+  res.clearCookie("token");
+  return res.status(200).json({ data: "Logout successfully", success: true });
+};
 
-export { login, logOut };
+const session = (req: Request, res: Response) => {
+  const { user } = req as IUserRequest;
+
+  return res.status(200).json({ data: user });
+};
+
+export { login, logOut, session };

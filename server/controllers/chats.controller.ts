@@ -1,8 +1,9 @@
-import {IChats} from "@definitions/interfaces";
+import { IChats, IRequestPagination } from "@definitions/interfaces";
 import ClientError from "@exceptions/clientError";
+import { createFilterFromParams } from "@lib/helpers";
 import ChatsService from "@services/ChatsService";
 
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 /**
  * Creates a new user chat with the provided chatId and userId.
@@ -32,23 +33,17 @@ const createChat = async (req: Request, res: Response) => {
  * @param {Response} res - The response object for sending responses.
  * @throws {NotFoundError} Throws a NotFoundError if the chat with the specified ID is not found.
  */
-const getChatsById = async (req: Request, res: Response) => {
+const getChatsById = async (req: IRequestPagination, res: Response) => {
   const { chatId } = req.params;
-
-  // options to configure query parameters
-  let { limit, populate, sortBy, sortOrder } = req.query;
 
   const userChats = await ChatsService.getChatsByFilter(
     {
       _id: chatId,
     },
-    +limit,
-    sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
-    sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate,
+    req.pagination
   );
 
-  res.json({ success: true, data: userChats });
+  res.json({ success: true, data: userChats?.[0] });
 };
 
 /**
@@ -58,39 +53,18 @@ const getChatsById = async (req: Request, res: Response) => {
  * @throws {NotFoundError} Throws a NotFoundError if the chat with the specified ID is not found.
  */
 const getChatsByQuery = async (req: Request, res: Response) => {
-  // options to configure query parameters
-  let {
-    limit,
-    populate,
-    sortBy,
-    sortOrder,
-    pageNumber,
-    chatId,
+  let { chatId, userId, receiverId, not } = req.query;
+
+  const filter = createFilterFromParams({
+    _id: chatId,
     userId,
     receiverId,
-    not,
-  } = req.query;
-
-  const filter: { _id?: string; userId?: string; receiverId?: string } = {};
-  if (chatId) {
-    filter._id = chatId as string;
-  }
-  if (userId) {
-    filter.userId = userId as string;
-  }
-  if (receiverId) {
-    filter.receiverId = receiverId as string;
-  }
+  });
 
   const userChats = await ChatsService.getChatsByFilter(
     filter,
-    +limit,
-    sortBy !== "createdAt" && sortBy !== "updatedAt" ? null : sortBy,
-    sortOrder !== "asc" && sortOrder !== "desc" ? null : sortOrder,
-    !!populate,
-    +pageNumber,
     null,
-    not as string,
+    not as string
   );
 
   res.json({ success: true, data: userChats });
@@ -104,7 +78,7 @@ const getChatsByQuery = async (req: Request, res: Response) => {
 const getAllUserChats = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
-  const chats = await ChatsService.getChatsByUserId(userId);
+  const chats = await ChatsService.getChatsForUser(userId);
   res.json({ success: true, data: chats });
 };
 
@@ -155,12 +129,14 @@ const deleteUserChatById = async (req: Request, res: Response) => {
  */
 const getByUserAndIteractingUserId = async (req: Request, res: Response) => {
   const { userId, receiverId } = req.params;
-  // console.log(userId, receiverId);
 
-  const chatData = await ChatsService.getChatsByFilter({
-    userId,
-    receiverId,
-  });
+  const chatData = await ChatsService.getChatsByFilter(
+    {
+      userId,
+      receiverId,
+    },
+    null
+  );
   res.status(200).json({ data: chatData, success: true });
 };
 

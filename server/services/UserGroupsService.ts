@@ -1,4 +1,5 @@
-import { IUserGroups } from "@/definitions/interfaces";
+import { IPagination, IUserGroups } from "@/definitions/interfaces";
+import { getByFilter } from "@lib/helpers";
 import { UserGroups } from "@models";
 
 /**
@@ -78,30 +79,10 @@ class UserGroupService {
       groupId?: string;
       _id?: string;
     },
-    limit?: number,
-    sortBy?: "createdAt" | "updatedAt",
-    sortOrder?: "asc" | "desc",
-    doPopulate = true,
-    populateFields?: string[]
+    pagination?: IPagination
   ) {
     try {
-      let query = UserGroups.find(filter);
-
-      if (sortBy && sortOrder) {
-        query.sort({ [sortBy]: sortOrder });
-      }
-
-      if (limit) {
-        query.limit(limit);
-      }
-
-      if (doPopulate) {
-        query.populate(populateFields ?? ["groupId", "userId"], {
-          strictPopulate: false,
-        });
-      }
-
-      return await query.lean().exec();
+      return getByFilter(UserGroups)(filter, pagination);
     } catch (error) {
       console.error("Error fetching user groups:", error);
       throw error;

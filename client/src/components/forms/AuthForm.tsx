@@ -30,7 +30,6 @@ const AuthForm: React.FC<{
 
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
   const [isLoginForm, setIsLoginForm] = useState(isLogin ?? true);
-  // toast("demo");
 
   const togglePasswordVisibility = () => {
     setIsPasswordHidden((prevState) => !prevState);
@@ -114,47 +113,38 @@ const AuthForm: React.FC<{
 
       if (doLoginProcess) {
         // login the user with credentials
-        const loginResult = await loginUser(values.username, values.password);
-        // if response contains token then login successfull
+        const loginResult = await loginUser(
+          values.username,
+          values.password,
+          rememberMe
+        );
+        // if response contains user then login successful
         // else show error message to user
-        if (loginResult?.data) {
-          const token = loginResult.data?.token;
-          const userId = loginResult.data?.userId;
-
-          // console.log(token, userId);
+        if (loginResult?.data?.user) {
           showToaster(EToastType.Success, "Login successful");
 
-          if (!!token && !!userId) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("userId", userId);
-
-            // if remember me is disable then don't save token
-            if (!values.rememberMe) {
-              window.addEventListener("unload", handleOnunloadLTClear);
-            } else {
-              window.removeEventListener("unload", handleOnunloadLTClear);
-            }
-
-            dispatch(
-              setAuth({
-                accessToken: token,
-              })
-            );
-
-            // save token and route to homepage
-            // router.replace(`/?userId=${userId}&current=chats`);
+          if (!values.rememberMe) {
+            window.addEventListener("unload", handleOnunloadLTClear);
+          } else {
+            window.removeEventListener("unload", handleOnunloadLTClear);
           }
+
+          dispatch(
+            setAuth({
+              isAuthenticated: true,
+            })
+          );
         } else if (loginResult?.message) {
           showToaster(EToastType.Error, loginResult?.message);
         }
       }
-      setSubmitting(false);
 
-      //
       setFormValue &&
         setFormValue({ ...values, ...fileData, isLogin: isLoginForm });
     } catch (error: any) {
       showToaster(EToastType.Error, error?.message || "Something went wrong");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -343,7 +333,7 @@ const AuthForm: React.FC<{
                 ? "Don't have an account yet? "
                 : "Already have an account? "}
               <strong
-                className="cursor-pointer"
+                className="cursor-pointer underline"
                 onClick={() => {
                   toggleLoginForm();
                   resetForm();

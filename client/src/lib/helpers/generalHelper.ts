@@ -24,18 +24,6 @@ const handleOnunloadLTClear = () => {
   localStorage.clear();
 };
 
-const getToken = () => {
-  return getLocalStorageItem("token");
-};
-
-export const getUserId = () => {
-  return getLocalStorageItem("userId");
-};
-
-const getLocalStorageItem = (key: string) => {
-  return localStorage.getItem(key);
-};
-
 const createUrlWithQueryParams = (url: string, queryParams: any): string => {
   let isInitial = true;
 
@@ -72,7 +60,5 @@ export {
   createUrlWithQueryParams,
   debounce,
   formatBytes,
-  getLocalStorageItem,
-  getToken,
   handleOnunloadLTClear,
 };

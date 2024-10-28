@@ -1,7 +1,7 @@
 import NotFoundError from "@exceptions/notFoundError";
 import { User } from "@models";
 import { FlattenMaps, Require_id } from "mongoose";
-import { IUser } from "@definitions/interfaces";
+import { IPagination, IUser } from "@definitions/interfaces";
 import { getByFilter } from "@lib/helpers";
 
 class UserService {
@@ -11,7 +11,7 @@ class UserService {
    * @returns {Promise<InstanceType<typeof User> | null>} A Promise that resolves with the retrieved user if there or null.
    */
   static async getUserById(
-    id: string,
+    id: string
   ): Promise<InstanceType<typeof User> | null> {
     const existingUser = (await User.findById(id)
       .lean()
@@ -30,7 +30,7 @@ class UserService {
    * @returns {Promise<InstanceType<typeof User> | null> } A Promise that resolves with the retrieved user if there or null.
    */
   static async getUserByUsername(
-    username: string,
+    username: string
   ): Promise<InstanceType<typeof User> | null> {
     return (await User.findOne({ username }).lean()) as InstanceType<
       typeof User
@@ -81,7 +81,7 @@ class UserService {
     profileImage: string,
     about: string,
     role: string,
-    salt: string,
+    salt: string
   ): Promise<InstanceType<typeof User>> {
     const newUser = new User({
       username,
@@ -105,14 +105,14 @@ class UserService {
    */
   static async updateUser(
     id: string,
-    updateData: Partial<IUser>,
+    updateData: Partial<IUser>
   ): Promise<InstanceType<typeof User>> {
     return (await User.findByIdAndUpdate(
       id,
       {
         ...updateData,
       },
-      { new: true },
+      { new: true }
     ).lean()) as InstanceType<typeof User>;
   }
 
@@ -132,12 +132,7 @@ class UserService {
    * @param {Object} filter - Filter criteria for querying chats.
    * @param {string} [filter.username] - The ID of the user whose data to retrieve.
    * @param {string} [filter._id] - The ID of the user to retrieve.
-   * @param {number} [limit] - Limit the number of users to retrieve.
-   * @param {"createdAt" | "updatedAt"} [sortBy] - Sort users by creation or update time.
-   * @param {"asc" | "desc"} [sortOrder] - Sort order for users.
-   * @param {boolean} [doPopulate=true] - Flag to specify whether to populate fields. Defaults to true.
-   * @param {number} [pageNumber=1] - Current page number to fetch data from
-   * @param {string[]} [populateFields] - Fields to populate in the retrieved users.
+   * @param {object} pagination - The pagination object for query.
    * @param {string} [not] - Document not to include in the result of users.
    * @returns {Promise<Require_id<FlattenMaps<IUser>>[]>} A Promise that resolves to an array of retrieved user objects.
    * @throws {Error} If there's an error fetching users by the provided filter.
@@ -147,25 +142,11 @@ class UserService {
       username?: string;
       _id?: string;
     },
-    limit?: number,
-    sortBy?: "createdAt" | "updatedAt",
-    sortOrder?: "asc" | "desc",
-    doPopulate: boolean = true,
-    pageNumber: number = 1,
-    populateFields?: string[],
-    not?: string,
+    pagination?: IPagination,
+    not?: string
   ): Promise<Require_id<FlattenMaps<IUser>>[]> {
-    populateFields ??= ["profileImage.fileDataId"];
-    return getByFilter(User)(
-      filter,
-      populateFields,
-      limit,
-      sortBy,
-      sortOrder,
-      doPopulate,
-      pageNumber,
-      not,
-    );
+    if (pagination) pagination.populateFields ??= ["profileImage.fileDataId"];
+    return getByFilter(User)(filter, pagination, not);
   }
 }
 
