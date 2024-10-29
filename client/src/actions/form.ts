@@ -92,8 +92,10 @@ const getUserData = async (userId: string): Promise<IUser | null> => {
   }
 };
 
-const getUserChats = async (userId: string) => {
-  const requestUrl = `/chats/query?userId=${userId}&populate=true`;
+const getUserChats = async (userId: string, receiverId?: string) => {
+  const requestUrl =
+    `/chats/query?userId=${userId}&populate=true` +
+    (receiverId ? `&receiverId=${receiverId}` : "");
 
   try {
     const response = await axiosClient.get(requestUrl);
@@ -132,17 +134,6 @@ const getAllUser = async (not?: null | string) => {
     return response.data;
   } catch (error) {
     console.error("Error getting all users : ", error);
-    throw error;
-  }
-};
-
-const getChatDataByInteraction = async (userId: string, receiverId: string) => {
-  const requestUrl = `/chats/interaction/${userId}/${receiverId}`;
-  try {
-    const response = await axiosClient.get(requestUrl);
-    return response.data;
-  } catch (error) {
-    console.error("Error getting chats : ", error);
     throw error;
   }
 };
@@ -230,7 +221,6 @@ export {
   createUser,
   getAllUser,
   getChatDataById,
-  getChatDataByInteraction,
   getUserChatData,
   getUserChats,
   getUserData,

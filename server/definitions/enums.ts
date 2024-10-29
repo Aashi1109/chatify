@@ -47,10 +47,21 @@ enum EMessageType {
   File = "file",
 }
 
+export enum EMessageCategory {
+  System = "system",
+  User = "user",
+}
+
 enum EUploadTypes {
   Local = "local",
   Cloudinary = "cloudinary",
 }
+
+export enum EConversationEvents {
+  JoinConversation = "conversation:join",
+  LeaveConversation = "conversation:leave",
+}
+
 export {
   EMessageType,
   ESocketAuthEvents,

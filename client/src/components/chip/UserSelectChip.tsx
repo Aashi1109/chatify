@@ -1,11 +1,11 @@
-import { ChipItemI, IUser } from "@/definitions/interfaces";
+import { IChipItem, IUser } from "@/definitions/interfaces";
 import React from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Plus } from "lucide-react";
 
 const UserSelectChip: React.FC<{
   user: IUser;
-  handleChipItemClick: (selectedUser: ChipItemI) => void;
+  handleChipItemClick: (selectedUser: IChipItem) => void;
 }> = ({ user, handleChipItemClick }) => {
   //   const handleButtonClick = async (id: string, name: string) => {};
 

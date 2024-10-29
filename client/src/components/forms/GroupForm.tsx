@@ -2,7 +2,7 @@ import { createGroup, getAllUser, uploadFile } from "@/actions/form";
 import LoadingButton from "@/components/ui/LoadingButton.tsx";
 import { EToastType } from "@/definitions/enums";
 import {
-  ChipItemI,
+  IChipItem,
   IFileInterface,
   IGroups,
   IUser,
@@ -19,7 +19,7 @@ import { showToaster } from "../toasts/Toaster";
 let fileData: IFileInterface | null = null;
 
 const GroupForm = () => {
-  const [selectedUsers, setSelectedUsers] = useState<ChipItemI[] | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<IChipItem[] | null>(null);
   const [users, setUsers] = useState<IUser[] | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
@@ -81,7 +81,7 @@ const GroupForm = () => {
     }
   };
 
-  const handleSelectedUser = (selectedUser: ChipItemI) => {
+  const handleSelectedUser = (selectedUser: IChipItem) => {
     // check if the user is already selected
     const isUserSelected = selectedUsers?.some(
       (user) => user.id === selectedUser.id

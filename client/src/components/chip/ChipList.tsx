@@ -1,11 +1,11 @@
-import { ChipItemI } from "@/definitions/interfaces";
+import { IChipItem } from "@/definitions/interfaces";
 
 import ChipItem from "./ChipItem";
 import { cn } from "@/lib/utils";
 
 const ChipList: React.FC<{
-  chipItems: Array<ChipItemI>;
-  callback: (chipData: ChipItemI) => void;
+  chipItems: Array<IChipItem>;
+  callback: (chipData: IChipItem) => void;
   orientation?: "vertical" | "horizontal";
   chipListClasses?: string;
   chipItemClasses?: string;

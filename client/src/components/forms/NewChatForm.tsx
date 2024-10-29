@@ -10,12 +10,20 @@ const NewChatForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const currentUser = useAppSelector((state) => state.auth.user);
+  const conversations = useAppSelector((state) => state.chat.conversation);
 
   useEffect(() => {
     getAllUser(currentUser?._id).then(({ data }) => {
       if (data && data?.length > 0) {
-        setUsers(data);
-        setFilteredUsers(data);
+        const filteredUsers = data.filter((user: IUser) => {
+          const existingConversation = conversations?.find(
+            (f) => f._id === user._id
+          );
+
+          return !existingConversation;
+        });
+        setUsers(filteredUsers);
+        setFilteredUsers(filteredUsers);
       }
     });
 

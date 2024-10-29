@@ -1,4 +1,4 @@
-import { ChatInfoItemI, ChipItemI } from "./definitions/interfaces";
+import { IChatInfoItem, IChipItem } from "./definitions/interfaces";
 
 // import * as dotenv from "dotenv";
 
@@ -41,13 +41,13 @@ export const sidebarLinks = [
   },
 ];
 
-export const inboxChipItems: Array<ChipItemI> = [
+export const inboxChipItems: Array<IChipItem> = [
   { id: 1, text: "Chats" },
   { id: 2, text: "Group" },
   { id: 3, text: "Archive" },
 ];
 
-export const chatInfoList: ChatInfoItemI[] = [
+export const chatInfoList: IChatInfoItem[] = [
   {
     imageUrl: "https://source.unsplash.com/random/200x200", // Placeholder image from Unsplash
     userName: "John Doe",

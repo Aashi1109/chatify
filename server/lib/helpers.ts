@@ -181,6 +181,19 @@ export const createFilterFromParams = (params: IObjectKeys): IObjectKeys => {
   }, {} as IObjectKeys);
 };
 
+export const updateArrayField = (
+  existingArray: any[],
+  newItems: any[],
+  operation: "add" | "delete"
+) => {
+  if (operation === "add") {
+    existingArray.push(...newItems);
+  } else if (operation === "delete") {
+    return existingArray.filter((item) => !newItems.includes(item));
+  }
+  return existingArray;
+};
+
 export {
   generateAccessToken,
   validateJwtTokenId,

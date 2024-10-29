@@ -1,5 +1,5 @@
 import { getMessagesByQuery } from "@/actions/form";
-import { ChatInfoItemI } from "@/definitions/interfaces";
+import { IChatInfoItem } from "@/definitions/interfaces";
 import {
   setInteractionData,
   setInteractionMessages,
@@ -10,27 +10,27 @@ import CircleAvatar from "../CircleAvatar";
 import { cn } from "@/lib/utils";
 
 const ChatInfoItem: React.FC<{
-  chatData: ChatInfoItemI;
+  chatData: IChatInfoItem;
   classes?: string;
 }> = ({ chatData, classes }) => {
   const {
     chatsNotRead,
-    imageUrl,
     isUserActive,
     lastChatText,
     lastChatTime,
-    chatId,
+    conversation,
     user,
-    userName,
   } = chatData;
 
   const dispatcher = useAppDispatch();
 
   // const formattedLastTime = formatTimeAgo(lastChatTime);
   const handleChatInfoItemClick = async () => {
-    const messagesResp = await getMessagesByQuery({ chatId: chatId });
+    const messagesResp = await getMessagesByQuery({
+      chatId: conversation?._id,
+    });
     if (messagesResp.success) {
-      dispatcher(setInteractionData(user));
+      dispatcher(setInteractionData({ user, conversation }));
       dispatcher(setInteractionMessages(messagesResp?.data || []));
     }
   };
@@ -46,17 +46,18 @@ const ChatInfoItem: React.FC<{
       <div className="relative mr-4">
         <CircleAvatar
           alt={"user image"}
-          imageUrl={imageUrl}
-          fallback={user.name?.slice(0, 1)?.toUpperCase()}
+          imageUrl={user?.profileImage?.url || ""}
+          fallback={user?.name?.slice(0, 1)?.toUpperCase() || ""}
+          classes="border-[2px] border-solid border-gray-700 p-1"
         />
         {isUserActive && (
-          <div className="h-3 w-3 rounded-full border-2 bg-green-600 absolute top-0 right-0"></div>
+          <div className="h-3 w-3 rounded-full bg-green-600 absolute top-0 right-0"></div>
         )}
       </div>
 
       <div className="flex flex-col flex-1">
         <div className="flex justify-between items-center flex-1 flex-nowrap">
-          <p className="font-bold text-lg text-ellipsis">{userName}</p>
+          <p className="font-bold text-lg text-ellipsis">{user?.name}</p>
           {/* <p className="text-sm">{formattedLastTime}</p> */}
         </div>
         <div className="flex justify-between items-center flex-1 flex-nowrap">

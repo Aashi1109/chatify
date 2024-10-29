@@ -29,8 +29,8 @@ const createMessage = async (
   }
 
   const createdMessage = await MessageService.create({
-    chatId,
-    userId,
+    conversation: chatId,
+    user: userId,
     content,
     sentAt,
     groupId,

@@ -1,11 +1,11 @@
-import { ChatInfoItemI } from "@/definitions/interfaces";
+import { IChatInfoItem } from "@/definitions/interfaces";
 import React from "react";
 import ChatInfoItem from "./ChatInfoItem";
 import { cn } from "@/lib/utils";
 
 const ChatInfoList: React.FC<{
   classes?: string;
-  chatListData: ChatInfoItemI[];
+  chatListData: IChatInfoItem[];
 }> = ({ chatListData, classes }) => {
   return (
     <div

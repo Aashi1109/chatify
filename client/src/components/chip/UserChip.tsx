@@ -1,6 +1,6 @@
-import { createChatData, getChatDataByInteraction } from "@/actions/form";
-import { IUser } from "@/definitions/interfaces";
-import { setInteractionData } from "@/features/chatSlice";
+import { createChatData, getUserChats } from "@/actions/form";
+import { IChat, IUser } from "@/definitions/interfaces";
+import { addConversation } from "@/features/chatSlice";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import React from "react";
 import { Button } from "@/components/ui/button.tsx";
@@ -11,28 +11,29 @@ const UserChip: React.FC<{ user: IUser }> = ({ user }) => {
   const dispatcher = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth.user);
 
-  const handleButtonClick = async (id: string) => {
-    let interactionId: string | undefined = undefined;
+  const handleButtonClick = async (user: IUser) => {
+    let conversation: IChat | undefined = undefined;
 
-    const chatData: Array<any> = await getChatDataByInteraction(
-      currentUser?._id,
-      id
-    );
+    const chatData: Array<any> = (
+      await getUserChats(currentUser?._id || "", user._id!)
+    )?.data;
 
     if (!!chatData && chatData?.length) {
-      interactionId = chatData[0]?._id;
+      conversation = chatData[0];
     } else {
-      const createdChatData = await createChatData(currentUser?._id, id);
-      if (createdChatData) {
-        interactionId = createdChatData?._id;
+      const createdChatData = await createChatData(
+        currentUser?._id || "",
+        user._id!
+      );
+      if (createdChatData.success) {
+        conversation = createdChatData.data;
       }
     }
 
-    if (interactionId) {
-      dispatcher(setInteractionData(user));
-      // dispatcher(setInteractionData(chatData[0]));
+    if (conversation?._id) conversation.participants = [user];
 
-      setTimeout(() => {}, 500);
+    if (conversation) {
+      dispatcher(addConversation(conversation));
     }
   };
 
@@ -56,7 +57,7 @@ const UserChip: React.FC<{ user: IUser }> = ({ user }) => {
 
         <div>
           <Button
-            onClick={() => handleButtonClick(user._id as string)}
+            onClick={() => handleButtonClick(user)}
             className="p-1 h-8 w-8"
           >
             <Send className={"h-4 w-4"} />

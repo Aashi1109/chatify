@@ -1,5 +1,5 @@
 import { getUserChats } from "@/actions/form";
-import { setChats } from "@/features/chatSlice";
+import { setConversation } from "@/features/chatSlice";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import { socket } from "@/socket";
 import { useEffect, useState } from "react";
@@ -48,7 +48,7 @@ function UserHomePage() {
 
   useEffect(() => {
     getUserChats(userData?._id).then(({ data }) => {
-      dispatch(setChats(data));
+      dispatch(setConversation(data));
     });
   }, [dispatch, userData]);
 

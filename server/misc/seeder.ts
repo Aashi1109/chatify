@@ -113,7 +113,7 @@ async function seedDatabase(
 
     // Update chats with message IDs
     for (const chat of insertedChats) {
-      const chatMessages = await Message.find({ chatId: chat._id });
+      const chatMessages = await Message.find({ conversation: chat._id });
       chat.messages = chatMessages.map((message) => message._id);
       await chat.save();
     }

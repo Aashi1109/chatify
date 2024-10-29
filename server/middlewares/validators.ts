@@ -8,93 +8,56 @@ import {
 } from "@schemas/messageValidationSchema";
 import userValidationSchema from "@schemas/userValidationSchema";
 import mongoose from "mongoose";
+import { createConversationValidationSchema } from "@schemas/conversationValidation";
 
 /**
- * Validates user input against a predefined schema.
- * @function validateUser
- * @param {Request} req - The Express request object.
- * @param {Response} res - The Express response object.
- * @param {NextFunction} next - The Express next function.
- * @throws {ClientError} If the provided data is invalid.
+ * Generic validation middleware factory
+ * @param schema - Joi validation schema to validate against
  */
-const validateUser = (req: Request, res: Response, next: NextFunction) => {
-  // Validate user input against a predefined schema
-  const { error, value } = userValidationSchema.validate(req.body);
+const createValidator =
+  (schema: any) => (req: Request, res: Response, next: NextFunction) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      throw new ClientError(
+        `Invalid data provided: ${error.details[0].message}`
+      );
+    }
+    return next();
+  };
 
-  // Check if there's an error in the validation result
-  if (error) {
-    // If there's an error, throw a ClientError with a message describing the invalid data
-    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
-  }
+export const validateUser = createValidator(userValidationSchema);
+export const validateCreateMessage = createValidator(
+  messageCreateValidationSchema
+);
+export const validateUpdateMessage = createValidator(
+  messageUpdateValidationSchema
+);
+export const validateFileUploadData = createValidator(fileValidationSchema);
+export const validateConversation = createValidator(
+  createConversationValidationSchema
+);
 
-  // If validation passes, call the next middleware function
-  return next();
-};
-
-const validateCreateMessage = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { error, value } = messageCreateValidationSchema.validate(req.body);
-
-  if (error) {
-    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
-  }
-
-  return next();
-};
-const validateUpdateMessage = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { error, value } = messageUpdateValidationSchema.validate(req.body);
-
-  if (error) {
-    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
-  }
-
-  return next();
-};
-const validateFileUploadData = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { error, value } = fileValidationSchema.validate(req.body);
-
-  if (error) {
-    throw new ClientError(`Invalid data provided: ${error.details[0].message}`);
-  }
-
-  return next();
-};
-
-const validateMongooseIds =
+export const validateMongooseIds =
   (paramIds: Array<string>) =>
   (req: Request, res: Response, next: NextFunction) => {
-    // This will handle additional error messages
     const errorMessages = [];
     for (const paramName of paramIds) {
       const id = req.query?.[paramName];
-      // console.log(req.query);
-      // if not provided then continue
-      if (!id) {
-        continue;
-      }
-      // Normalize the ID
-      const normalizedId = id == "null" || id == "undefined" ? null : id;
-      // console.log(`${paramName} ->`, normalizedId, typeof id);
+      if (!id) continue;
 
-      // Check if the normalized ID is a valid Mongoose ObjectId
-      if (!mongoose.Types.ObjectId.isValid(normalizedId as string)) {
-        errorMessages.push(
-          `Invalid ID provided: ${paramName} -> ${normalizedId}, expecting Mongoose ObjectId`
-        );
+      const ids = Array.isArray(id) ? id : [id];
+
+      for (const singleId of ids) {
+        const normalizedId =
+          singleId === "null" || singleId === "undefined" ? null : singleId;
+
+        if (!mongoose.Types.ObjectId.isValid(normalizedId as string)) {
+          errorMessages.push(
+            `Invalid ID provided: ${paramName} -> ${normalizedId}, expecting Mongoose ObjectId`
+          );
+        }
       }
     }
-    // console.log(errorMessages);
 
     if (errorMessages.length) {
       throw new ClientError(
@@ -104,11 +67,3 @@ const validateMongooseIds =
     }
     return next();
   };
-
-export {
-  validateCreateMessage,
-  validateFileUploadData,
-  validateMongooseIds,
-  validateUpdateMessage,
-  validateUser,
-};

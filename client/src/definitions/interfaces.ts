@@ -1,14 +1,13 @@
 import { EMessageType, EUserRoles } from "./enums";
 
-export interface ChipItemI {
+export interface IChipItem {
   id: number | string;
   text: string;
 }
 
-export interface ChatInfoItemI {
-  id: string;
-  imageUrl: string;
-  userName: string;
+export interface IChatInfoItem {
+  conversation: IChat | IGroups;
+  user?: IUser;
   lastChatTime?: Date;
   lastChatText: string;
   isUserActive: boolean;
@@ -31,9 +30,6 @@ export interface IUser {
   about?: string;
   profileImage: {
     url: string;
-    filename: string;
-    publicId?: string;
-    fileDataId?: string;
   };
   createdAt: Date;
   role: EUserRoles;
@@ -43,16 +39,10 @@ export interface IUser {
 
 export interface IChat {
   _id: string;
-  messageId: IMessage[] | string[];
+  messages: IMessage[] | string[];
+  participants: IUser[];
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface IUserChat {
-  _id: string;
-  userId: string | IUser;
-  receiverId: string | IUser;
-  chatId: string | IChat;
 }
 
 export interface IMessage {
@@ -69,6 +59,7 @@ export interface IMessage {
 }
 
 export interface IGroups {
+  _id?: string;
   messages?: string[];
   name: string;
   description: string;

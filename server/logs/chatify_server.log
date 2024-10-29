@@ -162,3 +162,68 @@
 {"asctime":"2024-10-28 11:09:52","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
 {"asctime":"2024-10-28 11:09:53","level":"INFO","service":"Giffy Server","message":"Connected LlNow6q-x-tdFbH9AAAa"}
 {"asctime":"2024-10-28 11:12:35","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-29 22:39:15","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:39:16","level":"INFO","service":"Giffy Server","message":"Connected i1LfwgstlANqXNwaAAAB"}
+{"asctime":"2024-10-29 22:40:10","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:40:12","level":"INFO","service":"Giffy Server","message":"Connected vUri2rJYUTeE4WSvAAAB"}
+{"asctime":"2024-10-29 22:40:20","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:40:21","level":"INFO","service":"Giffy Server","message":"Connected Pp-RrRc2ly3eH2oBAAAB"}
+{"asctime":"2024-10-29 22:40:23","level":"ERROR","service":"Giffy Server","message":"Missing or invalid token"}
+{"asctime":"2024-10-29 22:41:06","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:41:07","level":"INFO","service":"Giffy Server","message":"Connected SdgW9BlzHYHSOXs-AAAB"}
+{"asctime":"2024-10-29 22:41:09","level":"ERROR","service":"Giffy Server","message":"Participants are required"}
+{"asctime":"2024-10-29 22:41:32","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-29 22:41:32","level":"INFO","service":"Giffy Server","message":"Connected xizBi7M7kPpvyVNQAAAD"}
+{"asctime":"2024-10-29 22:46:26","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671ccf01790da5957606230e') }"}
+{"asctime":"2024-10-29 22:46:30","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:46:32","level":"INFO","service":"Giffy Server","message":"Connected qQaNnTg1ttXHUjjWAAAB"}
+{"asctime":"2024-10-29 22:46:32","level":"ERROR","service":"Giffy Server","message":"Conversation already exists"}
+{"asctime":"2024-10-29 22:47:32","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:47:33","level":"INFO","service":"Giffy Server","message":"Connected 3OHIsFtRnqcQRZ1zAAAB"}
+{"asctime":"2024-10-29 22:47:36","level":"ERROR","service":"Giffy Server","message":"Conversation already exists"}
+{"asctime":"2024-10-29 22:47:57","level":"ERROR","service":"Giffy Server","message":"Conversation already exists"}
+{"asctime":"2024-10-29 22:48:07","level":"ERROR","service":"Giffy Server","message":"Conversation cannot be group and direct both."}
+{"asctime":"2024-10-29 22:49:30","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:51:34","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:52:14","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:52:15","level":"INFO","service":"Giffy Server","message":"Connected szx7RyOwvitnp61SAAAB"}
+{"asctime":"2024-10-29 22:52:25","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:53:55","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:53:57","level":"INFO","service":"Giffy Server","message":"Connected 449P0Y8PSshO-e2CAAAB"}
+{"asctime":"2024-10-29 22:54:01","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:56:44","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:56:45","level":"INFO","service":"Giffy Server","message":"Connected qJt4K1HhDX9GlQjiAAAB"}
+{"asctime":"2024-10-29 22:56:52","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:56:54","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:56:57","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:56:57","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:57:14","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:57:14","level":"INFO","service":"Giffy Server","message":"Connected Xyjz45VIVBSG-guZAAAB"}
+{"asctime":"2024-10-29 22:57:16","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1 dup key: { participants: ObjectId('671e699ca1d1b6d4f3a5cd2c') }"}
+{"asctime":"2024-10-29 22:57:45","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 22:57:46","level":"INFO","service":"Giffy Server","message":"Connected EmMSOpB9Qcq59JNjAAAB"}
+{"asctime":"2024-10-29 22:58:48","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1_isDirectMessage_1 dup key: { participants: ObjectId('671ccc98bb7a5ba01afa8b6a'), isDirectMessage: true }"}
+{"asctime":"2024-10-29 22:59:06","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1_isDirectMessage_1 dup key: { participants: ObjectId('671ccc98bb7a5ba01afa8b6a'), isDirectMessage: true }"}
+{"asctime":"2024-10-29 23:00:45","level":"INFO","service":"Giffy Server","message":"User 671ccf01790da5957606230e disconnected"}
+{"asctime":"2024-10-29 23:00:45","level":"ERROR","service":"Giffy Server","message":"E11000 duplicate key error collection: chatify.conversations index: participants_1_isDirectMessage_1 dup key: { participants: ObjectId('671ccc98bb7a5ba01afa8b6a'), isDirectMessage: true }"}
+{"asctime":"2024-10-29 23:00:48","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 23:00:49","level":"INFO","service":"Giffy Server","message":"Connected qWveBPdcD6TXiPfAAAAB"}
+{"asctime":"2024-10-29 23:01:00","level":"ERROR","service":"Giffy Server","message":"Conversation already exists"}
+{"asctime":"2024-10-29 23:08:45","level":"ERROR","service":"Giffy Server","message":"Conversation already exists"}
+{"asctime":"2024-10-29 23:23:16","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 23:23:17","level":"INFO","service":"Giffy Server","message":"Connected UE7vTjaK47y3TDg3AAAB"}
+{"asctime":"2024-10-29 23:28:06","level":"ERROR","service":"Giffy Server","message":"Unexpected token ] in JSON at position 84"}
+{"asctime":"2024-10-29 23:28:10","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"creatorId\" is not allowed to be empty"}
+{"asctime":"2024-10-29 23:28:32","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"creatorId\" with value \"dasdsada\" fails to match the required pattern: /^[0-9a-fA-F]{24}$/"}
+{"asctime":"2024-10-29 23:28:48","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"creatorId\" with value \"dasdsada\" fails to match the required pattern: /^[0-9a-fA-F]{24}$/"}
+{"asctime":"2024-10-29 23:28:57","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"messages\" is not allowed"}
+{"asctime":"2024-10-29 23:29:44","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"operation\" is not allowed"}
+{"asctime":"2024-10-29 23:29:55","level":"ERROR","service":"Giffy Server","message":"Unexpected token } in JSON at position 191"}
+{"asctime":"2024-10-29 23:30:00","level":"ERROR","service":"Giffy Server","message":"Participants are required"}
+{"asctime":"2024-10-29 23:30:33","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 23:30:35","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"participants\" must contain at least 2 items"}
+{"asctime":"2024-10-29 23:30:37","level":"INFO","service":"Giffy Server","message":"Connected V5koTQeog4C6GuXzAAAB"}
+{"asctime":"2024-10-29 23:31:39","level":"INFO","service":"Giffy Server","message":"Listening on http://localhost:3001"}
+{"asctime":"2024-10-29 23:31:39","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"participants\" must contain at least 2 items"}
+{"asctime":"2024-10-29 23:31:41","level":"INFO","service":"Giffy Server","message":"Connected HOBw92aiFmFFxMROAAAB"}
+{"asctime":"2024-10-29 23:31:54","level":"ERROR","service":"Giffy Server","message":"Invalid data provided: \"participants[1]\" contains a duplicate value"}

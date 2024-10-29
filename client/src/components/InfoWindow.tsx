@@ -1,48 +1,44 @@
 import { inboxChipItems } from "@/config";
-import { ChatInfoItemI, IChat, IUser } from "@/definitions/interfaces";
+import { IChatInfoItem, IUser } from "@/definitions/interfaces";
 import { useAppSelector } from "@/hook";
 import ChatInfoList from "./chatinfo/ChatInfoList";
 import ChipItem from "./chip/ChipItem";
 import ChipList from "./chip/ChipList";
 
 const InfoWindow = () => {
-  const userChats = useAppSelector((state) => state.chat.chats);
+  const userChats = useAppSelector((state) => state.chat.conversation);
+  const userData = useAppSelector((state) => state.auth.user);
+
   const formattedChats = userChats?.map((ch) => {
-    const data: ChatInfoItemI = {
-      imageUrl: "",
-      userName: "",
+    const data: IChatInfoItem = {
       lastChatTime: undefined,
       lastChatText: "",
       isUserActive: false,
       chatsNotRead: 0,
-      chatId: undefined,
+      conversation: ch,
     };
 
-    // if user data is there then extract variables from it
-    const isUserDataPresent = typeof ch?.receiverId === "object";
-    const isChatDataPresent = typeof ch?.chatId === "object";
-
-    data["chatId"] = ch?._id;
+    const receiverData = ch?.participants?.filter(
+      (p) => p._id !== userData?._id
+    )?.[0];
+    const isUserDataPresent = Object.keys(receiverData || {}).length;
 
     if (isUserDataPresent) {
-      const userData = ch?.receiverId;
-      data["user"] = userData;
-      data["imageUrl"] = (userData as IUser).profileImage.url;
-      data["userName"] = (userData as IUser).name as string;
-      data["isUserActive"] = (userData as IUser)?.isActive ?? false;
+      data["user"] = receiverData;
+      data["isUserActive"] = (receiverData as IUser)?.isActive ?? false;
     }
-    if (isChatDataPresent) {
-      const chatData = ch?.chatId;
-      data["lastChatTime"] = (chatData as IChat)?.messageId?.slice(
-        -1
-      )?.[0]?.sentAt;
-      data["chatsNotRead"] = (chatData as IChat)?.messageId?.filter(
-        (message: any) => message?.seenAt && message?.seenAt > Date.now()
-      )?.length;
-      data["lastChatText"] = (chatData as IChat)?.messageId?.[0]
-        ?.content as string;
-      data["id"] = (chatData as IChat)._id;
-    }
+    // if (isChatDataPresent) {
+    //   const chatData = ch?.chatId;
+    //   data["lastChatTime"] = (chatData as IChat)?.messageId?.slice(
+    //     -1
+    //   )?.[0]?.sentAt;
+    //   data["chatsNotRead"] = (chatData as IChat)?.messageId?.filter(
+    //     (message: any) => message?.seenAt && message?.seenAt > Date.now()
+    //   )?.length;
+    //   data["lastChatText"] = (chatData as IChat)?.messageId?.[0]
+    //     ?.content as string;
+    //   data["id"] = (chatData as IChat)._id;
+    // }
 
     return data;
   });

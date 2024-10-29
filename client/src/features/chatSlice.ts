@@ -2,17 +2,21 @@ import { IChat, IGroups, IMessage, IUser } from "@/definitions/interfaces";
 // initial state for chat slice
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface IInteractionData {
+  user: IUser | null;
+  conversation: IGroups | IChat | null;
+}
 interface IChatSlice {
-  interactionData: IUser | IGroups | IChat | null;
+  interactionData: IInteractionData | null;
   interactionMessages: IMessage[] | null;
-  chats: IChat[] | null;
+  conversation: IChat[] | null;
   groups: IGroups[] | null;
 }
 
 const chatInitialState: IChatSlice = {
   interactionData: null,
   interactionMessages: null,
-  chats: null,
+  conversation: null,
   groups: null,
 };
 
@@ -26,7 +30,7 @@ const chatSlice = createSlice({
   reducers: {
     setInteractionData: (
       state,
-      action: PayloadAction<IUser | IGroups | IChat | null>
+      action: PayloadAction<IInteractionData | null>
     ) => {
       state.interactionData = action.payload;
     },
@@ -36,8 +40,8 @@ const chatSlice = createSlice({
     ) => {
       state.interactionMessages = action.payload;
     },
-    setChats: (state, action: PayloadAction<IChat[] | null>) => {
-      state.chats = action.payload;
+    setConversation: (state, action: PayloadAction<IChat[] | null>) => {
+      state.conversation = action.payload;
     },
     setGroups: (state, action: PayloadAction<IGroups[] | null>) => {
       state.groups = action.payload;
@@ -48,8 +52,8 @@ const chatSlice = createSlice({
         action.payload
       );
     },
-    addChat: (state, action: PayloadAction<IChat>) => {
-      state.chats = appendData(state.chats, action.payload);
+    addConversation: (state, action: PayloadAction<IChat>) => {
+      state.conversation = appendData(state.conversation, action.payload);
     },
     addGroup: (state, action: PayloadAction<IGroups>) => {
       state.groups = appendData(state.groups, action.payload);
@@ -96,11 +100,11 @@ const chatSlice = createSlice({
 });
 
 export const {
-  setChats,
+  setConversation,
   setGroups,
   setInteractionData,
   setInteractionMessages,
-  addChat,
+  addConversation,
   addInteractionMessage,
   addGroup,
 } = chatSlice.actions;

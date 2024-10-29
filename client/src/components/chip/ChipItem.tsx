@@ -1,11 +1,11 @@
-import { ChipItemI } from "@/definitions/interfaces";
+import { IChipItem } from "@/definitions/interfaces";
 import { cn } from "@/lib/utils";
 
 import React from "react";
 
 const ChipItem: React.FC<{
-  chipData: ChipItemI;
-  callback: (chipData: ChipItemI) => void;
+  chipData: IChipItem;
+  callback: (chipData: IChipItem) => void;
   classes?: string;
   isActive?: boolean;
   itemActiveClass?: string;

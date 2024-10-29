@@ -36,7 +36,6 @@ const UserProfileActionDropdown: FC<{
       <DropdownMenu>
         <DropdownMenuTrigger>
           <CircleAvatar
-            size={40}
             imageUrl={
               profileImage?.url ? profileImage?.url : "/assets/user.png"
             }

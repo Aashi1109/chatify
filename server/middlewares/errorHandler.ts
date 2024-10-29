@@ -22,7 +22,9 @@ export const errorHandler = (
   if (!(err instanceof CustomError)) {
     // If not a CustomError, send a generic internal server error response
     res.status(500).json({
-      message: "Internal server error. Try again later",
+      error: {
+        message: err.message || "Internal server error. Try again later",
+      },
       success: false,
     });
   } else {
@@ -38,6 +40,6 @@ export const errorHandler = (
     res
       .status(customError.status)
       .type("json")
-      .send(JSON.stringify({ ...response, success: false }));
+      .send(JSON.stringify({ error: response, success: false }));
   }
 };

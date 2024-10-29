@@ -5,7 +5,7 @@ import { Bell } from "lucide-react";
 import CircleAvatar from "./CircleAvatar";
 
 const TopBar = () => {
-  const userData = useAppSelector((state) => state.chat.currentUserData);
+  const userData = useAppSelector((state) => state.auth.user);
 
   const { name, profileImage } = userData ?? {};
   return (
@@ -31,7 +31,7 @@ const TopBar = () => {
             Hii, <span className="font-medium">{name}</span>
           </div>
           <UserProfileActionDropdown
-            profileImage={profileImage ?? {}}
+            profileImage={profileImage || {}}
             name={name || ""}
           />
         </div>

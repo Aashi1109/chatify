@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { EMessageType, EUploadTypes } from "./enums";
+import { EMessageCategory, EMessageType, EUploadTypes } from "./enums";
 import { Request } from "express";
 import { JwtPayload } from "jsonwebtoken";
 
@@ -7,12 +7,7 @@ interface IUser {
   _id?: string;
   username: string;
   name: string;
-  profileImage: {
-    url: string;
-    filename: string;
-    pubicId: string;
-    fileDataId: string;
-  };
+  profileImage: IFile;
   about?: string;
   password: string;
   salt: string;
@@ -58,23 +53,16 @@ interface ICloudinaryResponse {
   secure_url: string;
 }
 
-interface IChats {
-  messages: Types.ObjectId[];
+interface IConversation {
   participants: Types.ObjectId[];
-  optype?: "add" | "delete";
-}
-
-interface IGroups {
-  messages: Types.ObjectId[];
-  name: string;
-  description: string;
+  isGroup: boolean;
+  isPrivate: boolean;
+  isDirectMessage: boolean;
+  name?: string;
+  description?: string;
   creatorId: Types.ObjectId;
-  image: {
-    url: string;
-    filename: string;
-    pubicId: string;
-    fileDataId: string;
-  };
+  image?: IFile;
+  operation?: "add" | "delete";
 }
 
 interface IUserGroups {
@@ -83,15 +71,22 @@ interface IUserGroups {
 }
 
 interface IMessage {
-  userId: Types.ObjectId | string;
-  chatId: Types.ObjectId;
+  user: Types.ObjectId | string;
+  conversation: Types.ObjectId;
   content: string;
   sentAt?: Date;
   deliveredAt?: Date;
   seenAt?: Date;
-  groupId?: Types.ObjectId;
   type: EMessageType;
   isEdited?: boolean;
+  category: EMessageCategory;
+}
+
+interface IFile {
+  url: string;
+  filename: string;
+  pubicId: string;
+  fileDataId: string;
 }
 
 interface IFileData {
@@ -126,13 +121,12 @@ export interface IObjectKeys {
 }
 
 export {
-  IChats,
+  IConversation,
   IUserRequest,
   ICloudinaryImageUploadOptions,
   ICloudinaryResponse,
   IFileData,
   IFileInterface,
-  IGroups,
   IMessage,
   IUploadFileInterface,
   IUser,

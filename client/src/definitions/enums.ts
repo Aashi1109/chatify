@@ -30,3 +30,8 @@ export enum ESocketMessageEvents {
   MESSAGE_UPDATE = "message:update",
   MESSAGE_DELETE = "message:delete",
 }
+
+export enum EConversationEvents {
+  JoinConversation = "conversation:join",
+  LeaveConversation = "conversation:leave",
+}

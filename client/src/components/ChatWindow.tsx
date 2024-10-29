@@ -9,14 +9,20 @@ import { useAppDispatch, useAppSelector } from "@/hook";
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
 import { cn } from "@/lib/utils";
 import { Phone, Send, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import ChatItemCard from "./chatitems/ChatItemCard";
 import ChatText from "./chatitems/ChatText";
 import CircleAvatar from "./CircleAvatar";
 import NewConversationGreetMessage from "./NewConversationGreetMessage";
 import { Socket } from "socket.io-client";
-import { ESocketMessageEvents } from "@/definitions/enums";
+import {
+  EConversationEvents,
+  ESocketMessageEvents,
+  EToastType,
+} from "@/definitions/enums";
+import { showToaster } from "./toasts/Toaster";
+import TypingIndicator from "./TypingIndicator";
 
 interface IProps {
   socket: Socket;
@@ -26,14 +32,19 @@ const ChatWindow = ({ socket }: IProps) => {
   const dispatch = useAppDispatch();
 
   const currentUser = useAppSelector((state) => state.auth.user);
-
   const { interactionMessages, interactionData } = useAppSelector(
     (state) => state.chat
   );
-  const typedInteractionData = interactionData as IUser;
+
+  const typedInteractionData = interactionData?.user as IUser;
 
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
+  const typingIndicatorRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const [isUserScrolling, setIsUserScrolling] = useState<boolean>(false);
   const [chatTextarea, setChatTextarea] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false);
 
   const hasMessages = interactionMessages && interactionMessages?.length;
   const interactionUserImageUrl =
@@ -63,6 +74,7 @@ const ChatWindow = ({ socket }: IProps) => {
       userId: currentUser?._id || "",
       type: "text",
       receiverId: typedInteractionData._id,
+      chatId: interactionData?.conversation?._id,
     };
 
     try {
@@ -81,11 +93,24 @@ const ChatWindow = ({ socket }: IProps) => {
             // Handle error (e.g., show an error message to the user)
           } else if (data) {
             dispatch(addInteractionMessage(data.message));
+            setTimeout(() => {
+              if (typingIndicatorRef.current) {
+                typingIndicatorRef.current.scrollIntoView({
+                  behavior: "smooth",
+                });
+              }
+            }, 300);
           }
         }
       );
 
+      socket.emit(ESocketMessageEvents.TYPING, {
+        chatId: interactionData?.conversation?._id,
+        isTyping: false,
+      });
+
       setChatTextarea("");
+      setIsUserScrolling(false);
     } catch (error) {
       console.error("Error creating message : ", error);
       throw error;
@@ -93,10 +118,87 @@ const ChatWindow = ({ socket }: IProps) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    if (e.currentTarget.value.trim().length)
+      socket.emit(ESocketMessageEvents.TYPING, {
+        chatId: interactionData?.conversation?._id,
+        isTyping: true,
+      });
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit(ESocketMessageEvents.TYPING, {
+        chatId: interactionData?.conversation?._id,
+        isTyping: false,
+      });
+    }, 2000);
+
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleFormSubmit(e as unknown as SubmitEvent);
     }
+  };
+
+  useEffect(() => {
+    if (interactionData?.conversation) {
+      socket?.emit(
+        EConversationEvents.JoinConversation,
+        {
+          chatId: interactionData.conversation._id,
+        },
+        ({ data, error }: { data: boolean }) => {
+          showToaster(EToastType.Info, `Joined conversation ${data}`);
+        }
+      );
+
+      // Add message listener
+      const handleNewMessage = ({ data, error }: { data: any; error: any }) => {
+        if (error) {
+          console.log("error", error);
+          return;
+        }
+        dispatch(addInteractionMessage(data.message));
+        if (typingIndicatorRef.current && !isUserScrolling) {
+          typingIndicatorRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      };
+
+      const handleTyping = ({ data, error }: { data: boolean; error: any }) => {
+        if (error) {
+          console.log("error", error);
+          return;
+        }
+        setIsTyping(data);
+      };
+
+      socket.on(ESocketMessageEvents.NEW_MESSAGE, handleNewMessage);
+      socket.on(ESocketMessageEvents.TYPING, handleTyping);
+
+      // Cleanup function
+      return () => {
+        socket.off(ESocketMessageEvents.NEW_MESSAGE, handleNewMessage);
+      };
+    }
+  }, [interactionData?.conversation, socket, dispatch]);
+
+  useEffect(() => {
+    // Add a small delay to ensure the DOM has updated
+    if (typingIndicatorRef.current && !isUserScrolling) {
+      setTimeout(() => {
+        typingIndicatorRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
+  }, [isUserScrolling, isTyping]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    const isAtBottom = Math.abs(
+      element.scrollHeight - element.scrollTop - element.clientHeight
+    );
+
+    setIsUserScrolling(!!isAtBottom);
   };
 
   return (
@@ -152,16 +254,16 @@ const ChatWindow = ({ socket }: IProps) => {
 
       {/* chat window */}
       {interactionMessages && interactionData && (
-        <div className="flex flex-col bg-gray-200 dark:bg-gray-600 rounded-xl p-4 overflow-x-hidden flex-1">
+        <div className="flex flex-col bg-gray-200 dark:bg-gray-600 rounded-xl p-4 overflow-hidden flex-1">
           {/* messages container */}
           <div
             className={cn(
-              "flex flex-col gap-4 overflow-y-auto flex-1 justify-end",
+              "flex flex-col gap-4 overflow-y-auto h-[calc(100vh-11rem)] items-stretch flex-1",
               {
                 "items-center": !hasMessages,
-                "items-stretch": hasMessages,
               }
             )}
+            onScroll={handleScroll}
           >
             {hasMessages
               ? interactionMessages?.map((message) => {
@@ -178,7 +280,7 @@ const ChatWindow = ({ socket }: IProps) => {
                 })
               : !isInputContentPresent && (
                   <div
-                    className="max-w-[70%] mb-8 cursor-pointer"
+                    className="max-w-[70%] mb-8 cursor-pointer mt-auto"
                     onClick={handleGreetMessageClick}
                   >
                     <NewConversationGreetMessage
@@ -186,40 +288,13 @@ const ChatWindow = ({ socket }: IProps) => {
                     />
                   </div>
                 )}
-            {/* 
-            <ChatItemCard
-              imageUrl={interactionUserImageUrl}
-              isCurrentUserChat={true}
-              RenderComponent={<ChatText text="What's up bro" />}
-              chatSentTime={new Date("2020-12-20T12:30:00Z")}
-              deliveryStatus={ChatDeliveryStatus.Failed}
-            /> */}
-            {/*<ChatItemCard*/}
-            {/*  imageUrl="/assets/user.png"*/}
-            {/*  isCurrentUserChat={false}*/}
-            {/*  RenderComponent={*/}
-            {/*    <ChatText*/}
-            {/*      text="Lorem ipsum dolor sit, amet consectetur adipisicing elit. Beatae*/}
-            {/*accusantium illum dolor similique. Culpa, quam facilis placeat iste nisi*/}
-            {/*fuga laudantium dolor non perferendis expedita aperiam sunt amet*/}
-            {/*consequatur! Voluptate."*/}
-            {/*    />*/}
-            {/*  }*/}
-            {/*  chatSentTime={new Date("2020-12-20T12:30:00Z")}*/}
-            {/*/>*/}
-            {/*<ChatItemCard*/}
-            {/*  imageUrl="/assets/user.png"*/}
-            {/*  isCurrentUserChat={false}*/}
-            {/*  RenderComponent={*/}
-            {/*    <ChatText*/}
-            {/*      text="Lorem ipsum dolor sit, amet consectetur adipisicing elit. Beatae*/}
-            {/*accusantium illum dolor similique. Culpa, quam facilis placeat iste nisi*/}
-            {/*fuga laudantium dolor non perferendis expedita aperiam sunt amet*/}
-            {/*consequatur! Voluptate."*/}
-            {/*    />*/}
-            {/*  }*/}
-            {/*  chatSentTime={new Date("2020-12-20T12:30:00Z")}*/}
-            {/*/>*/}
+
+            <div
+              className={cn("hidden", { flex: isTyping })}
+              ref={typingIndicatorRef}
+            >
+              <TypingIndicator />
+            </div>
           </div>
 
           {/* chat send buttons */}

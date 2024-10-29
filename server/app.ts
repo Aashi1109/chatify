@@ -8,9 +8,8 @@ import cookieparser from "cookie-parser";
 
 import config from "@config";
 import authRouter from "@routes/auth.routes";
-import chatsRouter from "@routes/chats.routes";
+import chatsRouter from "@routes/conversation.routes";
 import fileRouter from "@routes/file.routes";
-import groupsRouter from "@routes/groups.routes";
 import messagesRouter from "@routes/messages.routes";
 import userRouter from "@routes/user.routes";
 
@@ -41,9 +40,8 @@ app.use(cookieparser());
 app.use(config.apiPrefixes.auth, authRouter);
 app.use(config.apiPrefixes.user, userRouter);
 app.use(config.apiPrefixes.message, [userParser], messagesRouter);
-app.use(config.apiPrefixes.chats, [userParser], chatsRouter);
+app.use(config.apiPrefixes.conversation, [], chatsRouter);
 app.use(config.apiPrefixes.file, fileRouter);
-app.use(config.apiPrefixes.groups, [userParser], groupsRouter);
 
 // swagger docs
 // load yaml file
