@@ -121,16 +121,24 @@ body {
   }
 
   .error-field {
-    @apply text-destructive;
+    @apply text-destructive text-xs;
   }
 
   .form-group {
     @apply flex flex-col gap-2;
   }
 
-  /*.button {*/
-  /*    @apply w-full rounded-lg text-center px-4 py-[10px] bg-white text-black mb-4 font-semibold;*/
-  /*}*/
+  .flex-between {
+    @apply flex justify-between items-center;
+  }
+
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+
+  .flex-start {
+    @apply flex justify-start items-center;
+  }
 }
 
 .section-bg {

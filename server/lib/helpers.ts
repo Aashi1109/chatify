@@ -115,13 +115,28 @@ const getByFilter =
     filter: Partial<Record<keyof T, any>>,
     pagination: IPagination,
     not?: string,
-    $where?: [string: any]
+    $where?: IObjectKeys
   ): Promise<Require_id<FlattenMaps<T>>[]> => {
     try {
-      let { pageNumber, limit, sortBy, sortOrder, populateFields, doPopulate } =
-        pagination || {};
+      let {
+        pageNumber,
+        limit,
+        sortBy,
+        sortOrder,
+        populateFields,
+        doPopulate,
+        startDate,
+        endDate,
+      } = pagination || {};
 
       const skip = limit ? (pageNumber - 1) * limit : 0;
+
+      if (startDate || endDate) {
+        $where = {};
+        $where.createdAt = {};
+      }
+      if (startDate) $where.createdAt.$gte = startDate;
+      if (endDate) $where.createdAt.$lte = endDate;
 
       if ($where) filter = { ...filter, ...$where };
 

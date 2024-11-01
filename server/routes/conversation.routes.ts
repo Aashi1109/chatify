@@ -18,7 +18,7 @@ const mongooseIdValidator = validateMongooseIds(["conversationId"]);
 
 router.post("", validateConversation, asyncHandler(createConversation));
 
-router.get(
+router.post(
   "/query",
   [mongooseIdValidator, paginationParser],
   asyncHandler(getConversationByQuery)

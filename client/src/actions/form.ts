@@ -1,7 +1,8 @@
 "use server";
 
 import axiosClient from "@/common/service/axios-client";
-import { IFileInterface, IGroups, IUser } from "@/definitions/interfaces";
+import { EConversationTypes } from "@/definitions/enums";
+import { IConversation, IFileInterface, IUser } from "@/definitions/interfaces";
 import { createUrlWithQueryParams } from "@/lib/helpers/generalHelper";
 
 const checkUsernameExists = async (username: string) => {
@@ -92,17 +93,30 @@ const getUserData = async (userId: string): Promise<IUser | null> => {
   }
 };
 
-const getUserChats = async (userId: string, receiverId?: string) => {
-  const requestUrl =
-    `/chats/query?userId=${userId}&populate=true` +
-    (receiverId ? `&receiverId=${receiverId}` : "");
+const getUserConversations = async ({
+  participants,
+  conversationId,
+  query,
+  type,
+}: {
+  participants: string[];
+  type: EConversationTypes;
+  conversationId?: string;
+  query?: string;
+}) => {
+  const requestUrl = `/conversation/query?populate=true${query ?? ""}`;
 
   try {
-    const response = await axiosClient.get(requestUrl);
+    const response = await axiosClient.post(requestUrl, {
+      participants,
+      conversationId,
+      type,
+    });
     return response.data;
-  } catch (error) {
-    console.error("Error getting user chats : ", error);
-    throw error;
+  } catch (error: any) {
+    console.error("Error getting user conversations : ", error);
+    const errorMessage = error?.response?.data?.error;
+    throw errorMessage;
   }
 };
 
@@ -115,7 +129,7 @@ const getUserChatData = async (
     sortOrder?: "asc" | "desc";
   } = {}
 ) => {
-  const requestUrl = `/chats/${chatId}`;
+  const requestUrl = `/conversation/${chatId}`;
 
   const modifiedUrl = createUrlWithQueryParams(requestUrl, options);
   try {
@@ -138,13 +152,24 @@ const getAllUser = async (not?: null | string) => {
   }
 };
 
-const createChatData = async (
-  userId: string,
-  receiverId: string
-): Promise<object | any> => {
-  const requestUrl = `/chats/create`;
+const createConversation = async ({
+  participants,
+  type,
+  image,
+  name,
+  description,
+  creator,
+}: IConversation): Promise<object | any> => {
+  const requestUrl = `/conversation`;
   try {
-    const response = await axiosClient.post(requestUrl, { receiverId, userId });
+    const response = await axiosClient.post(requestUrl, {
+      participants,
+      type,
+      image,
+      name,
+      description,
+      creator,
+    });
     return response.data;
   } catch (error) {
     console.error("Error getting chats : ", error);
@@ -152,24 +177,13 @@ const createChatData = async (
   }
 };
 
-const getChatDataById = async (chatId: string) => {
-  const requestUrl = `/chats/${chatId}`;
+const getConversationById = async (conversationId: string) => {
+  const requestUrl = `/conversation/${conversationId}`;
   try {
     const response = await axiosClient.get(requestUrl);
     return response.data;
   } catch (error) {
     console.error("Error getting chats : ", error);
-    throw error;
-  }
-};
-
-const createGroup = async (groupData: IGroups) => {
-  const requestUrl = `/groups/create`;
-  try {
-    const response = await axiosClient.post(requestUrl, groupData);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating group : ", error);
     throw error;
   }
 };
@@ -216,13 +230,12 @@ export const getSessionOfUser = async () => {
 
 export {
   checkUsernameExists,
-  createChatData,
-  createGroup,
+  createConversation,
   createUser,
   getAllUser,
-  getChatDataById,
+  getConversationById,
   getUserChatData,
-  getUserChats,
+  getUserConversations,
   getUserData,
   loginUser,
   uploadFile,

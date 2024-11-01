@@ -1,7 +1,11 @@
 import { Types } from "mongoose";
-import { EMessageCategory, EMessageType, EUploadTypes } from "./enums";
+import {
+  EConversationTypes,
+  EMessageCategory,
+  EMessageType,
+  EUploadTypes,
+} from "./enums";
 import { Request } from "express";
-import { JwtPayload } from "jsonwebtoken";
 
 interface IUser {
   _id?: string;
@@ -56,13 +60,13 @@ interface ICloudinaryResponse {
 interface IConversation {
   participants: Types.ObjectId[];
   isGroup: boolean;
-  isPrivate: boolean;
-  isDirectMessage: boolean;
   name?: string;
   description?: string;
-  creatorId: Types.ObjectId;
+  creator: Types.ObjectId;
   image?: IFile;
   operation?: "add" | "delete";
+  lastMessage?: Types.ObjectId;
+  type: EConversationTypes;
 }
 
 interface IUserGroups {
@@ -110,6 +114,8 @@ export interface IPagination {
   pageNumber?: number;
   doPopulate?: boolean;
   populateFields?: string[];
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface IRequestPagination extends Request {

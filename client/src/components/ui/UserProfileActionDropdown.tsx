@@ -26,10 +26,17 @@ const UserProfileActionDropdown: FC<{
 }> = ({ profileImage, name }) => {
   const { setTheme } = useTheme();
 
-  const { RenderModal: RenderGroupForm, handleModalOpen: openGroupModal } =
-    useModal();
-  const { RenderModal: RenderChatForm, handleModalOpen: openChatModal } =
-    useModal();
+  const {
+    RenderModal: RenderGroupForm,
+    handleModalOpen: openGroupModal,
+
+    handleModalClose: handleGroupModalClose,
+  } = useModal();
+  const {
+    RenderModal: RenderChatForm,
+    handleModalOpen: openChatModal,
+    handleModalClose: handleChatModalClose,
+  } = useModal();
 
   return (
     <>
@@ -103,11 +110,11 @@ const UserProfileActionDropdown: FC<{
       </DropdownMenu>
 
       <RenderGroupForm>
-        <GroupForm />
+        <GroupForm handleModalClose={handleGroupModalClose} />
       </RenderGroupForm>
 
       <RenderChatForm>
-        <NewChatForm />
+        <NewChatForm handleModalClose={handleChatModalClose} />
       </RenderChatForm>
     </>
   );

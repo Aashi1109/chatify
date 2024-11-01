@@ -1,23 +1,21 @@
-import { IChat, IGroups, IMessage, IUser } from "@/definitions/interfaces";
+import { IConversation, IMessage, IUser } from "@/definitions/interfaces";
 // initial state for chat slice
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IInteractionData {
   user: IUser | null;
-  conversation: IGroups | IChat | null;
+  conversation: IConversation | null;
 }
 interface IChatSlice {
   interactionData: IInteractionData | null;
   interactionMessages: IMessage[] | null;
-  conversation: IChat[] | null;
-  groups: IGroups[] | null;
+  conversations: IConversation[] | null;
 }
 
 const chatInitialState: IChatSlice = {
   interactionData: null,
   interactionMessages: null,
-  conversation: null,
-  groups: null,
+  conversations: null,
 };
 
 const appendData = <T>(prevData: T[] | null, newData: T): T[] => {
@@ -40,59 +38,55 @@ const chatSlice = createSlice({
     ) => {
       state.interactionMessages = action.payload;
     },
-    setConversation: (state, action: PayloadAction<IChat[] | null>) => {
-      state.conversation = action.payload;
-    },
-    setGroups: (state, action: PayloadAction<IGroups[] | null>) => {
-      state.groups = action.payload;
+    setConversation: (state, action: PayloadAction<IConversation[] | null>) => {
+      state.conversations = action.payload;
     },
     addInteractionMessage: (state, action: PayloadAction<IMessage>) => {
-      state.interactionMessages = appendData(
-        state.interactionMessages,
-        action.payload
-      );
+      state.interactionMessages?.unshift(action.payload);
     },
-    addConversation: (state, action: PayloadAction<IChat>) => {
-      state.conversation = appendData(state.conversation, action.payload);
+    extendInteractionMessages: (state, action: PayloadAction<IMessage[]>) => {
+      if (action.payload.length > 0)
+        state.interactionMessages = [
+          ...(state.interactionMessages || []),
+          ...action.payload,
+        ];
     },
-    addGroup: (state, action: PayloadAction<IGroups>) => {
-      state.groups = appendData(state.groups, action.payload);
+    addConversation: (state, action: PayloadAction<IConversation>) => {
+      state.conversations = appendData(state.conversations, action.payload);
     },
+
     updateMessage: (
       state,
       action: PayloadAction<{ id: string; data: Partial<IMessage> }>
     ) => {
       const existingMessage = state.interactionMessages?.find(
-        (message) => message.id === action.payload.id
+        (message) => message._id === action.payload.id
       );
 
       if (existingMessage) {
         for (const key in action.payload.data) {
-          if (Object.prototype.hasOwnProperty.call(action.payload.data, key)) {
-            const updateData = action.payload.data[key];
-            if (updateData) {
-              existingMessage[key] = updateData;
-            }
+          if (key in action.payload.data) {
+            const updateData = action.payload.data[key as keyof IMessage];
+            existingMessage[key as keyof IMessage] = updateData;
           }
         }
       }
     },
-    updateChat: (
+    updateConversation: (
       state,
-      action: PayloadAction<{ id: string; data: Partial<IChat> }>
+      action: PayloadAction<{
+        id: string;
+        data: Partial<IConversation & { isTyping: boolean }>;
+      }>
     ) => {
-      const existingChat = state.interactionMessages?.find(
-        (message) => message.id === action.payload.id
+      const existingChat = state.conversations?.find(
+        (con) => con._id === action.payload.id
       );
 
       if (existingChat) {
         for (const key in action.payload.data) {
-          if (Object.prototype.hasOwnProperty.call(action.payload.data, key)) {
-            const updateData = action.payload.data[key];
-            if (updateData) {
-              existingChat[key] = updateData;
-            }
-          }
+          const updateData = action.payload.data[key as keyof IConversation];
+          existingChat[key as keyof IConversation] = updateData;
         }
       }
     },
@@ -101,12 +95,12 @@ const chatSlice = createSlice({
 
 export const {
   setConversation,
-  setGroups,
   setInteractionData,
   setInteractionMessages,
+  extendInteractionMessages,
   addConversation,
+  updateConversation,
   addInteractionMessage,
-  addGroup,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

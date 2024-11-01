@@ -31,7 +31,7 @@ const Toaster = ({
         className={cn(
           {
             "bg-green-700": toastType == EToastType.Success,
-            "bg-[--danger-hex]": toastType === EToastType.Error,
+            "bg-red-500": toastType === EToastType.Error,
             "bg-blue-700": toastType === EToastType.Info,
             "bg-orange-300": toastType === EToastType.Warning,
           },

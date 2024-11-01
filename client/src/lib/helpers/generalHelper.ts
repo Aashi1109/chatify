@@ -20,10 +20,6 @@ function formatBytes(bytes: number, decimals = 2) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
-const handleOnunloadLTClear = () => {
-  localStorage.clear();
-};
-
 const createUrlWithQueryParams = (url: string, queryParams: any): string => {
   let isInitial = true;
 
@@ -56,9 +52,14 @@ const debounce = function <T extends (...args: any[]) => any>(
   } as T;
 };
 
-export {
-  createUrlWithQueryParams,
-  debounce,
-  formatBytes,
-  handleOnunloadLTClear,
+export const executor = async (guards: (() => Promise<string>)[]) => {
+  for (const guard of guards) {
+    const result = await guard();
+    return result;
+  }
 };
+
+export const wait = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export { createUrlWithQueryParams, debounce, formatBytes };

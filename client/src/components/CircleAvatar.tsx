@@ -12,7 +12,7 @@ const CircleAvatar: FC<{
   return (
     <Avatar className={cn(`w-10 h-10`, classes)}>
       <AvatarImage alt={alt ?? "Circle Avatar"} src={imageUrl} />
-      <AvatarFallback className="text-foreground">
+      <AvatarFallback className="text-foreground border border-gray-700">
         {fallback ?? ""}
       </AvatarFallback>
     </Avatar>

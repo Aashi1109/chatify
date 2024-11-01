@@ -9,13 +9,16 @@ import {
 import userValidationSchema from "@schemas/userValidationSchema";
 import mongoose from "mongoose";
 import { createConversationValidationSchema } from "@schemas/conversationValidation";
+import Joi from "joi";
+import asyncHandler from "./asyncHandler";
 
 /**
  * Generic validation middleware factory
  * @param schema - Joi validation schema to validate against
  */
 const createValidator =
-  (schema: any) => (req: Request, res: Response, next: NextFunction) => {
+  (schema: Joi.ObjectSchema) =>
+  (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body);
     if (error) {
       throw new ClientError(
@@ -23,6 +26,17 @@ const createValidator =
       );
     }
     return next();
+  };
+
+const createAsyncValidator =
+  (schema: Joi.ObjectSchema) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      req.body = await schema.validateAsync(req.body);
+      return next();
+    } catch (error) {
+      throw new ClientError(error.details?.[0]?.message);
+    }
   };
 
 export const validateUser = createValidator(userValidationSchema);
@@ -33,8 +47,8 @@ export const validateUpdateMessage = createValidator(
   messageUpdateValidationSchema
 );
 export const validateFileUploadData = createValidator(fileValidationSchema);
-export const validateConversation = createValidator(
-  createConversationValidationSchema
+export const validateConversation = asyncHandler(
+  createAsyncValidator(createConversationValidationSchema)
 );
 
 export const validateMongooseIds =

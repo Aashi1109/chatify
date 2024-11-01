@@ -9,16 +9,15 @@ const ChipList: React.FC<{
   orientation?: "vertical" | "horizontal";
   chipListClasses?: string;
   chipItemClasses?: string;
+  selectedChip: IChipItem["id"];
 }> = ({
   chipItems,
   callback,
   orientation = "horizontal",
   chipItemClasses,
   chipListClasses,
+  selectedChip,
 }) => {
-  // const searchParams = useSearchParams();
-
-  const selectedChip = "chats";
   return (
     <div
       className={cn(
@@ -36,7 +35,7 @@ const ChipList: React.FC<{
           callback={callback}
           key={chipItem.id}
           classes={chipItemClasses}
-          isActive={chipItem.text.toLowerCase() === selectedChip}
+          isActive={chipItem.id === selectedChip}
         />
       ))}
     </div>

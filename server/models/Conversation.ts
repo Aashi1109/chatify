@@ -1,3 +1,4 @@
+import { EConversationTypes } from "@definitions/enums";
 import { IConversation } from "@definitions/interfaces";
 import { Schema, model } from "mongoose";
 
@@ -14,43 +15,37 @@ const conversationSchema = new Schema<IConversation>(
       type: Boolean,
       default: false,
     },
-    // TODO use in future
-    isPrivate: {
-      type: Boolean,
-      default: false,
-    },
-    isDirectMessage: {
-      type: Boolean,
-      default: false,
-    },
     name: {
       type: String,
     },
     description: {
       type: String,
     },
+    image: {
+      url: { type: String, trim: true },
+      filename: { type: String },
+      pubicId: { type: String, trim: true },
+      fileDataId: { type: Schema.Types.ObjectId, ref: "FileData" },
+    },
+    creator: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    lastMessage: {
+      type: Schema.Types.ObjectId,
+      ref: "Message",
+    },
+    type: {
+      type: String,
+      enum: EConversationTypes,
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-conversationSchema.index(
-  { participants: 1, isDirectMessage: 1 },
-  {
-    unique: true,
-    partialFilterExpression: { isDirectMessage: true },
-  }
-);
-
-conversationSchema.index(
-  { name: 1, isGroup: 1 },
-  {
-    unique: true,
-    partialFilterExpression: { isGroup: true },
-  }
-);
-
 conversationSchema.pre("save", function (next) {
-  if (this.isDirectMessage) {
+  if (this.type === EConversationTypes.PRIVATE) {
     this.participants.sort();
   }
   next();

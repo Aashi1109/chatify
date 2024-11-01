@@ -2,6 +2,7 @@ import { IRequestPagination } from "@definitions/interfaces";
 import ClientError from "@exceptions/clientError";
 import NotFoundError from "@exceptions/notFoundError";
 import { createFilterFromParams } from "@lib/helpers";
+import { Message } from "@models";
 import MessageService from "@services/MessageService";
 import { Request, Response } from "express";
 
@@ -16,42 +17,29 @@ const createMessage = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { userId, chatId, content, sentAt, groupId, type } = req.body;
+  const { user, conversation, content, sentAt, type, category } = req.body;
 
   if (!content) {
     throw new ClientError("Message content is missing");
   }
 
-  if (!userId || !chatId) {
+  if (!user || !conversation) {
     throw new ClientError(
-      `User or sender id is missing. user id: ${userId}, chat id: ${chatId}`
+      `User or sender id is missing. user id: ${user}, chat id: ${conversation}`
     );
   }
 
-  const createdMessage = await MessageService.create({
-    conversation: chatId,
-    user: userId,
+  const createdMessage = await Message.create({
+    conversation: conversation,
+    user: user,
     content,
     sentAt,
-    groupId,
     type,
+    category,
   });
+
+  await createdMessage.save();
   return res.status(201).json({ data: createdMessage, success: true });
-};
-
-/**
- * Get all the messages
- * @param {Request} req Express Request object
- * @param {Response} res Express Response object
- * @return {Promise<Response>} Promise resolved with all the messages
- */
-const getAllMessages = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const messages = await MessageService.getAll();
-
-  return res.status(200).json({ data: messages, success: true });
 };
 
 /**
@@ -71,16 +59,19 @@ const updateMessageById = async (req: Request, res: Response) => {
   if (!content) {
     throw new ClientError("Message content is missing");
   }
-  const previousMessage = await MessageService.getById(messageId);
-  if (!previousMessage.length) {
+  const previousMessage = await Message.findById(messageId);
+  if (!previousMessage) {
     throw new NotFoundError(`Message with id: ${messageId} not found`);
   }
 
-  const updatedMessage = await MessageService.updateById(
+  const updatedMessage = await Message.findByIdAndUpdate(
     messageId,
-    content,
-    seenAt || previousMessage[0]?.seenAt,
-    deliveredAt || previousMessage[0]?.deliveredAt
+    {
+      content,
+      seenAt: seenAt || previousMessage.seenAt,
+      deliveredAt: deliveredAt || previousMessage.deliveredAt,
+    },
+    { new: true }
   );
   return res.status(200).json({ data: updatedMessage, success: true });
 };
@@ -97,8 +88,8 @@ const deleteMessageById = async (
 ): Promise<Response> => {
   const { messageId } = req.params;
 
-  const deleteRoom = await MessageService.deleteById(messageId);
-  return res.status(204).json({ data: deleteRoom, success: true });
+  const deletedMessage = await Message.findByIdAndDelete(messageId);
+  return res.status(204).json({ data: deletedMessage, success: true });
 };
 
 /**
@@ -112,7 +103,7 @@ const getMessageById = async (
   res: Response
 ): Promise<Response> => {
   const { messageId } = req.params;
-  const existingMessage = await MessageService.getById(messageId);
+  const existingMessage = await Message.findById(messageId);
 
   return res.status(200).json({ data: existingMessage, success: true });
 };
@@ -127,12 +118,11 @@ const getMessageByQuery = async (
   req: IRequestPagination,
   res: Response
 ): Promise<Response> => {
-  const { chatId, userId, groupId, messageId, not } = req.query;
+  const { conversation, user, messageId, not } = req.query;
 
   const filter = createFilterFromParams({
-    chatId,
-    userId,
-    groupId,
+    conversation,
+    user,
     _id: messageId,
   });
 
@@ -148,7 +138,6 @@ const getMessageByQuery = async (
 export {
   createMessage,
   deleteMessageById,
-  getAllMessages,
   getMessageById,
   getMessageByQuery,
   updateMessageById,

@@ -12,6 +12,7 @@ import {
 import asyncHandler from "@middlewares/asyncHandler";
 import userParser from "@middlewares/userParser";
 import { validateMongooseIds, validateUser } from "@middlewares/validators";
+import paginationParser from "@middlewares/paginationParser";
 
 const router = Router();
 
@@ -22,7 +23,7 @@ router
 
 router.get(
   "/query",
-  [validateMongooseIds(["not", "userId"])],
+  [validateMongooseIds(["not", "userId"]), paginationParser],
   asyncHandler(getUserByQuery)
 );
 

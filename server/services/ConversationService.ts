@@ -2,6 +2,7 @@ import { IConversation, IPagination } from "@definitions/interfaces";
 import { Conversation } from "@models";
 import { getByFilter, updateArrayField } from "@lib/helpers";
 import { FlattenMaps, Require_id } from "mongoose";
+import { EConversationTypes } from "@definitions/enums";
 
 class ConversationService {
   /**
@@ -18,17 +19,18 @@ class ConversationService {
     filter: {
       _id?: string;
       participants?: string[];
+      type?: EConversationTypes;
     },
     pagination?: IPagination,
     not?: string
   ): Promise<Require_id<FlattenMaps<IConversation>>[]> {
-    if (pagination) pagination.populateFields ??= ["participants", "messages"];
+    if (pagination) pagination.populateFields ??= ["participants"];
     const _inFields = [...new Set(filter.participants)];
     const filteredFields = _inFields.filter(Boolean);
+    delete filter.participants;
 
-    const query = filter?._id ? { _id: filter?._id } : {};
-    return getByFilter(Conversation)(query, pagination, not, {
-      participants: { $in: filteredFields },
+    return getByFilter(Conversation)({ ...filter }, pagination, not, {
+      participants: { $all: filteredFields },
     });
   }
 }

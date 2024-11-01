@@ -1,15 +1,15 @@
 import * as Joi from "joi";
-import { EMessageType } from "@definitions/enums";
+import { EMessageCategory, EMessageType } from "@definitions/enums";
 
 const messageCreateValidationSchema = Joi.object({
-  userId: Joi.string()
+  user: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .messages({
       "string.pattern.base": "Invalid userId format",
       "any.required": "userId is required",
     }),
-  chatId: Joi.string()
+  chat: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .messages({
@@ -23,18 +23,19 @@ const messageCreateValidationSchema = Joi.object({
     "any.required": "SentAt is required",
     "date.base": "SentAt must be a valid date",
   }),
-  groupId: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
-    .optional()
-    .messages({
-      "string.pattern.base": "Invalid groupId format",
-    }),
   type: Joi.string()
     .valid(...Object.values(EMessageType))
-    .default("text")
+    .default(EMessageType.Text)
     .messages({
       "any.only": "Invalid message type",
       "any.default": "Type defaulted to 'text'",
+    }),
+  category: Joi.string()
+    .valid(...Object.values(EMessageCategory))
+    .default(EMessageCategory.User)
+    .messages({
+      "any.only": "Invalid category type",
+      "any.default": "Category defaulted to 'user'",
     }),
 });
 

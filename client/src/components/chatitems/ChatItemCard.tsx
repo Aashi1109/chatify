@@ -1,25 +1,16 @@
-import { ChatDeliveryStatus } from "@/definitions/enums";
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
 import React from "react";
 import CircleAvatar from "../CircleAvatar";
 import MessageDeliveryIconFromStatus from "../MessageDeliveryIconFromStatus";
 import { cn } from "@/lib/utils";
+import { IMessage, IUser } from "@/definitions/interfaces";
 
 const ChatItemCard: React.FC<{
-  RenderComponent: React.ReactNode;
+  RenderComponent: React.ComponentType<{ message: IMessage }>;
   isCurrentUserChat: boolean;
-  imageUrl: string;
-  chatSentTime: string;
-  deliveryStatus?: ChatDeliveryStatus;
-  name: string;
-}> = ({
-  RenderComponent,
-  isCurrentUserChat,
-  imageUrl,
-  chatSentTime,
-  deliveryStatus,
-  name,
-}) => {
+  user: IUser;
+  message: IMessage;
+}> = ({ RenderComponent, isCurrentUserChat, user, message }) => {
   return (
     <div
       className={cn("max-w-[65%] flex rounded-lg items-start", {
@@ -30,10 +21,10 @@ const ChatItemCard: React.FC<{
         {!isCurrentUserChat && (
           <div className="flex-shrink-0 hidden md:flex">
             <CircleAvatar
-              imageUrl={imageUrl}
+              imageUrl={user.profileImage.url}
               alt={"profile image"}
               classes="w-9 h-9"
-              fallback={name?.slice(0, 1)?.toUpperCase()}
+              fallback={user.name?.slice(0, 1)?.toUpperCase()}
             />
           </div>
         )}
@@ -45,18 +36,20 @@ const ChatItemCard: React.FC<{
               "rounded-tl-none": !isCurrentUserChat,
             })}
           >
-            {RenderComponent}
+            <RenderComponent message={message} />
           </div>
 
-          <div className="self-end flex-center gap-2 mr-1">
+          <div
+            className={cn("self-end flex-center gap-2 mr-1", {
+              "self-start": !isCurrentUserChat,
+            })}
+          >
             <div className="text-gray-500 dark:text-gray-300 text-xs">
-              {formatTimeAgo(new Date(chatSentTime))}
+              {formatTimeAgo(new Date(message.sentAt))}
             </div>
-            {isCurrentUserChat && deliveryStatus && (
+            {isCurrentUserChat && (
               <div className="flex cursor-pointer">
-                <MessageDeliveryIconFromStatus
-                  deliveryStatus={deliveryStatus}
-                />
+                <MessageDeliveryIconFromStatus message={message} />
               </div>
             )}
           </div>

@@ -1,12 +1,12 @@
 import {
   createMessage,
   deleteMessageById,
-  getAllMessages,
   getMessageById,
   getMessageByQuery,
   updateMessageById,
 } from "@controllers/messages.controller";
 import asyncHandler from "@middlewares/asyncHandler";
+import paginationParser from "@middlewares/paginationParser";
 import {
   validateCreateMessage,
   validateMongooseIds,
@@ -18,14 +18,14 @@ const router = Router();
 
 router.get(
   "/query",
-  [validateMongooseIds(["chatId", "userId", "groupId", "messageId"])],
+  [
+    validateMongooseIds(["conversation", "user", "messageId"]),
+    paginationParser,
+  ],
   asyncHandler(getMessageByQuery)
 );
 
-router
-  .route("")
-  .get(asyncHandler(getAllMessages))
-  .post([validateCreateMessage], asyncHandler(createMessage));
+router.route("").post([validateCreateMessage], asyncHandler(createMessage));
 
 router
   .route("/:messageId")

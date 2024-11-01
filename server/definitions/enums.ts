@@ -62,6 +62,12 @@ export enum EConversationEvents {
   LeaveConversation = "conversation:leave",
 }
 
+export enum EConversationTypes {
+  PRIVATE = "private",
+  GROUP = "group",
+  ARCHIVED = "archived",
+}
+
 export {
   EMessageType,
   ESocketAuthEvents,

@@ -1,3 +1,4 @@
+import { EConversationTypes } from "@definitions/enums";
 import { IConversation, IRequestPagination } from "@definitions/interfaces";
 import { NotFoundError } from "@exceptions";
 import ClientError from "@exceptions/clientError";
@@ -14,16 +15,18 @@ import { Request, Response } from "express";
  * @throws {Error} Throws an error if the name or description is missing.
  */
 export const createConversation = async (req: Request, res: Response) => {
-  const { participants } = req.body as IConversation;
+  const { participants, type } = req.body as IConversation;
 
-  const existingConversation = await Conversation.findOne({
-    participants: { $in: participants },
-    isGroup: participants.length > 2,
-    isDirectMessage: participants.length === 2,
-  });
+  if (type === EConversationTypes.PRIVATE) {
+    const existingConversation =
+      await ConversationService.getConversationByFilter({
+        participants: participants as any,
+        type: EConversationTypes.PRIVATE,
+      });
 
-  if (existingConversation)
-    throw new ClientError("Conversation already exists");
+    if (existingConversation?.length)
+      throw new ClientError("Conversation already exists");
+  }
 
   const newChat = new Conversation(req.body);
   await newChat.save();
@@ -57,11 +60,12 @@ export const getConversationByQuery = async (
   req: IRequestPagination,
   res: Response
 ) => {
-  let { chatId, participants, not } = req.query;
+  let { conversationId, not, type, participants } = req.body;
 
   const filter = createFilterFromParams({
-    _id: chatId,
+    _id: conversationId,
     participants,
+    type,
   });
 
   const userChats = await ConversationService.getConversationByFilter(
@@ -81,14 +85,14 @@ export const getConversationByQuery = async (
 export const updateConversationById = async (req: Request, res: Response) => {
   const { conversationId } = req.params;
   const {
-    participants,
+    participantsToAlter,
     operation,
-    isDirectMessage,
-    isGroup,
-    isPrivate,
     name,
     description,
-  } = req.body as Partial<IConversation>;
+    image,
+    lastMessage,
+    type,
+  } = req.body as Partial<{ participantsToAlter: string[] } & IConversation>;
 
   const existingChat = await Conversation.findOne({ _id: conversationId });
 
@@ -98,20 +102,32 @@ export const updateConversationById = async (req: Request, res: Response) => {
     );
   }
 
-  if (participants.length) {
+  if (participantsToAlter.length) {
     existingChat.participants = updateArrayField(
       existingChat.participants,
-      participants,
+      participantsToAlter,
       operation
     );
   }
 
-  existingChat.description = description || existingChat.description;
-  existingChat.name = name || existingChat.name;
-  existingChat.isDirectMessage =
-    isDirectMessage || existingChat.isDirectMessage;
-  existingChat.isGroup = isGroup || existingChat.isGroup;
-  existingChat.isPrivate = isPrivate || existingChat.isPrivate;
+  existingChat.description =
+    existingChat.type === EConversationTypes.GROUP
+      ? description || existingChat.description
+      : null;
+  existingChat.name =
+    existingChat.type === EConversationTypes.GROUP
+      ? name || existingChat.name
+      : null;
+  existingChat.image =
+    existingChat.type === EConversationTypes.GROUP
+      ? image || existingChat.image
+      : null;
+  existingChat.lastMessage = lastMessage;
+
+  existingChat.type =
+    existingChat.type === EConversationTypes.GROUP
+      ? existingChat.type
+      : type || existingChat.type;
 
   await existingChat.save();
 

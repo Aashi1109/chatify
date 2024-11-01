@@ -1,4 +1,4 @@
-export enum ChatDeliveryStatus {
+export enum EChatDeliveryStatus {
   Sending,
   Sent,
   Delivered,
@@ -34,4 +34,15 @@ export enum ESocketMessageEvents {
 export enum EConversationEvents {
   JoinConversation = "conversation:join",
   LeaveConversation = "conversation:leave",
+}
+
+export enum EMessageCategory {
+  System = "system",
+  User = "user",
+}
+
+export enum EConversationTypes {
+  PRIVATE = "private",
+  GROUP = "group",
+  ARCHIVED = "archived",
 }

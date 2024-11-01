@@ -1,39 +1,69 @@
-import { ChatDeliveryStatus } from "@/definitions/enums";
+import { EChatDeliveryStatus } from "@/definitions/enums";
+import { IMessage } from "@/definitions/interfaces";
 import { Check, CheckCheck, Clock5, RotateCcw } from "lucide-react";
 
 /**
  * Returns the icon corresponding to the given chat delivery status.
- * @param {ChatDeliveryStatus} deliveryStatus - The delivery status of the chat message.
+ * @param {EChatDeliveryStatus} deliveryStatus - The delivery status of the chat message.
  * @returns {string|null} The URL of the icon corresponding to the delivery status, or null if no icon is found.
  */
-const iconFromDeliveryStatus = (deliveryStatus: ChatDeliveryStatus) => {
+const iconFromDeliveryStatus = (
+  deliveryStatus: EChatDeliveryStatus,
+  iconSize?: string
+) => {
+  const baseIconClass = iconSize || "h-4 w-4";
   switch (deliveryStatus) {
     // If the message is unsent, return the URL for the waiting-retry icon.
-    case ChatDeliveryStatus.Sending:
-      return <Clock5 className="h-4" />;
+    case EChatDeliveryStatus.Sending:
+      return <Clock5 className={baseIconClass} />;
     // If the message is sent but not yet delivered, return the URL for the single-tick icon.
-    case ChatDeliveryStatus.Sent:
-      return <Check className="h-4" />;
+    case EChatDeliveryStatus.Sent:
+      return <Check className={baseIconClass} />;
     // If the message is delivered but not yet read, return the URL for the double-tick icon.
-    case ChatDeliveryStatus.Delivered:
-      return <CheckCheck className="h-4" />;
+    case EChatDeliveryStatus.Delivered:
+      return <CheckCheck className={baseIconClass} />;
     // If the message is delivered and read, return the URL for the blue-tick icon.
-    case ChatDeliveryStatus.DeliveredRead:
-      return <CheckCheck className="h-4 text-blue-500" />;
+    case EChatDeliveryStatus.DeliveredRead:
+      return <CheckCheck className={`${baseIconClass} text-blue-500`} />;
     // If the message delivery status is unknown or invalid, return null.
-    case ChatDeliveryStatus.Failed:
-      return <RotateCcw className="text-red-400 h-4" />;
+    case EChatDeliveryStatus.Failed:
+      return <RotateCcw className={`${baseIconClass} text-red-400`} />;
     default:
       return null;
   }
 };
 
+const getMessageDeliveryStatus = (message: IMessage) => {
+  const { sentAt, deliveredAt, seenAt } = message || {};
+  if (!sentAt) {
+    return EChatDeliveryStatus.Sending;
+  }
+
+  if (sentAt && !deliveredAt && !seenAt) {
+    return EChatDeliveryStatus.Sent;
+  }
+  if (sentAt && deliveredAt && !seenAt) {
+    return EChatDeliveryStatus.Delivered;
+  }
+  if (sentAt && deliveredAt && seenAt) {
+    return EChatDeliveryStatus.DeliveredRead;
+  }
+
+  return EChatDeliveryStatus.Failed;
+};
+
 const MessageDeliveryIconFromStatus = ({
-  deliveryStatus,
+  message,
+  iconSize,
 }: {
-  deliveryStatus: ChatDeliveryStatus;
+  message: IMessage;
+  iconSize?: string;
 }) => {
-  return iconFromDeliveryStatus(deliveryStatus);
+  return (
+    <div className={"flex-shrink-0"}>
+      {iconFromDeliveryStatus(getMessageDeliveryStatus(message), iconSize)}
+    </div>
+  );
 };
 
 export default MessageDeliveryIconFromStatus;

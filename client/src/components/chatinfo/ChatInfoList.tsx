@@ -1,12 +1,14 @@
-import { IChatInfoItem } from "@/definitions/interfaces";
+import { IConversationInfoItem } from "@/definitions/interfaces";
 import React from "react";
 import ChatInfoItem from "./ChatInfoItem";
 import { cn } from "@/lib/utils";
+import { EConversationTypes } from "@/definitions/enums";
 
 const ChatInfoList: React.FC<{
   classes?: string;
-  chatListData: IChatInfoItem[];
-}> = ({ chatListData, classes }) => {
+  chatListData: IConversationInfoItem[];
+  conversationType: EConversationTypes;
+}> = ({ chatListData, classes, conversationType }) => {
   return (
     <div
       className={cn(
@@ -15,7 +17,11 @@ const ChatInfoList: React.FC<{
       )}
     >
       {chatListData.map((chatData, index) => (
-        <ChatInfoItem key={index} chatData={chatData} />
+        <ChatInfoItem
+          key={index}
+          chatData={chatData}
+          conversationType={conversationType}
+        />
       ))}
     </div>
   );

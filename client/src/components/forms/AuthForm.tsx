@@ -1,7 +1,7 @@
 import { createUser, loginUser, uploadFile } from "@/actions/form";
 import { EToastType, EUserRoles } from "@/definitions/enums";
 import { IFileInterface } from "@/definitions/interfaces";
-import { debounce, handleOnunloadLTClear } from "@/lib/helpers/generalHelper";
+import { debounce } from "@/lib/helpers/generalHelper";
 import authFormValidationSchemaWrapper, {
   validateUsername,
 } from "@/schemas/authFormValidation";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import SpinningLoader from "../ui/SpinningLoader";
 import { Button } from "../ui/button";
+import { Link, useNavigate } from "react-router-dom";
 
 const fileData: { profileImage: null | IFileInterface } = {
   profileImage: null,
@@ -26,6 +27,7 @@ const AuthForm: React.FC<{
 
   isLogin?: boolean;
 }> = ({ setFormValue, isLogin }) => {
+  const navigate = useNavigate();
   const dispatcher = useAppDispatch();
 
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
@@ -123,17 +125,14 @@ const AuthForm: React.FC<{
         if (loginResult?.data?.user) {
           showToaster(EToastType.Success, "Login successful");
 
-          if (!values.rememberMe) {
-            window.addEventListener("unload", handleOnunloadLTClear);
-          } else {
-            window.removeEventListener("unload", handleOnunloadLTClear);
-          }
-
           dispatch(
             setAuth({
               isAuthenticated: true,
+              user: loginResult.data.user,
             })
           );
+
+          navigate("/");
         } else if (loginResult?.message) {
           showToaster(EToastType.Error, loginResult?.message);
         }

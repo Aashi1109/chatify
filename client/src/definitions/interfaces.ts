@@ -1,17 +1,19 @@
-import { EMessageType, EUserRoles } from "./enums";
+import {
+  EConversationTypes,
+  EMessageCategory,
+  EMessageType,
+  EUserRoles,
+} from "./enums";
 
 export interface IChipItem {
   id: number | string;
   text: string;
 }
 
-export interface IChatInfoItem {
-  conversation: IChat | IGroups;
+export interface IConversationInfoItem {
+  conversation: IConversation & { isTyping?: boolean };
   user?: IUser;
-  lastChatTime?: Date;
-  lastChatText: string;
-  isUserActive: boolean;
-  chatsNotRead: number;
+  lastMessage?: IMessage;
 }
 
 export interface IFileInterface {
@@ -37,46 +39,33 @@ export interface IUser {
   lastSeenAt: Date;
 }
 
-export interface IChat {
-  _id: string;
-  messages: IMessage[] | string[];
-  participants: IUser[];
-  createdAt: Date;
-  updatedAt: Date;
+export interface IConversation {
+  _id?: string;
+  participants: string[] | IUser[];
+  name?: string;
+  description?: string;
+  creator?: string | IUser;
+  image?: IFile;
+  operation?: "add" | "delete";
+  lastMessage?: IMessage;
+  type: EConversationTypes;
 }
 
 export interface IMessage {
   _id?: string;
-  userId: string;
-  chatId: string;
+  user: string;
+  chat: string;
   content: string;
   sentAt: string;
   deliveredAt?: string;
   seenAt?: string;
-  groupId?: string;
   type: EMessageType;
+  category: EMessageCategory;
   isEdited?: boolean;
 }
-
-export interface IGroups {
-  _id?: string;
-  messages?: string[];
-  name: string;
-  description: string;
-  creatorId: string;
-  image: {
-    url: string;
-    filename: string;
-    publicId: string;
-    fileDataId: string;
-  };
-  users?: string[];
-}
-
-export enum ESocketMessageEvents {
-  // Chat events
-  TYPING = "message:typing",
-  NEW_MESSAGE = "message:create",
-  MESSAGE_UPDATE = "message:update",
-  MESSAGE_DELETE = "message:delete",
+export interface IFile {
+  url: string;
+  filename: string;
+  publicId: string;
+  fileDataId: string;
 }
