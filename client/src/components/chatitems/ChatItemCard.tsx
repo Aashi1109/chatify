@@ -10,7 +10,14 @@ const ChatItemCard: React.FC<{
   isCurrentUserChat: boolean;
   user: IUser;
   message: IMessage;
-}> = ({ RenderComponent, isCurrentUserChat, user, message }) => {
+  showBottomDate?: boolean;
+}> = ({
+  RenderComponent,
+  isCurrentUserChat,
+  user,
+  message,
+  showBottomDate,
+}) => {
   return (
     <div
       className={cn("max-w-[65%] flex rounded-lg items-start", {
@@ -29,30 +36,38 @@ const ChatItemCard: React.FC<{
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <div
-            className={cn("rounded-lg p-1 px-3 bg-gray-300 dark:bg-gray-500", {
-              "rounded-tr-none": isCurrentUserChat,
-              "rounded-tl-none": !isCurrentUserChat,
-            })}
+            className={cn(
+              "rounded-lg p-1 bg-gray-300 px-2 dark:bg-gray-500 flex items-end gap-2",
+              {
+                "rounded-tr-none pr-1": isCurrentUserChat,
+                "rounded-tl-none": !isCurrentUserChat,
+              }
+            )}
           >
             <RenderComponent message={message} />
-          </div>
-
-          <div
-            className={cn("self-end flex-center gap-2 mr-1", {
-              "self-start": !isCurrentUserChat,
-            })}
-          >
-            <div className="text-gray-500 dark:text-gray-300 text-xs">
-              {formatTimeAgo(new Date(message.sentAt))}
-            </div>
             {isCurrentUserChat && (
-              <div className="flex cursor-pointer">
-                <MessageDeliveryIconFromStatus message={message} />
+              <div className="flex cursor-pointer pb-1">
+                <MessageDeliveryIconFromStatus
+                  message={message}
+                  iconSize="w-3 h-3"
+                />
               </div>
             )}
           </div>
+
+          {showBottomDate && (
+            <div
+              className={cn("self-end flex-center gap-2 mr-1", {
+                "self-start": !isCurrentUserChat,
+              })}
+            >
+              <div className="text-gray-500 dark:text-gray-300 text-2xs">
+                {formatTimeAgo(new Date(message.sentAt))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

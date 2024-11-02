@@ -19,10 +19,9 @@ import {
   forwardRef,
 } from "react";
 import { twMerge } from "tailwind-merge";
-import ChatItemCard from "./chatitems/ChatItemCard";
-import ChatText from "./chatitems/ChatText";
-import CircleAvatar from "./CircleAvatar";
-import NewConversationGreetMessage from "./NewConversationGreetMessage";
+
+import CircleAvatar from "../CircleAvatar";
+import NewConversationGreetMessage from "../NewConversationGreetMessage";
 import { Socket } from "socket.io-client";
 import {
   EConversationTypes,
@@ -30,10 +29,11 @@ import {
   ESocketMessageEvents,
   EToastType,
 } from "@/definitions/enums";
-import { showToaster } from "./toasts/Toaster";
-import TypingIndicator from "./TypingIndicator";
+import { showToaster } from "../toasts/Toaster";
+import TypingIndicator from "../TypingIndicator";
 import { getMessagesByQuery } from "@/actions/form";
 import config from "@/config";
+import ChatMessages from "./ChatMessages";
 
 interface IProps {
   socket: Socket;
@@ -282,7 +282,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
             />
 
             <div className="flex flex-col justify-center items-start flex-nowrap">
-              <p className="font-bold text-lg text-ellipsis">
+              <p className="font-semibold text-ellipsis text-base">
                 {isGroupChat
                   ? interactionData?.conversation?.name
                   : typedInteractionUser?.name}
@@ -357,19 +357,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
                   <TypingIndicator />
                 </div>
                 {hasMessages ? (
-                  <>
-                    {interactionMessages?.map((message) => {
-                      return (
-                        <ChatItemCard
-                          key={message._id}
-                          user={typedInteractionUser}
-                          isCurrentUserChat={currentUser?._id === message.user}
-                          RenderComponent={ChatText}
-                          message={message}
-                        />
-                      );
-                    })}
-                  </>
+                  <ChatMessages />
                 ) : (
                   !isInputContentPresent &&
                   !isGroupChat && (

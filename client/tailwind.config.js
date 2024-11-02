@@ -78,6 +78,9 @@ module.exports = {
       screens: {
         xs: "480px",
       },
+      fontSize: {
+        "2xs": "0.625rem",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
