@@ -15,8 +15,8 @@ import store from "@/store";
 import { cn } from "@/lib/utils";
 
 function UserHomePage() {
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [transport, setTransport] = useState("N/A");
+  const [, setIsConnected] = useState(socket.connected);
+  const [, setTransport] = useState("N/A");
 
   const chatWindowRef = useRef<any>(null);
 
@@ -110,9 +110,9 @@ function UserHomePage() {
   return (
     <>
       <TopBar />
-      <div className="flex gap-8  h-[calc(100vh-8.5rem)] bg-gray-100 dark:bg-gray-700 rounded-xl xs:p-6 p-3">
+      <div className="flex gap-6 h-[calc(100vh-8.5rem)] bg-gray-100 dark:bg-gray-700 rounded-xl xs:p-6 p-3">
         <div
-          className={cn("flex gap-8 min-w-[250px] w-full max-w-[400px]", {
+          className={cn("flex gap-6 min-w-[250px] w-full max-w-[400px]", {
             "hidden max-w-[400px]": isChatWindowOpen && window.innerWidth < 640,
           })}
         >

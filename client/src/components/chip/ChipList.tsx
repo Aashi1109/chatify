@@ -10,6 +10,8 @@ const ChipList: React.FC<{
   chipListClasses?: string;
   chipItemClasses?: string;
   selectedChip: IChipItem["id"];
+  selectedChipClasses?: string;
+  unselectedChipClasses?: string;
 }> = ({
   chipItems,
   callback,
@@ -17,6 +19,8 @@ const ChipList: React.FC<{
   chipItemClasses,
   chipListClasses,
   selectedChip,
+  selectedChipClasses,
+  unselectedChipClasses,
 }) => {
   return (
     <div
@@ -34,8 +38,12 @@ const ChipList: React.FC<{
           chipData={chipItem}
           callback={callback}
           key={chipItem.id}
-          classes={chipItemClasses}
-          isActive={chipItem.id === selectedChip}
+          classes={cn(chipItemClasses, {
+            [`bg-gray-600 dark:bg-gray-400 text-white ${selectedChipClasses}`]:
+              chipItem.id === selectedChip,
+            [`bg-gray-300 dark:bg-gray-600 ${unselectedChipClasses}`]:
+              chipItem.id !== selectedChip,
+          })}
         />
       ))}
     </div>

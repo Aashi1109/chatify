@@ -33,6 +33,7 @@ export const sidebarLinks = [
 ];
 
 export const INBOX_CHIP_ITEMS: Array<IChipItem> = [
+  { id: "all", text: "All" },
   { id: EConversationTypes.PRIVATE, text: "Chats" },
   { id: EConversationTypes.GROUP, text: "Groups" },
   { id: EConversationTypes.ARCHIVED, text: "Archived" },

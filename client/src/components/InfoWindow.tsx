@@ -13,16 +13,17 @@ import {
 import { showToaster } from "./toasts/Toaster";
 import { EConversationTypes, EToastType } from "@/definitions/enums";
 import { INBOX_CHIP_ITEMS } from "@/common/constants";
+import SpinningLoader from "./ui/SpinningLoader";
 
 const InfoWindow = () => {
   const userChats = useAppSelector((state) => state.chat.conversations);
   const userData = useAppSelector((state) => state.auth.user);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const dispatch = useAppDispatch();
 
-  const [tab, setTab] = useState<(typeof INBOX_CHIP_ITEMS)[0]["id"]>(
-    EConversationTypes.PRIVATE
-  );
+  const [tab, setTab] = useState<(typeof INBOX_CHIP_ITEMS)[0]["id"]>("all");
 
   const formattedChats = userChats?.map((ch) => {
     const { lastMessage, ...conversationWithoutLastMessage } = ch;
@@ -46,9 +47,10 @@ const InfoWindow = () => {
   });
 
   useEffect(() => {
+    setIsLoading(true);
     getUserConversations({
       participants: [userData?._id || ""],
-      type: tab as EConversationTypes,
+      type: tab === "all" ? undefined : (tab as EConversationTypes),
       query: "&fieldsToPopulate=participants,lastMessage",
     })
       .then(({ data }) => {
@@ -59,6 +61,9 @@ const InfoWindow = () => {
       .catch((err) => {
         console.error(`Error fetching user conversations`, err);
         showToaster(EToastType.Error, err?.message || "Something went wrong");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, [dispatch, userData, tab]);
 
@@ -79,21 +84,24 @@ const InfoWindow = () => {
       <ChipList
         chipItems={INBOX_CHIP_ITEMS}
         callback={(chipItem) => setTab(chipItem.id)}
-        chipItemClasses="hover:bg-gray-400 dark:hover:bg-gray-500 rounded-md text-bold text-sm cursor-pointer text-tertiary"
-        chipListClasses="p-2 bg-gray-300 rounded-lg justify-space dark:bg-gray-600"
+        chipItemClasses="hover:bg-gray-400 dark:hover:bg-gray-500 rounded-full px-4 text-xs cursor-pointer"
+        chipListClasses="gap-2 justify-start"
         selectedChip={tab}
       />
 
-      {/* Render chats info for each chat */}
-      {!userChats || !userChats?.length ? (
-        <div className="flex-1 flex-center">
-          No {tab} yet start by creating some.
-        </div>
+      {isLoading ? (
+        <SpinningLoader size={20} />
       ) : (
-        <ChatInfoList
-          chatListData={formattedChats!}
-          conversationType={tab as EConversationTypes}
-        />
+        <>
+          {/* Render chats info for each chat */}
+          {!userChats || !userChats?.length ? (
+            <div className="flex-1 flex-center">
+              No {tab} yet start by creating some.
+            </div>
+          ) : (
+            <ChatInfoList chatListData={formattedChats!} />
+          )}
+        </>
       )}
     </section>
   );

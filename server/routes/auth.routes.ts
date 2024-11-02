@@ -6,7 +6,7 @@ import { Router } from "express";
 const router = Router();
 
 router.post("/login", asyncHandler(login));
-router.post("/logout", asyncHandler(logOut));
+router.get("/logout", [userParser], asyncHandler(logOut));
 router.get("/session", [userParser], asyncHandler(session));
 
 export default router;

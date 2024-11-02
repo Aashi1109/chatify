@@ -17,14 +17,18 @@ import { IUser } from "@/definitions/interfaces.ts";
 import { LogOut, MessageCircle, Moon, Sun, User, Users } from "lucide-react";
 import NewChatForm from "@/components/forms/NewChatForm.tsx";
 import GroupForm from "@/components/forms/GroupForm.tsx";
-import { useTheme } from "@/components/ui/theme-provider.tsx";
 import useModal from "@/hook/useModal.tsx";
+import { useAppDispatch } from "@/hook/index.ts";
+import { logout } from "@/features/authSlice.ts";
+import { logoutUser } from "@/actions/form.ts";
+import { ITheme } from "@/definitions/type.tsx";
+import { setTheme } from "@/features/uiSlice.ts";
 
 const UserProfileActionDropdown: FC<{
   profileImage: IUser["profileImage"];
   name: string;
 }> = ({ profileImage, name }) => {
-  const { setTheme } = useTheme();
+  const dispatch = useAppDispatch();
 
   const {
     RenderModal: RenderGroupForm,
@@ -37,6 +41,19 @@ const UserProfileActionDropdown: FC<{
     handleModalOpen: openChatModal,
     handleModalClose: handleChatModalClose,
   } = useModal();
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      dispatch(logout());
+    } catch (error) {
+      console.error(`Error logging out: ${error}`);
+    }
+  };
+
+  const handleThemeChange = (theme: ITheme) => {
+    dispatch(setTheme(theme));
+  };
 
   return (
     <>
@@ -74,13 +91,13 @@ const UserProfileActionDropdown: FC<{
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                  <DropdownMenuItem onClick={() => handleThemeChange("light")}>
                     Light
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                  <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
                     Dark
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                  <DropdownMenuItem onClick={() => handleThemeChange("system")}>
                     System
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
@@ -102,7 +119,7 @@ const UserProfileActionDropdown: FC<{
           </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>

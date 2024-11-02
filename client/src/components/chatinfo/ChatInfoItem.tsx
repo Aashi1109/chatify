@@ -11,13 +11,13 @@ import { EConversationTypes } from "@/definitions/enums";
 const ChatInfoItem: React.FC<{
   chatData: IConversationInfoItem;
   classes?: string;
-  conversationType: EConversationTypes;
-}> = ({ chatData, classes, conversationType }) => {
+}> = ({ chatData, classes }) => {
   const { conversation, user, lastMessage } = chatData;
 
   const dispatcher = useAppDispatch();
 
-  const isGroupConversation = conversationType === EConversationTypes.GROUP;
+  const isGroupConversation =
+    chatData.conversation.type === EConversationTypes.GROUP;
 
   const handleChatInfoItemClick = () => {
     dispatcher(setInteractionData({ user: user || null, conversation }));

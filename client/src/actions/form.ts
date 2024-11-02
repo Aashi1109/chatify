@@ -100,7 +100,7 @@ const getUserConversations = async ({
   type,
 }: {
   participants: string[];
-  type: EConversationTypes;
+  type?: EConversationTypes;
   conversationId?: string;
   query?: string;
 }) => {
@@ -224,6 +224,16 @@ export const getSessionOfUser = async () => {
     return response.data;
   } catch (error) {
     console.error("Error getting session of user: ", error);
+    throw error;
+  }
+};
+
+export const logoutUser = async () => {
+  try {
+    const response = await axiosClient.get("/auth/logout");
+    return response.data;
+  } catch (error) {
+    console.error("Error logging out user: ", error);
     throw error;
   }
 };

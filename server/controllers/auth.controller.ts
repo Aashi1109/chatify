@@ -46,8 +46,8 @@ const login = async (req: Request, res: Response) => {
 };
 
 const logOut = (req: Request, res: Response) => {
-  res.clearCookie("token");
-  return res.status(200).json({ data: "Logout successfully", success: true });
+  res.clearCookie("jwt");
+  return res.status(200).json({ data: "Logout successful", success: true });
 };
 
 const session = (req: Request, res: Response) => {

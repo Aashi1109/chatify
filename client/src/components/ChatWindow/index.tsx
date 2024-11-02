@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
   forwardRef,
+  useMemo,
 } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -34,6 +35,7 @@ import TypingIndicator from "../TypingIndicator";
 import { getMessagesByQuery } from "@/actions/form";
 import config from "@/config";
 import ChatMessages from "./ChatMessages";
+import { getImageThemeStore } from "@/common/constants/images";
 
 interface IProps {
   socket: Socket;
@@ -57,6 +59,9 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
     },
   }));
   const dispatch = useAppDispatch();
+  const theme = useAppSelector((state) => state.ui.theme);
+
+  const imageStore = useMemo(() => getImageThemeStore(theme), [theme]);
 
   const currentUser = useAppSelector((state) => state.auth.user);
   const { interactionMessages, interactionData } = useAppSelector(
@@ -83,7 +88,8 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
     typedInteractionUser?.profileImage?.url || "/assets/user.png";
 
   const groupImageUrl =
-    interactionData?.conversation?.image?.url || "/assets/user.png";
+    interactionData?.conversation?.image?.url || imageStore.group;
+
   const isGroupChat =
     interactionData?.conversation?.type === EConversationTypes.GROUP;
 
@@ -267,7 +273,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       {/* chat head */}
       {typedInteractionUser && (
         <div className={twMerge("flex items-center justify-between")}>
-          <div className="flex items-center gap-6 flex-1">
+          <div className="flex items-center gap-4 flex-1">
             <CircleAvatar
               alt={"user image"}
               imageUrl={isGroupChat ? groupImageUrl : interactionUserImageUrl}

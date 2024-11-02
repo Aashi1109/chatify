@@ -14,9 +14,8 @@ import { setAuth } from "@/features/authSlice";
 import { useAppDispatch } from "@/hook";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import SpinningLoader from "../ui/SpinningLoader";
-import { Button } from "../ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import LoadingButton from "../ui/LoadingButton";
 
 const fileData: { profileImage: null | IFileInterface } = {
   profileImage: null,
@@ -315,17 +314,14 @@ const AuthForm: React.FC<{
               </div>
             )}
 
-            <Button
+            <LoadingButton
               type="submit"
               disabled={isSubmitting}
-              className={cn("button flex-center gap-2", {
-                "opacity-80": isSubmitting,
-                "opacity-100": !isSubmitting,
-              })}
+              className={cn("button flex-center gap-2")}
+              isLoading={isSubmitting}
             >
-              {isSubmitting && <SpinningLoader size={15} />}
               {isLoginForm ? "Sign in" : "Sign up"}
-            </Button>
+            </LoadingButton>
 
             <p className="font-light text-center">
               {isLoginForm

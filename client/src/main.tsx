@@ -8,11 +8,13 @@ import { Provider } from "react-redux";
 import { ThemeProvider } from "@/components/ui/theme-provider.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Auth, Page } from "./pages";
+import Error from "./pages/Error";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <Error />,
     children: [
       {
         path: "/",
@@ -22,6 +24,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/auth",
+    errorElement: <Error />,
     element: <Auth />,
   },
 ]);
