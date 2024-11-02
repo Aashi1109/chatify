@@ -82,17 +82,19 @@ const ChatInfoItem: React.FC<{
                   </div>
                 )}
               </div>
-              {lastMessage?.sentAt && (
-                <p className="text-xs whitespace-nowrap">
-                  {formatTimeAgo(new Date(lastMessage.sentAt))}
-                </p>
-              )}
+              <div className="flex-center gap-2">
+                {chatData?.chatNotRead && chatData.chatNotRead > 0 && (
+                  <p className="w-5 h-5 text-center flex-center rounded-full bg-green-500 text-xs">
+                    {chatData.chatNotRead}
+                  </p>
+                )}
+                {lastMessage?.sentAt && (
+                  <p className="text-xs whitespace-nowrap">
+                    {formatTimeAgo(new Date(lastMessage.sentAt))}
+                  </p>
+                )}
+              </div>
             </div>
-            {/* {unreadCount > 0 && (
-              <p className="text-xs w-4 h-4 text-center rounded-full bg-[--tertiary-hex]">
-                {unreadCount}
-              </p>
-            )} */}
           </div>
         )}
       </div>

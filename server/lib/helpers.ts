@@ -136,7 +136,7 @@ const getByFilter =
         $where.createdAt = {};
       }
       if (startDate) $where.createdAt.$gte = startDate;
-      if (endDate) $where.createdAt.$lte = endDate;
+      if (endDate) $where.createdAt.$lt = endDate;
 
       if ($where) filter = { ...filter, ...$where };
 

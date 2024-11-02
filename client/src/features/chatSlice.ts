@@ -76,7 +76,7 @@ const chatSlice = createSlice({
       state,
       action: PayloadAction<{
         id: string;
-        data: Partial<IConversation & { isTyping: boolean }>;
+        data: Partial<IConversation>;
       }>
     ) => {
       const existingChat = state.conversations?.find(

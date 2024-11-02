@@ -11,8 +11,8 @@ import { showToaster } from "./toasts/Toaster";
 import { ESocketMessageEvents, EToastType } from "@/definitions/enums";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import { IMessage } from "@/definitions/interfaces";
-import store from "@/store";
 import { cn } from "@/lib/utils";
+import store from "@/store";
 
 function UserHomePage() {
   const [, setIsConnected] = useState(socket.connected);
@@ -21,12 +21,21 @@ function UserHomePage() {
   const chatWindowRef = useRef<any>(null);
 
   const dispatch = useAppDispatch();
-  const isChatWindowOpen = useAppSelector(
-    (state) => !!state.chat.interactionData?.conversation?._id
-  );
+  const { interactionData } = useAppSelector((state) => state.chat);
 
-  const getIsChatWindowOpen = () => {
-    return !!store.getState().chat.interactionData?.conversation?._id;
+  const isChatWindowOpen = !!interactionData?.conversation?._id;
+
+  const getIsInteractionConversation = (conversationId: string) => {
+    return (
+      isChatWindowOpen && conversationId === interactionData?.conversation?._id
+    );
+  };
+
+  const getUnreadMessagesCount = (conversationId: string) => {
+    return (
+      store.getState().chat.conversations?.find((c) => c._id === conversationId)
+        ?.chatNotRead || 0
+    );
   };
 
   const handleSocketCallbackError = (error: any, callback: () => void) => {
@@ -43,9 +52,11 @@ function UserHomePage() {
     handleSocketCallbackError(error, () => {
       const newMessage = data.message as IMessage;
 
-      const isChatWindowOpen = getIsChatWindowOpen();
+      const _isInteractionConversation = getIsInteractionConversation(
+        data.conversationId
+      );
 
-      if (isChatWindowOpen) {
+      if (_isInteractionConversation) {
         dispatch(addInteractionMessage(newMessage));
       }
       dispatch(
@@ -53,6 +64,7 @@ function UserHomePage() {
           id: data.conversationId,
           data: {
             lastMessage: newMessage,
+            chatNotRead: getUnreadMessagesCount(data.conversationId) + 1,
           },
         })
       );

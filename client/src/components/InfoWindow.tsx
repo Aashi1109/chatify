@@ -32,6 +32,7 @@ const InfoWindow = () => {
     const data: IConversationInfoItem = {
       conversation: conversationWithoutLastMessage,
       lastMessage: lastMessage,
+      chatNotRead: ch.chatNotRead,
     };
 
     const receiverData = (ch?.participants as IUser[])?.filter(

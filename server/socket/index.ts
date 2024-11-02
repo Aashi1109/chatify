@@ -17,16 +17,18 @@ import { Types } from "mongoose";
 import { jnstringify } from "@lib/utils";
 import { IncomingMessage } from "http";
 
-const MESSAGE_SAVE_BUFFER_KEY = "message_save_buffer";
-const MESSAGE_BATCH_SIZE = 2000;
-const MESSAGE_FLUSH_INTERVAL = 5000;
-
 interface CustomSocket
   extends Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, IUser> {
   request: IncomingMessage & {
     user: IUser;
   };
 }
+
+const MESSAGE_SAVE_BUFFER_KEY = "message_save_buffer";
+const MESSAGE_BATCH_SIZE = 2000;
+const MESSAGE_FLUSH_INTERVAL = 5000;
+let bufferCheckCounter = 0;
+let messageBufferSaveIntervalID: NodeJS.Timeout;
 
 const rooms = new Set();
 const redisMessageCache = new RedisMessageCache();
@@ -51,6 +53,14 @@ const saveFlushMessagesBuffer = async () => {
 
   if (messages.length === 0) {
     logger.debug(`Buffer empty, no messages to save`);
+    bufferCheckCounter++;
+
+    if (bufferCheckCounter > 3) {
+      logger.debug(`Buffer check counter reached 3, stopping interval`);
+      clearInterval(messageBufferSaveIntervalID);
+      messageBufferSaveIntervalID = null;
+      bufferCheckCounter = 0;
+    }
     return;
   }
 
@@ -68,6 +78,7 @@ const saveFlushMessagesBuffer = async () => {
 };
 
 const initPeriodicMessagesSave = () => {
+  logger.debug(`Initializing periodic messages save`);
   return setInterval(saveFlushMessagesBuffer, MESSAGE_FLUSH_INTERVAL);
 };
 
@@ -75,7 +86,7 @@ export function initializeSocket(server) {
   const io = new Server(server, { cors: { ...config.corsOptions } });
 
   io.use(socketUserParser);
-  const intervalId = initPeriodicMessagesSave();
+  messageBufferSaveIntervalID = initPeriodicMessagesSave();
 
   io.on(ESocketConnectionEvents.CONNECT, (socket: CustomSocket) => {
     logger.info(`Connected ${socket.id}`);
@@ -130,6 +141,8 @@ export function initializeSocket(server) {
       try {
         let { conversationId, content, type, category } = request || {};
         logger.debug(`New message from user ${_id} in chat ${conversationId}`);
+
+        messageBufferSaveIntervalID ??= initPeriodicMessagesSave();
 
         if (!conversationId)
           return cb?.({ error: "Conversation id is required" });

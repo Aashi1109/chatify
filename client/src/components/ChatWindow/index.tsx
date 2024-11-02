@@ -188,7 +188,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       conversation: interactionData?.conversation?._id,
       sortOrder: "desc",
       sortBy: "createdAt",
-      limit: 10 || config.conversation.fetchLimit,
+      limit: config.conversation.fetchLimit,
       endDate: lastMessageDateRef.current,
     });
     const messages = messagesResp?.data || [];
@@ -198,7 +198,8 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       : setInteractionMessages;
     dispatch(executorFunc(messages));
     lastMessageDateRef.current = messages?.[messages?.length - 1]?.sentAt;
-    fetchMoreMessagesRef.current = messages?.length === 10;
+    fetchMoreMessagesRef.current =
+      messages?.length === config.conversation.fetchLimit;
   }
 
   useEffect(() => {

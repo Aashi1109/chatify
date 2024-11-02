@@ -11,9 +11,10 @@ export interface IChipItem {
 }
 
 export interface IConversationInfoItem {
-  conversation: IConversation & { isTyping?: boolean };
+  conversation: IConversation;
   user?: IUser;
   lastMessage?: IMessage;
+  chatNotRead?: number;
 }
 
 export interface IFileInterface {
@@ -49,6 +50,8 @@ export interface IConversation {
   operation?: "add" | "delete";
   lastMessage?: IMessage;
   type: EConversationTypes;
+  isTyping: boolean;
+  chatNotRead: number;
 }
 
 export interface IMessage {
