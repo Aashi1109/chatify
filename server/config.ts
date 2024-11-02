@@ -37,6 +37,10 @@ const config = {
     level: "debug", // provide in lowercase. Possible values 'info', 'debug', 'warning', 'error'
     path: "./logs/",
   },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: +process.env.REDIS_PORT,
+  },
 };
 
 export default config;

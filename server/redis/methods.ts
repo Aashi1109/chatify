@@ -1,0 +1,65 @@
+import { createClient } from "@redis/client";
+import logger from "@logger";
+
+class RedisMethods {
+  protected client: ReturnType<typeof createClient>;
+  protected nsp: string;
+
+  constructor(client: ReturnType<typeof createClient>, nsp: string) {
+    this.client = client;
+    this.nsp = nsp;
+  }
+
+  async setString(key: string, value: string, ttl?: number) {
+    return Boolean(
+      await this.client.set(`${this.nsp}:${key}`, value, { EX: ttl })
+    );
+  }
+
+  async getString(key: string) {
+    return Boolean(await this.client.get(`${this.nsp}:${key}`));
+  }
+
+  async setObject(key: string, value: any) {
+    return Boolean(
+      await this.client.set(`${this.nsp}:${key}`, JSON.stringify(value))
+    );
+  }
+
+  async setList(key: string, value: any, ttl?: number) {
+    const key_name = `${this.nsp}:${key}`;
+    try {
+      const pipeline = this.client.multi();
+      pipeline.rPush(key_name, value);
+      if (ttl) pipeline.expire(key_name, ttl);
+      await pipeline.exec();
+      return true;
+    } catch (error) {
+      logger.error(`Redis setList error: ${error}`);
+      return false;
+    }
+  }
+
+  async getList(key: string) {
+    try {
+      return await this.client.lRange(`${this.nsp}:${key}`, 0, -1);
+    } catch (error) {
+      logger.error(`Redis getList error: ${error}`);
+      return [];
+    }
+  }
+
+  async getAllKeys() {
+    return await this.client.keys(`${this.nsp}:*`);
+  }
+
+  async deleteKey(key: string) {
+    return Boolean(await this.client.del(`${this.nsp}:${key}`));
+  }
+
+  async getBufferSize(key: string): Promise<number> {
+    return await this.client.lLen(`${this.nsp}:${key}`);
+  }
+}
+
+export default RedisMethods;

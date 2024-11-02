@@ -161,23 +161,6 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    if (e.currentTarget.value.trim().length)
-      socket.emit(ESocketMessageEvents.TYPING, {
-        conversationId: interactionData?.conversation?._id,
-        isTyping: true,
-      });
-
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit(ESocketMessageEvents.TYPING, {
-        conversationId: interactionData?.conversation?._id,
-        isTyping: false,
-      });
-    }, 2000);
-
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleFormSubmit(e as any);
@@ -252,6 +235,27 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       await fetchDispatchMessages(true);
       setIsFetchingMoreMessages(false);
     }
+  };
+
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setChatTextarea(e.target.value);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    if (e.currentTarget.value.trim().length)
+      socket.emit(ESocketMessageEvents.TYPING, {
+        conversationId: interactionData?.conversation?._id,
+        isTyping: true,
+      });
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit(ESocketMessageEvents.TYPING, {
+        conversationId: interactionData?.conversation?._id,
+        isTyping: false,
+      });
+    }, 2000);
   };
 
   return (
@@ -391,7 +395,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
                   placeholder="Write message"
                   style={{ resize: "none" }}
                   value={chatTextarea}
-                  onChange={(e) => setChatTextarea(e.target.value)}
+                  onChange={handleTextAreaChange}
                   ref={chatInputRef}
                   onKeyDown={handleKeyDown}
                 />
