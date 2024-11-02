@@ -20,6 +20,7 @@ const InfoWindow = () => {
   const userData = useAppSelector((state) => state.auth.user);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [allChats, setAllChats] = useState<typeof userChats>([]);
 
   const dispatch = useAppDispatch();
 
@@ -46,14 +47,27 @@ const InfoWindow = () => {
     return data;
   });
 
+  // Filter chats based on selected tab
+  const filteredChats = formattedChats?.filter((chat) => {
+    if (tab === "all") return true;
+    return chat.conversation.type === tab;
+  });
+
   useEffect(() => {
+    if (allChats?.length) {
+      dispatch(setConversation(allChats));
+      dispatch(setInteractionData(null));
+      dispatch(setInteractionMessages([]));
+      return;
+    }
     setIsLoading(true);
     getUserConversations({
       participants: [userData?._id || ""],
       type: tab === "all" ? undefined : (tab as EConversationTypes),
-      query: "&fieldsToPopulate=participants,lastMessage",
+      query: "&fieldsToPopulate=participants,lastMessage&limit=50",
     })
       .then(({ data }) => {
+        setAllChats(data);
         dispatch(setConversation(data));
         dispatch(setInteractionData(null));
         dispatch(setInteractionMessages([]));
@@ -99,7 +113,7 @@ const InfoWindow = () => {
               No {tab} yet start by creating some.
             </div>
           ) : (
-            <ChatInfoList chatListData={formattedChats!} />
+            <ChatInfoList chatListData={filteredChats!} />
           )}
         </>
       )}
