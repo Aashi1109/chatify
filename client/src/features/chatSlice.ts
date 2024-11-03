@@ -90,6 +90,31 @@ const chatSlice = createSlice({
         }
       }
     },
+
+    updateConversationUser: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        data: Partial<IUser>;
+      }>
+    ) => {
+      if (!state.conversations || !Object.keys(action.payload.data).length)
+        return;
+      // Update user in all conversations using regular for loop
+      for (let i = 0; i < state.conversations.length; i++) {
+        const existingUser = (
+          state.conversations[i].participants as IUser[]
+        )?.find((p) => p._id === action.payload.id);
+        if (existingUser) {
+          for (const key in action.payload.data) {
+            if (key in action.payload.data) {
+              existingUser[key as keyof IUser] =
+                action.payload.data[key as keyof IUser];
+            }
+          }
+        }
+      }
+    },
   },
 });
 
@@ -101,6 +126,7 @@ export const {
   addConversation,
   updateConversation,
   addInteractionMessage,
+  updateConversationUser,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

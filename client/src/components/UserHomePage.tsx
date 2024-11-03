@@ -6,9 +6,14 @@ import TopBar from "./TopBar";
 import {
   addInteractionMessage,
   updateConversation,
+  updateConversationUser,
 } from "@/features/chatSlice";
 import { showToaster } from "./toasts/Toaster";
-import { ESocketMessageEvents, EToastType } from "@/definitions/enums";
+import {
+  ESocketMessageEvents,
+  ESocketUserEvents,
+  EToastType,
+} from "@/definitions/enums";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import { IMessage } from "@/definitions/interfaces";
 import { cn } from "@/lib/utils";
@@ -108,14 +113,29 @@ function UserHomePage() {
       setTransport("N/A");
     }
 
+    const handleUserUpdates = ({ data, error }: { data: any; error: any }) => {
+      handleSocketCallbackError(error, () => {
+        dispatch(
+          updateConversationUser({
+            id: data.userId,
+            data: {
+              ...data?.data,
+            },
+          })
+        );
+      });
+    };
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on(ESocketMessageEvents.NEW_MESSAGE, handleNewMessage);
     socket.on(ESocketMessageEvents.TYPING, handleTyping);
+    socket.on(ESocketUserEvents.UPDATES, handleUserUpdates);
 
     return () => {
       socket.off(ESocketMessageEvents.NEW_MESSAGE, handleNewMessage);
       socket.off(ESocketMessageEvents.TYPING, handleTyping);
+      socket.off(ESocketUserEvents.UPDATES, handleUserUpdates);
     };
   }, [socket]);
 
@@ -124,7 +144,7 @@ function UserHomePage() {
       <TopBar />
       <div className="flex gap-6 h-[calc(100vh-8.5rem)] bg-gray-100 dark:bg-gray-700 rounded-xl xs:p-6 p-3">
         <div
-          className={cn("flex gap-6 min-w-[250px] w-full max-w-[400px]", {
+          className={cn("flex gap-6 min-w-[250px] w-full md:max-w-[400px]", {
             "hidden max-w-[400px]": isChatWindowOpen && window.innerWidth < 640,
           })}
         >

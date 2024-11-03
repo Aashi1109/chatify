@@ -294,23 +294,31 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
                   ? interactionData?.conversation?.name
                   : typedInteractionUser?.name}
               </p>
-              {!isGroupChat && (
-                <p className="text-sm flex-center gap-1 dark:tex">
-                  {typedInteractionUser?.isActive ? (
-                    <>
-                      <div className="h-2 w-2 rounded-full animate-pulse bg-green-600" />
-                      <p>Active</p>
-                    </>
-                  ) : (
-                    `Last seen on ${formatTimeAgo(typedInteractionUser?.lastSeenAt)}`
+              <div className="grid grid-cols-[1fr_auto] w-full gap-2">
+                <div className="overflow-hidden">
+                  {!isGroupChat && (
+                    <p className="text-sm flex-center gap-1 dark:tex">
+                      {typedInteractionUser?.isActive ? (
+                        <>
+                          <div className="h-2 w-2 rounded-full animate-pulse bg-green-600" />
+                          <p>Active</p>
+                        </>
+                      ) : typedInteractionUser?.lastSeenAt ? (
+                        `Last seen on ${formatTimeAgo(
+                          new Date(typedInteractionUser?.lastSeenAt)
+                        )}`
+                      ) : (
+                        "Last seen just now"
+                      )}
+                    </p>
                   )}
-                </p>
-              )}
-              {isGroupChat && (
-                <p className="text-sm w-full text-ellipsis whitespace-nowrap">
-                  {interactionData.conversation?.description}
-                </p>
-              )}
+                  {isGroupChat && (
+                    <p className="text-sm truncate">
+                      {interactionData.conversation?.description}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

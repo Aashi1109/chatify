@@ -14,7 +14,6 @@ interface IUser {
   profileImage: IFile;
   about?: string;
   password: string;
-  salt: string;
   role: string;
   isActive: boolean;
   lastSeenAt: Date;

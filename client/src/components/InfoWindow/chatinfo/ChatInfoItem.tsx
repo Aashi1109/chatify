@@ -2,10 +2,10 @@ import { IConversationInfoItem } from "@/definitions/interfaces";
 import { setInteractionData } from "@/features/chatSlice";
 import { useAppDispatch } from "@/hook";
 import React from "react";
-import CircleAvatar from "../CircleAvatar";
+import CircleAvatar from "../../CircleAvatar";
 import { cn } from "@/lib/utils";
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
-import MessageDeliveryIconFromStatus from "../MessageDeliveryIconFromStatus";
+import MessageDeliveryIconFromStatus from "../../MessageDeliveryIconFromStatus";
 import { EConversationTypes } from "@/definitions/enums";
 
 const ChatInfoItem: React.FC<{

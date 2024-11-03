@@ -23,22 +23,14 @@ enum ESocketMessageEvents {
   MESSAGE_DELETE = "message:delete",
 }
 
-enum ESocketGroupEvents {
-  // User events
-  GROUP_JOINED = "group:join",
-  GROUP_LEFT = "group:left",
-  GROUP_NEW = "group:new",
-  GROUP_UPDATE = "group:update",
-  GROUP_DELETE = "group:delete",
-}
 enum ESocketErrorEvents {
   // Error event
   ERROR = "error",
 }
 
 enum ESocketUserEvents {
-  ONLINE = "user:online",
-  OFFLINE = "user:offline",
+  UPDATES = "user:updates",
+  DELETE = "user:delete",
 }
 
 enum EMessageType {
@@ -73,7 +65,6 @@ export {
   ESocketAuthEvents,
   ESocketConnectionEvents,
   ESocketErrorEvents,
-  ESocketGroupEvents,
   ESocketMessageEvents,
   ESocketUserEvents,
   EUserRoles,

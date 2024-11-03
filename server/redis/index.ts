@@ -3,11 +3,11 @@ import BaseRedisClient from "./base-client";
 import RedisMethods from "./methods";
 import logger from "@logger";
 
-class RedisMessageCache extends BaseRedisClient {
+export class RedisMessageCache extends BaseRedisClient {
   methods: RedisMethods;
-  constructor() {
+  constructor(nsp: string) {
     super();
-    this.methods = new RedisMethods(this.client, "conversations");
+    this.methods = new RedisMethods(this.client, nsp);
   }
 
   async getAllMessages() {
@@ -31,4 +31,18 @@ class RedisMessageCache extends BaseRedisClient {
   }
 }
 
-export default RedisMessageCache;
+export class RedisUserCache extends BaseRedisClient {
+  methods: RedisMethods;
+  constructor(nsp: string) {
+    super();
+    this.methods = new RedisMethods(this.client, nsp);
+  }
+
+  async storeUserUpdate(userId: string, data: any) {
+    return await this.methods.setHash(userId, data, 60 * 5);
+  }
+
+  async getUserUpdate(userId: string) {
+    return await this.methods.getKey(userId);
+  }
+}

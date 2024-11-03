@@ -1,7 +1,7 @@
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
 import React from "react";
-import CircleAvatar from "../CircleAvatar";
-import MessageDeliveryIconFromStatus from "../MessageDeliveryIconFromStatus";
+import CircleAvatar from "../../CircleAvatar";
+import MessageDeliveryIconFromStatus from "../../MessageDeliveryIconFromStatus";
 import { cn } from "@/lib/utils";
 import { IMessage, IUser } from "@/definitions/interfaces";
 

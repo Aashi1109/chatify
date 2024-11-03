@@ -1,6 +1,6 @@
 import { useAppSelector } from "@/hook";
-import ChatText from "../chatitems/ChatText";
-import ChatItemCard from "../chatitems/ChatItemCard";
+import ChatText from "./chatitems/ChatText";
+import ChatItemCard from "./chatitems/ChatItemCard";
 import { IUser } from "@/definitions/interfaces";
 import SystemMessage from "./SystemMessage";
 

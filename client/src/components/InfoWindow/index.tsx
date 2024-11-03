@@ -1,8 +1,8 @@
 import { IConversationInfoItem, IUser } from "@/definitions/interfaces";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import ChatInfoList from "./chatinfo/ChatInfoList";
-import ChipItem from "./chip/ChipItem";
-import ChipList from "./chip/ChipList";
+import ChipItem from "../chip/ChipItem";
+import ChipList from "../chip/ChipList";
 import { useEffect, useState } from "react";
 import { getUserConversations } from "@/actions/form";
 import {
@@ -10,10 +10,10 @@ import {
   setInteractionData,
   setInteractionMessages,
 } from "@/features/chatSlice";
-import { showToaster } from "./toasts/Toaster";
+import { showToaster } from "../toasts/Toaster";
 import { EConversationTypes, EToastType } from "@/definitions/enums";
 import { INBOX_CHIP_ITEMS } from "@/common/constants";
-import SpinningLoader from "./ui/SpinningLoader";
+import SpinningLoader from "../ui/SpinningLoader";
 
 const InfoWindow = () => {
   const userChats = useAppSelector((state) => state.chat.conversations);
@@ -65,13 +65,11 @@ const InfoWindow = () => {
     getUserConversations({
       participants: [userData?._id || ""],
       type: tab === "all" ? undefined : (tab as EConversationTypes),
-      query: "&fieldsToPopulate=participants,lastMessage&limit=50",
+      query:
+        "&fieldsToPopulate=participants,lastMessage&limit=50&sortBy=updatedAt&sortOrder=desc",
     })
       .then(({ data }) => {
         setAllChats(data);
-        dispatch(setConversation(data));
-        dispatch(setInteractionData(null));
-        dispatch(setInteractionMessages([]));
       })
       .catch((err) => {
         console.error(`Error fetching user conversations`, err);
@@ -80,7 +78,7 @@ const InfoWindow = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [dispatch, userData, tab]);
+  }, [dispatch, userData, tab, allChats]);
 
   return (
     <section className="flex gap-4 flex-col overflow-y-auto flex-1">

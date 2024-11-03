@@ -70,7 +70,6 @@ class UserService {
    * @param {string} profileImage - The profile image URL of the new user.
    * @param {string} about - The about information of the new user.
    * @param {string} role - The role of the new user.
-   * @param {string} salt - The salt used for hashing the password of the new user.
    * @returns {Promise<InstanceType<typeof User>>} A Promise that resolves with the newly created user.
    * @throws {Error} Throws an error if the user creation fails for any reason.
    */
@@ -80,8 +79,7 @@ class UserService {
     hashedPassword: string,
     profileImage: string,
     about: string,
-    role: string,
-    salt: string
+    role: string
   ): Promise<InstanceType<typeof User>> {
     const newUser = new User({
       username,
@@ -90,7 +88,6 @@ class UserService {
       profileImage,
       about,
       role,
-      salt,
     });
     await newUser.save();
     return newUser.toObject() as InstanceType<typeof User>;

@@ -2,8 +2,8 @@ import connectDB from "@database/connectDB";
 import { faker } from "@faker-js/faker";
 import Message from "@models/Message";
 import User from "@models/User";
-import Chats from "@models/Chats";
 import { EMessageType } from "@definitions/enums";
+import { Conversation } from "@models";
 
 function generateUsers(count: number) {
   const users = [];
@@ -11,7 +11,6 @@ function generateUsers(count: number) {
     const username = faker.internet.userName();
     const name = faker.name.fullName();
     const password = faker.internet.password();
-    const salt = faker.random.alphaNumeric(16);
     const profileImage = {
       url: faker.internet.avatar(),
       filename: "",
@@ -24,7 +23,6 @@ function generateUsers(count: number) {
       username,
       name,
       password,
-      salt,
       profileImage,
       about,
       role,
@@ -88,7 +86,7 @@ async function seedDatabase(
 
     // Remove existing data
     await User.deleteMany();
-    await Chats.deleteMany();
+    await Conversation.deleteMany();
     await Message.deleteMany();
 
     // Generate and insert users
@@ -100,7 +98,7 @@ async function seedDatabase(
 
     // Generate and insert chats
     const chats = await generateChats(chatCount, userIds);
-    const insertedChats = await Chats.insertMany(chats);
+    const insertedChats = await Conversation.insertMany(chats);
     const chatIds = insertedChats.map((chat) => chat._id.toString());
 
     console.log(`Database seeded with ${chatCount} chats successfully`);

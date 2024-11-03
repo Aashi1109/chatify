@@ -46,3 +46,7 @@ export enum EConversationTypes {
   GROUP = "group",
   ARCHIVED = "archived",
 }
+
+export enum ESocketUserEvents {
+  UPDATES = "user:updates",
+}

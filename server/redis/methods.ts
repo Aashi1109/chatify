@@ -26,6 +26,19 @@ class RedisMethods {
     );
   }
 
+  async setHash(key: string, value: any, ttl?: number) {
+    try {
+      const pipeline = this.client.multi();
+      pipeline.hSet(`${this.nsp}:${key}`, value);
+      if (ttl) pipeline.expire(`${this.nsp}:${key}`, ttl);
+      await pipeline.exec();
+      return true;
+    } catch (error) {
+      logger.error(`Redis setHash error: ${error}`);
+      return false;
+    }
+  }
+
   async setList(key: string, value: any, ttl?: number) {
     const key_name = `${this.nsp}:${key}`;
     try {
@@ -59,6 +72,10 @@ class RedisMethods {
 
   async getBufferSize(key: string): Promise<number> {
     return await this.client.lLen(`${this.nsp}:${key}`);
+  }
+
+  async getKey(key: string): Promise<any> {
+    return await this.client.get(`${this.nsp}:${key}`);
   }
 }
 

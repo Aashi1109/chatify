@@ -63,15 +63,14 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
     throw new ClientError(`User already exists with username: ${username}`);
   }
 
-  const { salt, hashedPassword } = await hashPassword(password);
+  const hashedPassword = await hashPassword(password);
   const createdUser = await UserService.createUser(
     username,
     name,
     hashedPassword,
     profileImage,
     about,
-    role,
-    salt
+    role
   );
 
   const safeCopyUser = generateUserSafeCopy(createdUser);
@@ -207,11 +206,10 @@ const updateUserPasswordById = async (
     throw new ClientError("Old password is incorrect");
   }
 
-  const { salt, hashedPassword } = await hashPassword(newPassword);
+  const hashedPassword = await hashPassword(newPassword);
 
   const updatedUser = await UserService.updateUser(id, {
     password: hashedPassword,
-    salt,
   });
 
   const safeCopyUser = generateUserSafeCopy(updatedUser);

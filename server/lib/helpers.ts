@@ -24,7 +24,6 @@ const generateUserSafeCopy = (user: IUser | any): IUser => {
   const _user = { ...user };
 
   delete _user.password;
-  delete _user.salt;
 
   return _user;
 };
@@ -35,13 +34,11 @@ const generateUserSafeCopy = (user: IUser | any): IUser => {
  * @returns {Promise<{[string:string]}>} A Promise that resolves with the hashed password.
  * @throws {Error} Throws an error if hashing fails.
  */
-const hashPassword = async (
-  password: string
-): Promise<{ hashedPassword: string; salt: string }> => {
+const hashPassword = async (password: string): Promise<string> => {
   try {
     const salt = await bcrypt.genSalt(config.saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
-    return { hashedPassword, salt };
+    return hashedPassword;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to hash password");
