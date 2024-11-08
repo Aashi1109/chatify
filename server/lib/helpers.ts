@@ -12,6 +12,7 @@ import {
 
 import { FlattenMaps, Model, Require_id } from "mongoose";
 import { UnauthorizedError } from "@exceptions";
+import logger from "@logger";
 
 /**
  * Generates a safe copy of a user object by removing sensitive information.
@@ -76,6 +77,7 @@ const validatePassword = async (
   try {
     return await bcrypt.compare(comparePassword, originalPassword);
   } catch (error) {
+    logger.error(`Error validating password: ${error}`);
     throw new Error("Failed to validate password");
   }
 };
@@ -205,6 +207,45 @@ export const updateArrayField = (
   }
   return existingArray;
 };
+
+interface RetryConfig {
+  maxAttempts?: number;
+  delayMs?: number;
+  maxDelayMs?: number;
+  silent?: boolean;
+}
+
+export const withRetry =
+  <T, Args extends any[]>(config: RetryConfig = {}) =>
+  (fn: (...args: Args) => Promise<T>) =>
+  async (...args: Args): Promise<T> => {
+    const { maxAttempts = 3, delayMs = 1000, maxDelayMs = 10000 } = config;
+
+    let attempt = 1;
+
+    while (true) {
+      try {
+        const result = await fn(...args);
+        if (attempt > 1) {
+          logger.debug(`Succeeded after ${attempt} attempts`);
+        }
+        return result;
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          logger.error(`Failed after ${maxAttempts} attempts`, error);
+          throw error;
+        }
+
+        const delay = Math.min(Math.pow(2, attempt - 1) * delayMs, maxDelayMs);
+        logger.warn(
+          `Attempt ${attempt}/${maxAttempts} failed. Retrying in ${delay}ms...`
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        attempt++;
+      }
+    }
+  };
 
 export {
   generateAccessToken,

@@ -57,6 +57,7 @@ export const executor = async (guards: (() => Promise<string>)[]) => {
     const result = await guard();
     return result;
   }
+  return "/";
 };
 
 export const wait = (ms: number) =>

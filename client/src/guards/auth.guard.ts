@@ -3,11 +3,14 @@ import { setAuth } from "@/features/authSlice";
 import store from "@/store";
 
 const AuthGuard = async () => {
-  const isAuthPage = window.location.pathname.includes("auth");
   const user = store.getState().auth.user;
 
-  if (isAuthPage || user?._id) return "";
+  // If user is already authenticated, allow access to protected routes
+  if (user?._id) {
+    return "";
+  }
 
+  // If no user, try to get session
   try {
     const session = await getSessionOfUser();
     if (session?.data?._id) {
@@ -17,12 +20,13 @@ const AuthGuard = async () => {
           user: session.data,
         })
       );
-      return "";
+      return ""; // Allow access to protected route
     }
+    return "/auth"; // Redirect to auth if no session
   } catch (error) {
     console.error("Error fetching session: ", error);
+    return "/auth";
   }
-  return "/auth";
 };
 
 export default AuthGuard;

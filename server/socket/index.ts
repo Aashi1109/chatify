@@ -11,11 +11,12 @@ import { ConversationService, UserService } from "@services";
 import socketUserParser from "@middlewares/socketUserParser";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { IUser } from "@definitions/interfaces";
-import { Conversation, Message } from "@models";
+import { Conversation, Message, UserConversationMessage } from "@models";
 import { RedisMessageCache, RedisUserCache } from "@redis";
 import { Types } from "mongoose";
 import { jnstringify } from "@lib/utils";
 import { IncomingMessage } from "http";
+import { withRetry } from "@lib/helpers";
 
 interface CustomSocket
   extends Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, IUser> {
@@ -24,16 +25,20 @@ interface CustomSocket
   };
 }
 
-const MESSAGE_SAVE_BUFFER_KEY = "message_save_buffer";
+const MESSAGE_SAVE_BUFFER_KEY = "create";
+const MESSAGE_UPDATE_BUFFER_KEY = "update";
 const MESSAGE_BATCH_SIZE = 2000;
 const MESSAGE_FLUSH_INTERVAL = 5000;
 let bufferCheckCounter = 0;
 let messageBufferSaveIntervalID: NodeJS.Timeout;
 
+const retry = withRetry({ maxAttempts: 5, delayMs: 1000, maxDelayMs: 10000 });
+
 const rooms = new Set();
-const messageCache = new RedisMessageCache("conversations");
+const messagesCreateCache = new RedisMessageCache("messages:buffer");
+const messagesUpdateCache = new RedisMessageCache("messages:update");
+
 const userUpdateCache = new RedisUserCache("user_updates");
-const unreadMessageCache = new RedisMessageCache("unread_messages");
 
 const createJoinRoom = (socket: CustomSocket, room: string) => {
   socket.join(room);
@@ -45,13 +50,15 @@ const removeRoom = (room: string) => {
 };
 
 const filterParticipants = (participants: string[], currentUserId: string) => {
-  return participants.filter(
+  const filteredParticipants = participants.filter(
     (participant) => participant !== currentUserId?.toString()
   );
+
+  return [...new Set(filteredParticipants)];
 };
 
 const saveFlushMessagesBuffer = async () => {
-  const messages = await messageCache.getAllMessages();
+  const messages = await messagesCreateCache.getAllMessages();
 
   if (messages.length === 0) {
     logger.debug(`Buffer empty, no messages to save`);
@@ -73,15 +80,17 @@ const saveFlushMessagesBuffer = async () => {
       logger.info(`Saved batch of ${batch.length} messages`);
     }
 
-    await messageCache.methods.deleteKey(MESSAGE_SAVE_BUFFER_KEY);
+    await messagesCreateCache.methods.deleteKey(MESSAGE_SAVE_BUFFER_KEY);
   } catch (error) {
     logger.error(`Error saving messages buffer`, error);
   }
 };
 
+const _retrySaveFlushMessagesBuffer = retry(saveFlushMessagesBuffer);
+
 const initPeriodicMessagesSave = () => {
   logger.debug(`Initializing periodic messages save`);
-  return setInterval(saveFlushMessagesBuffer, MESSAGE_FLUSH_INTERVAL);
+  return setInterval(_retrySaveFlushMessagesBuffer, MESSAGE_FLUSH_INTERVAL);
 };
 
 async function emitUserUpdatesToConversations(
@@ -107,11 +116,6 @@ async function emitUserUpdatesToConversations(
   });
 }
 
-async function getUserOnlineStatus(userId: string) {
-  const user = await userUpdateCache.methods.getKey(userId);
-  return user?.isActive;
-}
-
 export function initializeSocket(server) {
   const io = new Server(server, { cors: { ...config.corsOptions } });
 
@@ -131,6 +135,22 @@ export function initializeSocket(server) {
       .catch((error) => {
         logger.error(`Error updating user status: ${error}`);
       });
+
+    // find such UserConversationMessage which is undelivered and not read and mark them as delivered
+    const undeliveredMessagesUpdateResult =
+      await UserConversationMessage.updateMany(
+        {
+          user: _id,
+          deliveredAt: null,
+          readAt: null,
+        },
+        { deliveredAt: new Date() },
+        { new: true }
+      );
+
+    logger.debug(
+      `Updated ${undeliveredMessagesUpdateResult.modifiedCount} undelivered messages`
+    );
 
     createJoinRoom(socket, `user:${_id}`);
 
@@ -197,15 +217,16 @@ export function initializeSocket(server) {
           updatedAt: new Date(),
         };
 
-        const bufferSize = await messageCache.methods.getBufferSize(
-          MESSAGE_SAVE_BUFFER_KEY
-        );
+        // TODO implement if necessary
+        // const bufferSize = await messagesCreateCache.methods.getBufferSize(
+        //   MESSAGE_SAVE_BUFFER_KEY
+        // );
 
-        if (bufferSize >= MESSAGE_BATCH_SIZE) {
-          await saveFlushMessagesBuffer();
-        }
+        // if (bufferSize >= MESSAGE_BATCH_SIZE) {
+        //   await _retrySaveFlushMessagesBuffer();
+        // }
 
-        await messageCache.methods.setList(
+        await messagesCreateCache.methods.setList(
           MESSAGE_SAVE_BUFFER_KEY,
           jnstringify(newMessageCreateData),
           1000
@@ -213,9 +234,6 @@ export function initializeSocket(server) {
 
         existingConversation.lastMessage = newMessageCreateData._id;
         await existingConversation.save();
-        await unreadMessageCache.methods.setHash(_id, {
-          unreadMessages: newMessageCreateData._id,
-        });
 
         const responseData = {
           data: {
@@ -240,11 +258,43 @@ export function initializeSocket(server) {
       }
     });
 
+    socket.on(ESocketMessageEvents.MESSAGE_UPDATE, async (request, cb) => {
+      try {
+        const { messages, conversationId, content, readAt } = request || {};
+
+        if (!messages.length || !conversationId || !content)
+          return cb?.({
+            error: "Messages, conversation id and content are required",
+          });
+
+        let deliveredAt = null;
+
+        if (rooms.has(`user:${_id}`)) deliveredAt = new Date();
+
+        const messageUpdateData = messages.map((id: string) => ({
+          messageId: id,
+          conversationId,
+          content,
+          readAt,
+          deliveredAt,
+        }));
+
+        await messagesUpdateCache.methods.setListBulk(
+          MESSAGE_UPDATE_BUFFER_KEY,
+          messageUpdateData.map((m: object) => jnstringify(m))
+        );
+        cb?.({ data: messageUpdateData });
+      } catch (error) {
+        logger.error(`Error updating message`, error);
+        cb?.({ error: error?.message || "Something went wrong" });
+      }
+    });
+
     socket.on(ESocketConnectionEvents.DISCONNECT, async () => {
       logger.info(`User ${_id} disconnected`);
       socket.leave(`user:${_id}`);
       removeRoom(`user:${_id}`);
-      saveFlushMessagesBuffer();
+      await _retrySaveFlushMessagesBuffer();
       await emitUserUpdatesToConversations(_id, socket, {
         isActive: false,
       });

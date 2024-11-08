@@ -125,6 +125,18 @@ export interface IObjectKeys {
   [key: string]: any;
 }
 
+export interface IUserConversationMessage {
+  _id?: Types.ObjectId;
+  user: Types.ObjectId;
+  conversation: Types.ObjectId;
+  message: Types.ObjectId;
+  readAt?: Date;
+  deliveredAt?: Date;
+  deletedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export {
   IConversation,
   IUserRequest,

@@ -16,10 +16,6 @@ class RedisMethods {
     );
   }
 
-  async getString(key: string) {
-    return Boolean(await this.client.get(`${this.nsp}:${key}`));
-  }
-
   async setObject(key: string, value: any) {
     return Boolean(
       await this.client.set(`${this.nsp}:${key}`, JSON.stringify(value))
@@ -49,6 +45,36 @@ class RedisMethods {
       return true;
     } catch (error) {
       logger.error(`Redis setList error: ${error}`);
+      return false;
+    }
+  }
+
+  async setListBulk(key: string, values: string[]) {
+    try {
+      if (values.length > 0) {
+        const pipeline = this.client.multi();
+        values.forEach((value) => {
+          pipeline.rPush(`${this.nsp}:${key}`, value);
+        });
+        await pipeline.exec();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      logger.error(`Redis setListBulk error: ${error}`);
+      return false;
+    }
+  }
+
+  async hSet(key: string, value: any, ttl?: number) {
+    try {
+      const pipeline = this.client.multi();
+      pipeline.hSet(`${this.nsp}:${key}`, value);
+      if (ttl) pipeline.expire(`${this.nsp}:${key}`, ttl);
+      await pipeline.exec();
+      return true;
+    } catch (error) {
+      logger.error(`Redis hset error: ${error}`);
       return false;
     }
   }

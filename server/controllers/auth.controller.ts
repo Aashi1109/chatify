@@ -6,6 +6,7 @@ import UnauthorizedError from "@exceptions/unauthorizedError";
 import UserService from "@services/UserService";
 import { generateAccessToken, validatePassword } from "@lib/helpers";
 import { IUserRequest } from "@definitions/interfaces";
+import { User } from "@models";
 
 /**
  * Logins the user by creating a new access token
@@ -19,7 +20,7 @@ const login = async (req: Request, res: Response) => {
     throw new ClientError("Username and password are required");
   }
 
-  const existingUser = await UserService.getUserByUsername(username);
+  const existingUser = await User.findOne({ username }).select("+password");
 
   if (!existingUser) {
     throw new NotFoundError("User not found");

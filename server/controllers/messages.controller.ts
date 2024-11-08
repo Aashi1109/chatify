@@ -50,7 +50,7 @@ const createMessage = async (
  */
 const updateMessageById = async (req: Request, res: Response) => {
   const { messageId } = req.params;
-  const { content, seenAt, deliveredAt } = req.body;
+  const { content } = req.body;
 
   if (!messageId || !content) {
     throw new ClientError(`Message id invalid messageId: ${messageId}`);
@@ -68,8 +68,7 @@ const updateMessageById = async (req: Request, res: Response) => {
     messageId,
     {
       content,
-      seenAt: seenAt || previousMessage.seenAt,
-      deliveredAt: deliveredAt || previousMessage.deliveredAt,
+      isEdited: true,
     },
     { new: true }
   );

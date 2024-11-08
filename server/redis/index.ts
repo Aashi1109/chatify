@@ -45,4 +45,8 @@ export class RedisUserCache extends BaseRedisClient {
   async getUserUpdate(userId: string) {
     return await this.methods.getKey(userId);
   }
+
+  async getAllUsers() {
+    return await this.methods.getAllKeys();
+  }
 }

@@ -12,6 +12,7 @@ import {
 } from "@lib/helpers";
 import { NotFoundError } from "@exceptions";
 import { IRequestPagination, IUserRequest } from "@definitions/interfaces";
+import { User } from "@models";
 
 /**
  * Get user data by ID.
@@ -192,7 +193,7 @@ const updateUserPasswordById = async (
 
   const { oldPassword, newPassword } = req.body;
 
-  const existingUser = await UserService.getUserById(id);
+  const existingUser = await User.findById(id).select("+password");
   if (!existingUser) {
     throw new NotFoundError(`User with id: ${id} not found`);
   }
