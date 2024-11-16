@@ -4,28 +4,42 @@ import logger from "@logger";
 import { createClient } from "@redis/client";
 
 class BaseRedisClient {
-  protected client: ReturnType<typeof createClient>;
-  private connectionPromise: Promise<void> | null = null;
+  private static instance: BaseRedisClient | null = null;
+  protected static client: ReturnType<typeof createClient>;
+  private static connectionPromise: Promise<void> | null = null;
 
-  constructor() {
-    this.client = createClient({
-      socket: {
-        reconnectStrategy: this.reconnectStrategy.bind(this),
-        host: config.redis.host,
-        port: +config.redis.port,
-      },
-      commandsQueueMaxLength: 1000,
-      readonly: false,
-      legacyMode: false,
-    });
+  protected constructor() {
+    if (!BaseRedisClient.client) {
+      BaseRedisClient.client = createClient({
+        socket: {
+          reconnectStrategy: this.reconnectStrategy.bind(this),
+          host: config.redis.host,
+          port: +config.redis.port,
+        },
+        commandsQueueMaxLength: 1000,
+        readonly: false,
+        legacyMode: false,
+      });
 
-    this.attachErrorListener();
-    this.connectionPromise = this.connect();
+      this.attachErrorListener();
+      BaseRedisClient.connectionPromise = this.connect();
+    }
+  }
+
+  public static getInstance(): BaseRedisClient {
+    if (!BaseRedisClient.instance) {
+      BaseRedisClient.instance = new BaseRedisClient();
+    }
+    return BaseRedisClient.instance;
+  }
+
+  protected getClient(): ReturnType<typeof createClient> {
+    return BaseRedisClient.client;
   }
 
   private async connect() {
     try {
-      await this.client.connect();
+      await BaseRedisClient.client.connect();
       logger.info("Redis client connected");
     } catch (err) {
       logger.error(`Redis client connection error: ${jnstringify(err)}`);
@@ -50,14 +64,14 @@ class BaseRedisClient {
 
   // Method to ensure connection before operations
   protected async ensureConnection() {
-    if (!this.connectionPromise) {
-      this.connectionPromise = this.connect();
+    if (!BaseRedisClient.connectionPromise) {
+      BaseRedisClient.connectionPromise = this.connect();
     }
-    await this.connectionPromise;
+    await BaseRedisClient.connectionPromise;
   }
 
   protected attachErrorListener() {
-    this.client.on("error", (err) => {
+    BaseRedisClient.client.on("error", (err) => {
       logger.error(`Redis client error: ${jnstringify(err)}`);
     });
   }

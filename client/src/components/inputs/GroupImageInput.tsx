@@ -10,7 +10,7 @@ const GroupImageInput = ({
   return (
     <div className="cursor-pointer flex-center flex-col gap-2">
       <img
-        src={fileData ? fileData?.preview : "/assets/default-user.png"}
+        src={fileData?.preview ? fileData?.preview : "/assets/default-user.png"}
         width={80}
         height={80}
         alt="Group image"

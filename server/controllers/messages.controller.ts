@@ -3,8 +3,11 @@ import ClientError from "@exceptions/clientError";
 import NotFoundError from "@exceptions/notFoundError";
 import { createFilterFromParams } from "@lib/helpers";
 import { Message } from "@models";
+import { RedisCommonCache } from "@redis";
 import MessageService from "@services/MessageService";
 import { Request, Response } from "express";
+
+const messageCache = new RedisCommonCache();
 
 /**
  * Create message
@@ -38,7 +41,15 @@ const createMessage = async (
     category,
   });
 
-  await createdMessage.save();
+  await Promise.allSettled([
+    createdMessage.save(),
+    messageCache.methods.setString(
+      `message:${createdMessage._id}`,
+      createdMessage.toObject()
+    ),
+    3600,
+  ]);
+
   return res.status(201).json({ data: createdMessage, success: true });
 };
 
@@ -72,6 +83,16 @@ const updateMessageById = async (req: Request, res: Response) => {
     },
     { new: true }
   );
+
+  await Promise.allSettled([
+    updatedMessage.save(),
+    messageCache.methods.setString(
+      `message:${updatedMessage._id}`,
+      updatedMessage.toObject(),
+      3600
+    ),
+  ]);
+
   return res.status(200).json({ data: updatedMessage, success: true });
 };
 
@@ -87,7 +108,13 @@ const deleteMessageById = async (
 ): Promise<Response> => {
   const { messageId } = req.params;
 
-  const deletedMessage = await Message.findByIdAndDelete(messageId);
+  const deletedMessage = Message.findByIdAndDelete(messageId);
+
+  await Promise.allSettled([
+    deletedMessage,
+    messageCache.methods.deleteKey(`message:${messageId}`),
+  ]);
+
   return res.status(204).json({ data: deletedMessage, success: true });
 };
 
@@ -102,7 +129,23 @@ const getMessageById = async (
   res: Response
 ): Promise<Response> => {
   const { messageId } = req.params;
-  const existingMessage = await Message.findById(messageId);
+  let existingMessage = await messageCache.methods.getKey(
+    `message:${messageId}`
+  );
+
+  if (!existingMessage) {
+    existingMessage = await Message.findById(messageId);
+    existingMessage &&
+      messageCache.methods.setString(
+        `message:${existingMessage._id}`,
+        existingMessage.toObject(),
+        3600
+      );
+  }
+
+  if (!existingMessage) {
+    throw new NotFoundError(`Message not found`);
+  }
 
   return res.status(200).json({ data: existingMessage, success: true });
 };

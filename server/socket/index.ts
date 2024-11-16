@@ -10,9 +10,9 @@ import logger from "@logger";
 import { ConversationService, UserService } from "@services";
 import socketUserParser from "@middlewares/socketUserParser";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { IUser } from "@definitions/interfaces";
-import { Conversation, Message, UserConversationMessage } from "@models";
-import { RedisMessageCache, RedisUserCache } from "@redis";
+import { IConversation, IUser } from "@definitions/interfaces";
+import { Conversation, Message, MessageStats } from "@models";
+import { RedisMessageCache, RedisCommonCache } from "@redis";
 import { Types } from "mongoose";
 import { jnstringify } from "@lib/utils";
 import { IncomingMessage } from "http";
@@ -26,7 +26,6 @@ interface CustomSocket
 }
 
 const MESSAGE_SAVE_BUFFER_KEY = "create";
-const MESSAGE_UPDATE_BUFFER_KEY = "update";
 const MESSAGE_BATCH_SIZE = 2000;
 const MESSAGE_FLUSH_INTERVAL = 5000;
 let bufferCheckCounter = 0;
@@ -35,10 +34,10 @@ let messageBufferSaveIntervalID: NodeJS.Timeout;
 const retry = withRetry({ maxAttempts: 5, delayMs: 1000, maxDelayMs: 10000 });
 
 const rooms = new Set();
-const messagesCreateCache = new RedisMessageCache("messages:buffer");
+const messagesCreateCache = new RedisMessageCache("messages:create");
 const messagesUpdateCache = new RedisMessageCache("messages:update");
 
-const userUpdateCache = new RedisUserCache("user_updates");
+const commonCache = new RedisCommonCache("sct");
 
 const createJoinRoom = (socket: CustomSocket, room: string) => {
   socket.join(room);
@@ -57,8 +56,49 @@ const filterParticipants = (participants: string[], currentUserId: string) => {
   return [...new Set(filteredParticipants)];
 };
 
+const filterFormMessagesAndStats = (
+  batch: Record<string, any>[],
+  uups: Record<string, any>[],
+  conversations: Record<string, any>[]
+) => {
+  const result = batch.reduce(
+    (acc, message) => {
+      const { deliveredAt, readAt, sentAt, ...restMessage } = message;
+      acc.messages.push(restMessage);
+
+      const participants = conversations[message.conversation]?.participants;
+
+      participants.map((participant) => {
+        const fromCurrentUser = participant === message.user;
+
+        if (fromCurrentUser) return;
+
+        const isUserActive = uups[participant]?.isActive;
+
+        acc.userConversationMessages.push({
+          message: restMessage._id,
+          user: participant,
+          conversation: restMessage.conversation,
+          deliveredAt: isUserActive ? new Date() : deliveredAt,
+          sentAt,
+          readAt,
+        });
+      });
+
+      return acc;
+    },
+    { messages: [], userConversationMessages: [] }
+  );
+
+  return result;
+};
+
 const saveFlushMessagesBuffer = async () => {
-  const messages = await messagesCreateCache.getAllMessages();
+  const [messages, uup, conversations] = await Promise.all([
+    messagesCreateCache.getAllMessages(),
+    commonCache.methods.hGet(`uup`),
+    commonCache.methods.hGet(`conversation`),
+  ]);
 
   if (messages.length === 0) {
     logger.debug(`Buffer empty, no messages to save`);
@@ -76,10 +116,18 @@ const saveFlushMessagesBuffer = async () => {
   try {
     for (let i = 0; i < messages.length; i += MESSAGE_BATCH_SIZE) {
       const batch = messages.slice(i, i + MESSAGE_BATCH_SIZE);
-      await Message.insertMany(batch, { ordered: false });
+      const { messages: _messages, userConversationMessages } =
+        filterFormMessagesAndStats(batch, uup, conversations);
+
+      logger.debug(_messages);
+      await Promise.all([
+        Message.insertMany(_messages, { ordered: false }),
+        MessageStats.insertMany(userConversationMessages, {
+          ordered: false,
+        }),
+      ]);
       logger.info(`Saved batch of ${batch.length} messages`);
     }
-
     await messagesCreateCache.methods.deleteKey(MESSAGE_SAVE_BUFFER_KEY);
   } catch (error) {
     logger.error(`Error saving messages buffer`, error);
@@ -124,45 +172,46 @@ export function initializeSocket(server) {
 
   io.on(ESocketConnectionEvents.CONNECT, async (socket: CustomSocket) => {
     logger.info(`Connected ${socket.id}`);
-    const { _id } = socket.request.user;
+    const socketUserId = socket.request.user._id?.toString();
 
-    // make user online
-    UserService.updateUser(_id, { lastSeenAt: null, isActive: true })
-      .then(async (data) => {
-        console.log(`User status updated to ${_id}: true`);
-        await userUpdateCache.storeUserUpdate(_id, data);
-      })
-      .catch((error) => {
-        logger.error(`Error updating user status: ${error}`);
-      });
-
-    // find such UserConversationMessage which is undelivered and not read and mark them as delivered
-    const undeliveredMessagesUpdateResult =
-      await UserConversationMessage.updateMany(
-        {
-          user: _id,
-          deliveredAt: null,
-          readAt: null,
-        },
-        { deliveredAt: new Date() },
-        { new: true }
-      );
-
-    logger.debug(
-      `Updated ${undeliveredMessagesUpdateResult.modifiedCount} undelivered messages`
+    const undeliveredMessagesUpdateResult = MessageStats.updateMany(
+      {
+        user: socketUserId,
+        deliveredAt: null,
+        readAt: null,
+      },
+      { deliveredAt: new Date() }
     );
 
-    createJoinRoom(socket, `user:${_id}`);
+    createJoinRoom(socket, `user:${socketUserId}`);
 
-    await emitUserUpdatesToConversations(_id, socket, {
-      isActive: true,
-    });
+    await Promise.allSettled([
+      undeliveredMessagesUpdateResult,
+      commonCache.methods.hSet(
+        `uup`,
+        socketUserId,
+        {
+          isActive: true,
+        },
+        3600
+      ),
+      emitUserUpdatesToConversations(socketUserId, socket, {
+        isActive: true,
+      }),
+    ]);
+
+    logger.debug(
+      `Updated ${undeliveredMessagesUpdateResult} undelivered messages`
+    );
 
     socket.on(ESocketMessageEvents.TYPING, async (request, cb) => {
       const { conversationId, isTyping } = request || {};
-      logger.debug(`User ${_id} typing:${isTyping}`);
+      logger.debug(`User ${socketUserId} typing:${isTyping}`);
 
-      let existingConversation = await Conversation.findById(conversationId);
+      let existingConversation = await commonCache.methods.hGet(
+        `conversation`,
+        conversationId
+      );
 
       if (!existingConversation)
         return cb?.({ error: "Conversation not found" });
@@ -171,28 +220,41 @@ export function initializeSocket(server) {
         existingConversation.participants.map((participant) =>
           participant.toString()
         ),
-        _id
+        socketUserId
       );
 
       filteredParticipants.map((participant) => {
         socket.to(`user:${participant}`).emit(ESocketMessageEvents.TYPING, {
-          data: { conversationId, isTyping },
+          data: { conversationId, isTyping, user: socket.request.user },
         });
       });
 
-      cb?.({ data: { conversationId, isTyping } });
+      cb?.({ data: { conversationId, isTyping, user: socket.request.user } });
     });
 
     socket.on(ESocketMessageEvents.NEW_MESSAGE, async (request, cb) => {
       try {
         let { conversationId, content, type, category } = request || {};
-        logger.debug(`New message from user ${_id} in chat ${conversationId}`);
+        logger.debug(
+          `New message from user ${socketUserId} in chat ${conversationId}`
+        );
 
         messageBufferSaveIntervalID ??= initPeriodicMessagesSave();
+        let isRedisInstance = true;
 
         if (!conversationId)
           return cb?.({ error: "Conversation id is required" });
-        let existingConversation = await Conversation.findById(conversationId);
+
+        // first get in redis then in database
+        let existingConversation = await commonCache.methods.hGet(
+          `conversation`,
+          conversationId
+        );
+
+        if (!existingConversation) {
+          existingConversation = await Conversation.findById(conversationId);
+          isRedisInstance = false;
+        }
 
         if (!existingConversation)
           return cb?.({ error: "Conversation not found" });
@@ -202,7 +264,7 @@ export function initializeSocket(server) {
           existingConversation.participants.map((participant) =>
             participant.toString()
           ),
-          _id
+          socketUserId
         );
 
         const newMessageCreateData = {
@@ -210,7 +272,7 @@ export function initializeSocket(server) {
           conversation: conversationId,
           content,
           type,
-          user: _id,
+          user: socketUserId,
           category: category || EMessageCategory.User,
           sentAt: new Date(),
           createdAt: new Date(),
@@ -225,31 +287,39 @@ export function initializeSocket(server) {
         // if (bufferSize >= MESSAGE_BATCH_SIZE) {
         //   await _retrySaveFlushMessagesBuffer();
         // }
-
-        await messagesCreateCache.methods.setList(
-          MESSAGE_SAVE_BUFFER_KEY,
-          jnstringify(newMessageCreateData),
-          1000
-        );
-
-        existingConversation.lastMessage = newMessageCreateData._id;
-        await existingConversation.save();
+        await Promise.allSettled([
+          ...(!isRedisInstance
+            ? [
+                existingConversation.save(),
+                commonCache.methods.hSet(
+                  `conversation`,
+                  conversationId,
+                  {
+                    ...existingConversation.toObject(),
+                    lastMessage: newMessageCreateData._id,
+                  },
+                  24000
+                ),
+              ]
+            : []),
+          messagesCreateCache.methods.setList(
+            MESSAGE_SAVE_BUFFER_KEY,
+            newMessageCreateData,
+            1000
+          ),
+        ]);
 
         const responseData = {
           data: {
             conversationId,
-            message: {
-              ...newMessageCreateData,
-            },
+            message: newMessageCreateData,
           },
         };
 
         filteredParticipants.map((participant) => {
           socket
             .to(`user:${participant}`)
-            .emit(ESocketMessageEvents.NEW_MESSAGE, {
-              ...responseData,
-            });
+            .emit(ESocketMessageEvents.NEW_MESSAGE, responseData);
         });
         cb?.({ ...responseData });
       } catch (error) {
@@ -258,54 +328,62 @@ export function initializeSocket(server) {
       }
     });
 
-    socket.on(ESocketMessageEvents.MESSAGE_UPDATE, async (request, cb) => {
-      try {
-        const { messages, conversationId, content, readAt } = request || {};
+    // TODO: feature not implemented yet on frontend
+    // socket.on(ESocketMessageEvents.MESSAGE_UPDATE, async (request, cb) => {
+    //   try {
+    //     const { messages, conversationId, content, readAt } = request || {};
 
-        if (!messages.length || !conversationId || !content)
-          return cb?.({
-            error: "Messages, conversation id and content are required",
-          });
+    //     if (!messages.length || !conversationId || !content)
+    //       return cb?.({
+    //         error: "Messages, conversation id and content are required",
+    //       });
 
-        let deliveredAt = null;
+    //     let deliveredAt = null;
 
-        if (rooms.has(`user:${_id}`)) deliveredAt = new Date();
+    //     if (rooms.has(`user:${_id}`)) deliveredAt = new Date();
 
-        const messageUpdateData = messages.map((id: string) => ({
-          messageId: id,
-          conversationId,
-          content,
-          readAt,
-          deliveredAt,
-        }));
+    //     const messageUpdateData = messages.map((id: string) => ({
+    //       messageId: id,
+    //       conversationId,
+    //       content,
+    //       readAt,
+    //       deliveredAt,
+    //     }));
 
-        await messagesUpdateCache.methods.setListBulk(
-          MESSAGE_UPDATE_BUFFER_KEY,
-          messageUpdateData.map((m: object) => jnstringify(m))
-        );
-        cb?.({ data: messageUpdateData });
-      } catch (error) {
-        logger.error(`Error updating message`, error);
-        cb?.({ error: error?.message || "Something went wrong" });
-      }
-    });
+    //     await messagesUpdateCache.methods.setListBulk(
+    //       MESSAGE_UPDATE_BUFFER_KEY,
+    //       messageUpdateData.map((m: object) => jnstringify(m))
+    //     );
+    //     cb?.({ data: messageUpdateData });
+    //   } catch (error) {
+    //     logger.error(`Error updating message`, error);
+    //     cb?.({ error: error?.message || "Something went wrong" });
+    //   }
+    // });
 
     socket.on(ESocketConnectionEvents.DISCONNECT, async () => {
-      logger.info(`User ${_id} disconnected`);
-      socket.leave(`user:${_id}`);
-      removeRoom(`user:${_id}`);
-      await _retrySaveFlushMessagesBuffer();
-      await emitUserUpdatesToConversations(_id, socket, {
-        isActive: false,
-      });
+      logger.info(`User ${socketUserId} disconnected`);
+      socket.leave(`user:${socketUserId}`);
+      removeRoom(`user:${socketUserId}`);
 
-      UserService.updateUser(_id, { lastSeenAt: new Date(), isActive: false })
-        .then(async (data) => {
-          logger.info(`User status updated to ${_id}: false`);
-        })
-        .catch((error) => {
-          logger.error(`Error updating user status: ${error}`);
-        });
+      const lastSeenAt = new Date();
+
+      await Promise.allSettled([
+        _retrySaveFlushMessagesBuffer(),
+        commonCache.methods.hSet(
+          `uup`,
+          socketUserId?.toString(),
+          {
+            isActive: false,
+            lastSeenAt,
+          },
+          3600
+        ),
+        emitUserUpdatesToConversations(socketUserId, socket, {
+          isActive: false,
+          lastSeenAt,
+        }),
+      ]);
     });
   });
 

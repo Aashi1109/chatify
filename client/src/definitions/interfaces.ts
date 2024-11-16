@@ -67,8 +67,10 @@ export interface IMessage {
   isEdited?: boolean;
 }
 export interface IFile {
+  _id?: string;
   url: string;
   filename: string;
   publicId: string;
   fileDataId: string;
+  fileMetadata?: Record<string, any>;
 }

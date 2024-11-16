@@ -8,12 +8,13 @@ const logDir = config.log.path;
 const logFile = path.join(logDir, "chatify_server.log");
 
 const customFormat = format.printf(
-  ({ level, message, timestamp, service, ...temp }) => {
+  ({ level, message, timestamp, service, stack, ...temp }) => {
     const logMessage = {
       asctime: timestamp,
       level: level.toUpperCase(),
       service: service,
       message: message,
+      stack: stack,
     };
     return JSON.stringify(logMessage);
   }

@@ -77,9 +77,9 @@ interface IMessage {
   user: Types.ObjectId | string;
   conversation: Types.ObjectId;
   content: string;
-  sentAt?: Date;
-  deliveredAt?: Date;
-  seenAt?: Date;
+  // sentAt?: Date;
+  // deliveredAt?: Date;
+  // seenAt?: Date;
   type: EMessageType;
   isEdited?: boolean;
   category: EMessageCategory;
@@ -125,7 +125,7 @@ export interface IObjectKeys {
   [key: string]: any;
 }
 
-export interface IUserConversationMessage {
+export interface IMessageStats {
   _id?: Types.ObjectId;
   user: Types.ObjectId;
   conversation: Types.ObjectId;

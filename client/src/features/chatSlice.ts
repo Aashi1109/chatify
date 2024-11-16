@@ -8,14 +8,14 @@ interface IInteractionData {
 }
 interface IChatSlice {
   interactionData: IInteractionData | null;
-  interactionMessages: IMessage[] | null;
   conversations: IConversation[] | null;
+  isChatWindowOpen: boolean;
 }
 
 const chatInitialState: IChatSlice = {
   interactionData: null,
-  interactionMessages: null,
   conversations: null,
+  isChatWindowOpen: false,
 };
 
 const appendData = <T>(prevData: T[] | null, newData: T): T[] => {
@@ -28,50 +28,32 @@ const chatSlice = createSlice({
   reducers: {
     setInteractionData: (
       state,
-      action: PayloadAction<IInteractionData | null>
+      action: PayloadAction<{
+        conversationData: IInteractionData | null;
+        closeChatWindow: boolean;
+      }>
     ) => {
-      state.interactionData = action.payload;
+      state.interactionData = action.payload.conversationData;
+      state.isChatWindowOpen = !action.payload.closeChatWindow;
     },
-    setInteractionMessages: (
-      state,
-      action: PayloadAction<IMessage[] | null>
-    ) => {
-      state.interactionMessages = action.payload;
-    },
+    //
     setConversation: (state, action: PayloadAction<IConversation[] | null>) => {
       state.conversations = action.payload;
     },
-    addInteractionMessage: (state, action: PayloadAction<IMessage>) => {
-      state.interactionMessages?.unshift(action.payload);
-    },
-    extendInteractionMessages: (state, action: PayloadAction<IMessage[]>) => {
-      if (action.payload.length > 0)
-        state.interactionMessages = [
-          ...(state.interactionMessages || []),
-          ...action.payload,
-        ];
-    },
+    // addInteractionMessage: (state, action: PayloadAction<IMessage>) => {
+    //   state.interactionMessages?.unshift(action.payload);
+    // },
+    // extendInteractionMessages: (state, action: PayloadAction<IMessage[]>) => {
+    //   if (action.payload.length > 0)
+    //     state.interactionMessages = [
+    //       ...(state.interactionMessages || []),
+    //       ...action.payload,
+    //     ];
+    // },
     addConversation: (state, action: PayloadAction<IConversation>) => {
       state.conversations = appendData(state.conversations, action.payload);
     },
 
-    updateMessage: (
-      state,
-      action: PayloadAction<{ id: string; data: Partial<IMessage> }>
-    ) => {
-      const existingMessage = state.interactionMessages?.find(
-        (message) => message._id === action.payload.id
-      );
-
-      if (existingMessage) {
-        for (const key in action.payload.data) {
-          if (key in action.payload.data) {
-            const updateData = action.payload.data[key as keyof IMessage];
-            existingMessage[key as keyof IMessage] = updateData;
-          }
-        }
-      }
-    },
     updateConversation: (
       state,
       action: PayloadAction<{
@@ -121,11 +103,8 @@ const chatSlice = createSlice({
 export const {
   setConversation,
   setInteractionData,
-  setInteractionMessages,
-  extendInteractionMessages,
   addConversation,
   updateConversation,
-  addInteractionMessage,
   updateConversationUser,
 } = chatSlice.actions;
 

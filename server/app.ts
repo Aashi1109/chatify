@@ -40,7 +40,7 @@ app.use(cookieparser());
 app.use(config.apiPrefixes.auth, authRouter);
 app.use(config.apiPrefixes.user, userRouter);
 app.use(config.apiPrefixes.message, [userParser], messagesRouter);
-app.use(config.apiPrefixes.conversation, [], chatsRouter);
+app.use(config.apiPrefixes.conversation, [userParser], chatsRouter);
 app.use(config.apiPrefixes.file, fileRouter);
 
 // swagger docs

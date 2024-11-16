@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import { verify } from "jsonwebtoken";
 
-import config from "@config";
 import { IUserRequest } from "@definitions/interfaces";
 import { UnauthorizedError } from "@exceptions";
 import { User } from "@models";
 import asyncHandler from "./asyncHandler";
 import { getJWTPayload } from "@lib/helpers";
+import { RedisCommonCache } from "@redis";
+
+const userCache = new RedisCommonCache();
 
 const userParser = async (req: Request, res: Response, next: NextFunction) => {
   const jwtCookie = req.cookies?.["jwt"];
@@ -16,7 +17,17 @@ const userParser = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const { _id, username } = (await getJWTPayload(jwtCookie)) || {};
-    const user = await User.findOne({ _id, username });
+    let user = await userCache.methods.getKey(`user:${_id}`);
+
+    if (!user) {
+      user = await User.findOne({ _id, username });
+      user &&
+        userCache.methods.setString(
+          `user:${user?._id}`,
+          user?.toObject(),
+          24 * 60 * 60
+        );
+    }
 
     if (!user) throw unauthorizedError;
 

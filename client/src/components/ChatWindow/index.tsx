@@ -1,10 +1,7 @@
 import { Button } from "@/components/ui/button.tsx";
 import { IMessage, IUser } from "@/definitions/interfaces.ts";
 import {
-  addInteractionMessage,
-  extendInteractionMessages,
   setInteractionData,
-  setInteractionMessages,
   updateConversation,
 } from "@/features/chatSlice.ts";
 import { useAppDispatch, useAppSelector } from "@/hook";
@@ -44,6 +41,7 @@ interface IProps {
 interface ChatWindowRef {
   scrollToBottom: () => void;
   setIsTyping: (isTyping: boolean) => void;
+  addMessages: (messages: IMessage[]) => void;
 }
 
 // Update the component definition to use ForwardedRef
@@ -57,14 +55,18 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
     setIsTyping: (isTyping: boolean) => {
       setIsTyping(isTyping);
     },
+    addMessages: (messages: IMessage[]) => {
+      setMessages((prev) => [...(prev || []), ...messages]);
+    },
   }));
+
   const dispatch = useAppDispatch();
   const theme = useAppSelector((state) => state.ui.theme);
 
   const imageStore = useMemo(() => getImageThemeStore(theme), [theme]);
 
   const currentUser = useAppSelector((state) => state.auth.user);
-  const { interactionMessages, interactionData } = useAppSelector(
+  const { interactionData, isChatWindowOpen } = useAppSelector(
     (state) => state.chat
   );
 
@@ -83,7 +85,8 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
   const [isFetchingMoreMessages, setIsFetchingMoreMessages] =
     useState<boolean>(false);
 
-  const hasMessages = interactionMessages && interactionMessages?.length;
+  const [messages, setMessages] = useState<IMessage[] | null>([]);
+
   const interactionUserImageUrl =
     typedInteractionUser?.profileImage?.url || "/assets/user.png";
 
@@ -133,7 +136,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
           error?: any;
         }) => {
           handleSocketCallbackError(error, () => {
-            dispatch(addInteractionMessage(data!.message));
+            setMessages((prev) => [data!.message, ...(prev || [])]);
             dispatch(
               updateConversation({
                 id: data!.conversationId,
@@ -191,15 +194,16 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       limit: config.conversation.fetchLimit,
       endDate: lastMessageDateRef.current,
     });
-    const messages = messagesResp?.data || [];
+    const _messages = messagesResp?.data || [];
 
-    const executorFunc = isExtend
-      ? extendInteractionMessages
-      : setInteractionMessages;
-    dispatch(executorFunc(messages));
-    lastMessageDateRef.current = messages?.[messages?.length - 1]?.sentAt;
+    const newMessages = isExtend
+      ? [...(messages || []), ..._messages]
+      : [..._messages];
+
+    setMessages(newMessages);
+    lastMessageDateRef.current = _messages?.[_messages?.length - 1]?.sentAt;
     fetchMoreMessagesRef.current =
-      messages?.length === config.conversation.fetchLimit;
+      _messages?.length === config.conversation.fetchLimit;
   }
 
   useEffect(() => {
@@ -218,7 +222,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
 
       fetchInitData();
     }
-  }, [interactionData?.conversation]);
+  }, [interactionData?.conversation?._id]);
 
   useEffect(() => {
     // Add a small delay to ensure the DOM has updated
@@ -227,7 +231,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
         typingIndicatorRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 300);
     }
-  }, [isUserScrolling, isTyping, interactionMessages]);
+  }, [isUserScrolling, isTyping, messages]);
 
   const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
@@ -272,7 +276,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       })}
     >
       {/* chat head */}
-      {typedInteractionUser && (
+      {isChatWindowOpen && (
         <div className={twMerge("flex items-center justify-between")}>
           <div className="flex items-center gap-4 flex-1">
             <CircleAvatar
@@ -329,8 +333,13 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
             <Button
               className="p-1 h-9 w-9"
               onClick={() => {
-                dispatch(setInteractionData(null));
-                dispatch(setInteractionMessages(null));
+                setMessages(null);
+                dispatch(
+                  setInteractionData({
+                    conversationData: null,
+                    closeChatWindow: true,
+                  })
+                );
               }}
             >
               <X className="h-5 w-5" />
@@ -340,7 +349,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       )}
 
       {/* chat window */}
-      {interactionData && (
+      {isChatWindowOpen && (
         <div className="flex flex-col bg-gray-200 dark:bg-gray-600 rounded-xl p-4 overflow-hidden flex-1 relative">
           {isLoadingData ? (
             <div className="flex-1 h-full flex-center">
@@ -359,7 +368,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
                 className={cn(
                   "flex flex-col-reverse gap-4 overflow-y-auto h-[calc(100vh-11rem)] items-stretch flex-1 relative",
                   {
-                    "items-center": !hasMessages,
+                    "items-center": !messages?.length,
                   }
                 )}
                 onScroll={handleScroll}
@@ -371,8 +380,8 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
                 >
                   <TypingIndicator />
                 </div>
-                {hasMessages ? (
-                  <ChatMessages />
+                {messages?.length ? (
+                  <ChatMessages messages={messages} />
                 ) : (
                   !isInputContentPresent &&
                   !isGroupChat && (

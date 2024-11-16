@@ -4,7 +4,6 @@ import ChatWindow from "./ChatWindow";
 import InfoWindow from "./InfoWindow";
 import TopBar from "./TopBar";
 import {
-  addInteractionMessage,
   updateConversation,
   updateConversationUser,
 } from "@/features/chatSlice";
@@ -62,7 +61,7 @@ function UserHomePage() {
       );
 
       if (_isInteractionConversation) {
-        dispatch(addInteractionMessage(newMessage));
+        chatWindowRef.current?.addMessages([newMessage]);
       }
       dispatch(
         updateConversation({

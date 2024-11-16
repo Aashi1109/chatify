@@ -8,11 +8,7 @@ import { useEffect, useState } from "react";
 import UserChip from "../chip/UserChip";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import { Button } from "../ui/button";
-import {
-  addConversation,
-  setInteractionData,
-  setInteractionMessages,
-} from "@/features/chatSlice";
+import { addConversation, setInteractionData } from "@/features/chatSlice";
 import { showToaster } from "../toasts/Toaster";
 import { EConversationTypes, EToastType } from "@/definitions/enums";
 import { Loader2, Send } from "lucide-react";
@@ -82,8 +78,12 @@ const NewChatForm = ({
       if (conversation?._id) {
         conversation.participants = [user];
         dispatch(addConversation(conversation));
-        dispatch(setInteractionData({ user, conversation }));
-        dispatch(setInteractionMessages([]));
+        dispatch(
+          setInteractionData({
+            conversationData: { user, conversation },
+            closeChatWindow: false,
+          })
+        );
         handleModalClose?.();
       }
     } catch (error: any) {

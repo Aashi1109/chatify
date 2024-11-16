@@ -20,7 +20,12 @@ const ChatInfoItem: React.FC<{
     chatData.conversation.type === EConversationTypes.GROUP;
 
   const handleChatInfoItemClick = () => {
-    dispatcher(setInteractionData({ user: user || null, conversation }));
+    dispatcher(
+      setInteractionData({
+        conversationData: { user: user || null, conversation },
+        closeChatWindow: false,
+      })
+    );
   };
 
   const isLastMessageFromCurrentUser = lastMessage?.user === user?._id;

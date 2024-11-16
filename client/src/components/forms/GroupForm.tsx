@@ -1,26 +1,23 @@
 import { createConversation, getAllUser, uploadFile } from "@/actions/form";
 import LoadingButton from "@/components/ui/LoadingButton.tsx";
-import { EToastType } from "@/definitions/enums";
+import { EConversationTypes, EToastType } from "@/definitions/enums";
 import {
   IChipItem,
   IConversation,
+  IFile,
   IFileInterface,
   IUser,
 } from "@/definitions/interfaces";
 import { useAppDispatch, useAppSelector } from "@/hook";
 import groupValidationSchema from "@/schemas/groupValidationSchema";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FileInput from "../inputs/FileInput";
 import GroupImageInput from "../inputs/GroupImageInput";
 import { showToaster } from "../toasts/Toaster";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import UserChip from "../chip/UserChip";
-import {
-  addConversation,
-  setInteractionData,
-  setInteractionMessages,
-} from "@/features/chatSlice";
+import { addConversation, setInteractionData } from "@/features/chatSlice";
 import { useFormik } from "formik";
 
 let fileData: IFileInterface | null = null;
@@ -31,6 +28,7 @@ interface IProps {
 
 const GroupForm = ({ handleModalClose }: IProps) => {
   const [selectedUsers, setSelectedUsers] = useState<IChipItem[] | null>(null);
+  const previousFileData = useRef<IFile | null>(null);
 
   const [users, setUsers] = useState<IUser[] | null>(null);
   const [filteredUsers, setFilteredUsers] = useState<IUser[] | null>(null);
@@ -43,40 +41,40 @@ const GroupForm = ({ handleModalClose }: IProps) => {
 
   const setFileData = (file: IFileInterface[]) => {
     fileData = file.length ? file[0] : null;
+    fileData && (previousFileData.current = null);
   };
 
   const onSubmit = async (values: { name: string; description: string }) => {
-    debugger;
     const groupCreationData: IConversation = {
       name: "",
       description: "",
       creator: "",
       image: undefined,
       participants: [],
-      isGroup: true,
+      type: EConversationTypes.GROUP,
     };
-
-    if (fileData) {
-      // upload file to online storage
-      const uploadFileResult = await uploadFile(fileData);
-      if (uploadFileResult?.data) {
-        const groupImageData = {
-          url: uploadFileResult.data?.fileMetadata?.secure_url ?? "",
-          filename: fileData?.name ?? "",
-          publicId: uploadFileResult.data?.fileMetadata?.public_id ?? "",
-          fileDataId: uploadFileResult.data?._id?.toString() ?? "",
-        };
-        groupCreationData.image = groupImageData;
-      }
-    }
-    groupCreationData.participants =
-      selectedUsers?.map((user) => user.id as string) ?? [];
-    groupCreationData.participants.push(currentUser?._id as string);
-    groupCreationData.name = values.name;
-    groupCreationData.description = values.description;
-    groupCreationData.creator = currentUser?._id || "";
-
     try {
+      if (fileData) {
+        // upload file to online storage
+
+        previousFileData.current ??= (await uploadFile(fileData))?.data;
+        if (previousFileData.current) {
+          const groupImageData = {
+            url: previousFileData.current?.fileMetadata?.secure_url ?? "",
+            filename: fileData?.name ?? "",
+            publicId: previousFileData.current?.fileMetadata?.public_id ?? "",
+            fileDataId: previousFileData.current?._id?.toString() ?? "",
+          };
+          groupCreationData.image = groupImageData;
+        }
+      }
+      groupCreationData.participants =
+        selectedUsers?.map((user) => user.id as string) ?? [];
+      groupCreationData.participants.push(currentUser?._id as string);
+      groupCreationData.name = values.name;
+      groupCreationData.description = values.description;
+      groupCreationData.creator = currentUser?._id || "";
+
       const createdGroupData = await createConversation(groupCreationData);
       if (createdGroupData?.data?._id) {
         showToaster(EToastType.Success, "Group created successfully");
@@ -86,8 +84,12 @@ const GroupForm = ({ handleModalClose }: IProps) => {
         );
         conversation.participants = [currentUser, ...participants];
         dispatch(addConversation(conversation));
-        dispatch(setInteractionData({ user: null, conversation }));
-        dispatch(setInteractionMessages([]));
+        dispatch(
+          setInteractionData({
+            conversationData: { user: null, conversation },
+            closeChatWindow: false,
+          })
+        );
         handleModalClose?.();
       }
     } catch (error: any) {
@@ -186,7 +188,12 @@ const GroupForm = ({ handleModalClose }: IProps) => {
       >
         <div className="flex-center gap-8">
           <FileInput
-            acceptedFileTypes={["image/png", "image/jpeg", "image/*"]}
+            acceptedFileTypes={[
+              "image/png",
+              "image/jpeg",
+              "image/*",
+              "image/webp",
+            ]}
             RenderComponent={GroupImageInput}
             setFiles={setFileData}
             classes="w-2/5"
@@ -225,7 +232,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
 
         {/* selected users list */}
         {!!selectedUsers?.length && (
-          <div className="flex flex-col gap-4 sm:h-3/4 h-60 overflow-auto sm:max-w-[500px]">
+          <div className="flex flex-col gap-4 max-h-52 overflow-auto sm:max-w-[500px]">
             <p>Users to add</p>
             {/* TODO render list of selected users */}
             <div className="flex flex-wrap gap-4 flex-grow-0">

@@ -1,6 +1,6 @@
 import { EMessageCategory, EMessageType } from "@definitions/enums";
 import { IMessage } from "@definitions/interfaces";
-import { Schema, model } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
 const messageSchema = new Schema<IMessage>(
   {
@@ -11,9 +11,6 @@ const messageSchema = new Schema<IMessage>(
       required: true,
     },
     content: { type: String, required: true },
-    sentAt: { type: Date, default: Date.now },
-    deliveredAt: { type: Date },
-    seenAt: { type: Date },
     type: {
       type: String,
       enum: EMessageType,
@@ -28,6 +25,91 @@ const messageSchema = new Schema<IMessage>(
     isEdited: { type: Boolean, default: false },
   },
   { timestamps: true }
+);
+
+// Optimized method to fetch messages with their status using aggregation
+messageSchema.static(
+  "findWithStatus",
+  async function (
+    filter: {
+      conversation?: Types.ObjectId;
+      users?: Types.ObjectId | Types.ObjectId[];
+    },
+    page = 1,
+    limit = 20,
+    sort = { createdAt: -1 }
+  ) {
+    const finalFilter: any = { ...filter };
+
+    if (filter.users) {
+      finalFilter.users = Array.isArray(filter.users)
+        ? { $in: filter.users }
+        : filter.users;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [results, totalCount] = await Promise.all([
+      this.aggregate([
+        { $match: finalFilter },
+        {
+          $lookup: {
+            from: "messagestats",
+            localField: "_id",
+            foreignField: "message",
+            pipeline: [
+              {
+                $project: {
+                  user: 1,
+                  readAt: 1,
+                  deliveredAt: 1,
+                  deletedAt: 1,
+                },
+              },
+            ],
+            as: "participantStats",
+          },
+        },
+        {
+          $addFields: {
+            // Convert array of stats to object mapped by userId
+            stats: {
+              $arrayToObject: {
+                $map: {
+                  input: "$participantStats",
+                  as: "stat",
+                  in: {
+                    k: { $toString: "$$stat.user" },
+                    v: {
+                      readAt: "$$stat.readAt",
+                      deliveredAt: "$$stat.deliveredAt",
+                      deletedAt: "$$stat.deletedAt",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        { $project: { participantStats: 0 } }, // Remove the original stats array
+        { $sort: sort },
+        { $skip: skip },
+        { $limit: limit },
+      ]),
+
+      this.countDocuments(finalFilter),
+    ]);
+
+    return {
+      messages: results,
+      pagination: {
+        total: totalCount || 0,
+        page,
+        limit,
+        pages: Math.ceil((totalCount || 0) / limit),
+      },
+    };
+  }
 );
 
 const Message = model<IMessage>("Message", messageSchema);

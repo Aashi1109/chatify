@@ -5,11 +5,7 @@ import ChipItem from "../chip/ChipItem";
 import ChipList from "../chip/ChipList";
 import { useEffect, useState } from "react";
 import { getUserConversations } from "@/actions/form";
-import {
-  setConversation,
-  setInteractionData,
-  setInteractionMessages,
-} from "@/features/chatSlice";
+import { setConversation, setInteractionData } from "@/features/chatSlice";
 import { showToaster } from "../toasts/Toaster";
 import { EConversationTypes, EToastType } from "@/definitions/enums";
 import { INBOX_CHIP_ITEMS } from "@/common/constants";
@@ -57,8 +53,12 @@ const InfoWindow = () => {
   useEffect(() => {
     if (allChats?.length) {
       dispatch(setConversation(allChats));
-      dispatch(setInteractionData(null));
-      dispatch(setInteractionMessages([]));
+      dispatch(
+        setInteractionData({
+          conversationData: null,
+          closeChatWindow: true,
+        })
+      );
       return;
     }
     setIsLoading(true);

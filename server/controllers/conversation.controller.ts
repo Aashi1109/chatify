@@ -1,12 +1,23 @@
-import { EConversationTypes } from "@definitions/enums";
-import { IConversation, IRequestPagination } from "@definitions/interfaces";
+import {
+  EConversationTypes,
+  EMessageCategory,
+  EMessageType,
+} from "@definitions/enums";
+import {
+  IConversation,
+  IRequestPagination,
+  IUserRequest,
+} from "@definitions/interfaces";
 import { NotFoundError } from "@exceptions";
 import ClientError from "@exceptions/clientError";
 import { createFilterFromParams, updateArrayField } from "@lib/helpers";
 import { Conversation, Message } from "@models";
+import { RedisCommonCache } from "@redis";
 import ConversationService from "@services/ConversationService";
 
 import { Request, Response } from "express";
+
+const conversationCache = new RedisCommonCache();
 
 /**
  * Creates a new conversation with the provided chatId and userId.
@@ -14,10 +25,12 @@ import { Request, Response } from "express";
  * @param {Response} res - The response object for sending responses.
  * @throws {Error} Throws an error if the name or description is missing.
  */
-export const createConversation = async (req: Request, res: Response) => {
+export const createConversation = async (req: IUserRequest, res: Response) => {
   const { participants, type } = req.body as IConversation;
 
-  if (type === EConversationTypes.PRIVATE) {
+  const isGroup = type === EConversationTypes.GROUP;
+
+  if (!isGroup) {
     const existingConversation =
       await ConversationService.getConversationByFilter({
         participants: participants as any,
@@ -27,9 +40,46 @@ export const createConversation = async (req: Request, res: Response) => {
     if (existingConversation?.length)
       throw new ClientError("Conversation already exists");
   }
-
   const newChat = new Conversation(req.body);
   await newChat.save();
+
+  // if is group add system messages
+  if (isGroup) {
+    const populatedChat: any = await newChat.populate("creator participants");
+    // const hasCurrentUserCreatedGroup =
+    //   populatedChat.creator?._id?.toString() === req.user._id?.toString();
+    const participants = populatedChat?.participants?.reduce(
+      (acc: string[], participant: any) => {
+        if (participant._id.toString() !== req.user._id?.toString()) {
+          acc.push(participant.username);
+        }
+        return acc;
+      },
+      []
+    );
+    const systemMessages = [
+      `Group created on ${new Date().toLocaleString()}`,
+      `${populatedChat.creator?.username} has created the group ${populatedChat.name}`,
+      `${participants.join(", ")} have been added to the group`,
+    ];
+
+    const messages = systemMessages.map((message) => ({
+      conversation: newChat._id,
+      user: populatedChat.creator._id,
+      content: message,
+      type: EMessageType.Text,
+      category: EMessageCategory.System,
+    }));
+
+    await Message.insertMany(messages);
+  }
+
+  await conversationCache.methods.setString(
+    `conversation:${newChat._id}`,
+    newChat.toObject(),
+    3600
+  );
+
   res.status(201).json({ success: true, data: newChat });
 };
 
@@ -45,7 +95,21 @@ export const getConversationById = async (
 ) => {
   const { conversationId } = req.params;
 
-  const userChat = await Conversation.findById(conversationId);
+  let userChat = await conversationCache.methods.getKey(
+    `conversation:${conversationId}`
+  );
+
+  if (!userChat) {
+    userChat = await Conversation.findById(conversationId);
+    userChat &&
+      conversationCache.methods.setString(
+        `conversation:${conversationId}`,
+        userChat.toObject(),
+        3600
+      );
+  }
+
+  if (!userChat) throw new NotFoundError("Conversation not found");
 
   res.json({ success: true, data: userChat });
 };
@@ -129,7 +193,14 @@ export const updateConversationById = async (req: Request, res: Response) => {
       ? existingChat.type
       : type || existingChat.type;
 
-  await existingChat.save();
+  await Promise.allSettled([
+    existingChat.save(),
+    conversationCache.methods.setString(
+      `conversation:${conversationId}`,
+      existingChat.toObject(),
+      3600
+    ),
+  ]);
 
   res.json({ success: true, data: existingChat });
 };
@@ -146,6 +217,12 @@ export const deleteConversationById = async (req: Request, res: Response) => {
   // TODO write hooks for deletion of user chats
   const userChatDelete = Conversation.findOneAndDelete({ _id: conversationId });
   const messagesDelete = Message.deleteMany({ conversationId });
+
+  await Promise.allSettled([
+    userChatDelete,
+    messagesDelete,
+    conversationCache.methods.deleteKey(`conversation:${conversationId}`),
+  ]);
 
   res.status(200).json({
     message: "Chats deleted successfully",

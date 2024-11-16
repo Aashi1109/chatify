@@ -19,7 +19,20 @@ class MessageService {
     not?: string
   ) {
     if (pagination) pagination.populateFields ??= ["user", "conversation"];
-    return getByFilter(Message)(filter, pagination, not);
+
+    let sortingOptions: Record<string, number> = {};
+    if (pagination.sortBy && pagination.sortOrder) {
+      sortingOptions = {
+        [pagination.sortBy]: pagination.sortOrder === "asc" ? -1 : 1,
+      };
+    }
+
+    return Message.findWithStatus(
+      { users: filter.userId, conversation: filter.conversationId },
+      pagination.pageNumber,
+      pagination.limit,
+      sortingOptions
+    );
   }
 }
 

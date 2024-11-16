@@ -7,7 +7,7 @@ export class RedisMessageCache extends BaseRedisClient {
   methods: RedisMethods;
   constructor(nsp: string) {
     super();
-    this.methods = new RedisMethods(this.client, nsp);
+    this.methods = new RedisMethods(this.getClient(), nsp);
   }
 
   async getAllMessages() {
@@ -17,7 +17,7 @@ export class RedisMessageCache extends BaseRedisClient {
       // Use Promise.all instead of allSettled for better performance
       const messages = await Promise.all(
         keys.map(async (key) => {
-          const keyName = key.split(":")[1];
+          const keyName = key.split(":")?.pop();
           const msgs = await this.methods.getList(keyName);
           return msgs.map((msg: string) => jnparse(msg));
         })
@@ -31,19 +31,19 @@ export class RedisMessageCache extends BaseRedisClient {
   }
 }
 
-export class RedisUserCache extends BaseRedisClient {
+export class RedisCommonCache extends BaseRedisClient {
   methods: RedisMethods;
-  constructor(nsp: string) {
+  constructor(nsp = "common") {
     super();
-    this.methods = new RedisMethods(this.client, nsp);
+    this.methods = new RedisMethods(this.getClient(), nsp);
   }
 
   async storeUserUpdate(userId: string, data: any) {
-    return await this.methods.setHash(userId, data, 60 * 5);
+    return await this.methods.setString(`user:${userId}`, data, 60 * 5);
   }
 
   async getUserUpdate(userId: string) {
-    return await this.methods.getKey(userId);
+    return await this.methods.getKey(`user:${userId}`);
   }
 
   async getAllUsers() {

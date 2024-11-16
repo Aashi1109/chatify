@@ -1,13 +1,11 @@
 import { useAppSelector } from "@/hook";
 import ChatText from "./chatitems/ChatText";
 import ChatItemCard from "./chatitems/ChatItemCard";
-import { IUser } from "@/definitions/interfaces";
+import { IMessage, IUser } from "@/definitions/interfaces";
 import SystemMessage from "./SystemMessage";
 
-const ChatMessages = () => {
-  const { interactionMessages, interactionData } = useAppSelector(
-    (state) => state.chat
-  );
+const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
+  const { interactionData } = useAppSelector((state) => state.chat);
 
   const typedInteractionUser = interactionData?.user as IUser;
   const currentUser = useAppSelector((state) => state.auth.user);
@@ -26,7 +24,7 @@ const ChatMessages = () => {
     }
   };
 
-  const messageGroups = interactionMessages?.reduce(
+  const messageGroups = messages?.reduce(
     (groups: { [key: string]: any[] }, message) => {
       const parsedDate = new Date(message.sentAt);
 
@@ -41,10 +39,10 @@ const ChatMessages = () => {
     {}
   );
 
-  return Object.entries(messageGroups || {}).map(([date, messages]) => (
+  return Object.entries(messageGroups || {}).map(([date, _messages]) => (
     <div key={date} className="w-full flex flex-col gap-2">
       <SystemMessage message={date} />
-      {messages.map((message) => (
+      {_messages.map((message) => (
         <ChatItemCard
           key={message._id}
           user={typedInteractionUser}

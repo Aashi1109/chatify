@@ -13,21 +13,7 @@ import {
 import { FlattenMaps, Model, Require_id } from "mongoose";
 import { UnauthorizedError } from "@exceptions";
 import logger from "@logger";
-
-/**
- * Generates a safe copy of a user object by removing sensitive information.
- * @function generateUserSafeCopy
- * @param {IUser | any} user - The user object to generate a safe copy from.
- * @returns {IUser} A safe copy of the user object without the password field.
- */
-const generateUserSafeCopy = (user: IUser | any): IUser => {
-  // Create a shallow copy of the user object
-  const _user = { ...user };
-
-  delete _user.password;
-
-  return _user;
-};
+import { jnstringify } from "./utils";
 
 /**
  * Hashes a password using bcrypt.
@@ -169,7 +155,7 @@ const getByFilter =
 
 const validateJwtTokenId = (req: IUserRequest, id: string) => {
   // validate if id and token being used is for the same user
-  console.log("req.user", req.user);
+  logger.debug("req.user", req.user);
   if (req.user && req.user._id?.toString() !== id) {
     throw new UnauthorizedError(
       "Invalid token provided",
@@ -231,8 +217,11 @@ export const withRetry =
         }
         return result;
       } catch (error) {
+        logger.error(`Error in withRetry`, error);
         if (attempt === maxAttempts) {
-          logger.error(`Failed after ${maxAttempts} attempts`, error);
+          logger.error(
+            `Failed after ${maxAttempts} attempts ${jnstringify(error)}`
+          );
           throw error;
         }
 
@@ -250,7 +239,6 @@ export const withRetry =
 export {
   generateAccessToken,
   validateJwtTokenId,
-  generateUserSafeCopy,
   getByFilter,
   hashPassword,
   parseUserRole,

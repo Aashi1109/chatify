@@ -2,7 +2,12 @@
 
 import axiosClient from "@/common/service/axios-client";
 import { EConversationTypes } from "@/definitions/enums";
-import { IConversation, IFileInterface, IUser } from "@/definitions/interfaces";
+import {
+  IConversation,
+  IFile,
+  IFileInterface,
+  IUser,
+} from "@/definitions/interfaces";
 import { createUrlWithQueryParams } from "@/lib/helpers/generalHelper";
 
 const checkUsernameExists = async (username: string) => {
@@ -40,7 +45,9 @@ const loginUser = async (
   }
 };
 
-const uploadFile = async (fileData: IFileInterface) => {
+const uploadFile = async (
+  fileData: IFileInterface
+): Promise<{ data: IFile; success: boolean }> => {
   const requestUrl = `/files/upload`;
   try {
     const modifiedData = { ...fileData, uploadTo: "cloudinary" };

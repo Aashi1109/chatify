@@ -1,7 +1,7 @@
-import { IUserConversationMessage } from "@definitions/interfaces";
+import { IMessageStats } from "@definitions/interfaces";
 import { Schema, model } from "mongoose";
 
-const userConversationMessageSchema = new Schema<IUserConversationMessage>(
+const messageStatsSchema = new Schema<IMessageStats>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User" },
     conversation: { type: Schema.Types.ObjectId, ref: "Conversation" },
@@ -15,14 +15,11 @@ const userConversationMessageSchema = new Schema<IUserConversationMessage>(
   }
 );
 
-userConversationMessageSchema.index(
+messageStatsSchema.index(
   { user: 1, conversation: 1, message: 1 },
   { unique: true }
 );
 
-const UserConversationMessage = model(
-  "UserConversationMessage",
-  userConversationMessageSchema
-);
+const MessageStats = model("MessageStats", messageStatsSchema);
 
-export default UserConversationMessage;
+export default MessageStats;

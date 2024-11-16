@@ -5,7 +5,6 @@ import ClientError from "@exceptions/clientError";
 import UserService from "@services/UserService";
 import {
   createFilterFromParams,
-  generateUserSafeCopy,
   hashPassword,
   validateJwtTokenId,
   validatePassword,
@@ -13,6 +12,9 @@ import {
 import { NotFoundError } from "@exceptions";
 import { IRequestPagination, IUserRequest } from "@definitions/interfaces";
 import { User } from "@models";
+import { RedisCommonCache } from "@redis";
+
+const userCache = new RedisCommonCache();
 
 /**
  * Get user data by ID.
@@ -27,20 +29,21 @@ const getUserById = async (
 ): Promise<Response> => {
   const id = req.params?.id;
 
-  // validate if id and token being used is for the same user
   validateJwtTokenId(req, id);
 
-  // Retrieve user data by ID
-  const userData = await UserService.getUserById(id);
+  let userData = await userCache.methods.getKey(`user:${id}`);
+
+  if (!userData) {
+    userData = await UserService.getUserById(id);
+    userData &&
+      userCache.methods.setString(`user:${id}`, userData.toObject(), 3600);
+  }
 
   if (!userData) {
     throw new NotFoundError(`User with id: ${id} not found`);
   }
 
-  const safeCopyUser = generateUserSafeCopy(userData);
-
-  // Send response with user data
-  return res.status(200).json({ data: safeCopyUser, success: true });
+  return res.status(200).json({ data: userData, success: true });
 };
 
 /**
@@ -74,9 +77,13 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
     role
   );
 
-  const safeCopyUser = generateUserSafeCopy(createdUser);
+  await userCache.methods.setString(
+    `user:${createdUser._id}`,
+    createdUser.toObject(),
+    3600
+  );
 
-  return res.status(201).json({ data: safeCopyUser, success: true });
+  return res.status(201).json({ data: createdUser, success: true });
 };
 
 /**
@@ -99,9 +106,7 @@ const getUserByQuery = async (req: IRequestPagination, res: Response) => {
     not as string
   );
 
-  const safeCopyUsers = users.map((user) => generateUserSafeCopy(user));
-
-  return res.json({ success: true, data: safeCopyUsers });
+  return res.json({ success: true, data: users });
 };
 
 /**
@@ -117,17 +122,14 @@ const deleteUserById = async (
 ): Promise<Response> => {
   const { id } = req.params;
 
-  // validate if id and token being used is for the same user
   validateJwtTokenId(req, id);
 
-  // Delete user by ID
-  const deleteResp = await UserService.deleteUserById(id);
+  const deleteResp = UserService.deleteUserById(id);
 
-  // Send success response
+  await Promise.all([deleteResp, userCache.methods.deleteKey(`user:${id}`)]);
+
   return res.status(200).json({
-    data: deleteResp
-      ? generateUserSafeCopy(deleteResp?.toObject())
-      : deleteResp,
+    data: deleteResp,
     success: true,
   });
 };
@@ -169,9 +171,15 @@ const updateUserById = async (req: IUserRequest, res: Response) => {
     lastSeenAt: lastSeenAt ?? existingUser.lastSeenAt,
   });
 
-  const safeCopyUser = generateUserSafeCopy(updatedUser);
+  await Promise.all([
+    userCache.methods.setString(
+      `user:${updatedUser._id}`,
+      updatedUser.toObject(),
+      3600
+    ),
+  ]);
 
-  return res.status(200).json({ data: safeCopyUser, success: true });
+  return res.status(200).json({ data: updatedUser, success: true });
 };
 
 /**
@@ -213,9 +221,13 @@ const updateUserPasswordById = async (
     password: hashedPassword,
   });
 
-  const safeCopyUser = generateUserSafeCopy(updatedUser);
+  await userCache.methods.setString(
+    `user:${updatedUser._id}`,
+    updatedUser.toObject(),
+    3600
+  );
 
-  return res.status(200).json({ data: safeCopyUser, success: true });
+  return res.status(200).json({ data: updatedUser, success: true });
 };
 
 /**
@@ -226,8 +238,7 @@ const updateUserPasswordById = async (
  */
 const getAllUsers = async (_: Request, res: Response): Promise<Response> => {
   const data = await UserService.getAllUsers();
-  const safeCopyUsers = data.map((user) => generateUserSafeCopy(user));
-  return res.status(200).json({ data: safeCopyUsers, success: true });
+  return res.status(200).json({ data, success: true });
 };
 
 export {
