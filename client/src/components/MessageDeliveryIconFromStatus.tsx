@@ -34,18 +34,32 @@ const iconFromDeliveryStatus = (
 };
 
 const getMessageDeliveryStatus = (message: IMessage) => {
-  const { sentAt, deliveredAt, seenAt } = message || {};
+  const { sentAt, stats } = message || {};
+  
+  // Check if stats exists and has any entries
+  if (!stats || Object.keys(stats).length === 0) {
+    return EChatDeliveryStatus.Sent;
+  }
+
+  const deliveredToAllUsers = Object.values(stats).every(
+    (stat) => !!stat.deliveredAt
+  );
+
+  const seenByAllUsers = Object.values(stats).every(
+    (stat) => !!stat.readAt
+  );
+
   if (!sentAt) {
     return EChatDeliveryStatus.Sending;
   }
 
-  if (sentAt && !deliveredAt && !seenAt) {
+  if (sentAt && !deliveredToAllUsers && !seenByAllUsers) {
     return EChatDeliveryStatus.Sent;
   }
-  if (sentAt && deliveredAt && !seenAt) {
+  if (sentAt && deliveredToAllUsers && !seenByAllUsers) {
     return EChatDeliveryStatus.Delivered;
   }
-  if (sentAt && deliveredAt && seenAt) {
+  if (sentAt && deliveredToAllUsers && seenByAllUsers) {
     return EChatDeliveryStatus.DeliveredRead;
   }
 

@@ -26,11 +26,11 @@ const logger = createLogger({
   format: format.combine(
     format.splat(),
     format.json(),
+    errors({ stack: true }),
     format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss",
     }),
-    customFormat,
-    errors({ stack: true })
+    customFormat
   ),
   transports: [new transports.File({ filename: logFile })],
   exitOnError: false,

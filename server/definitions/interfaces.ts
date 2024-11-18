@@ -17,6 +17,9 @@ interface IUser {
   role: string;
   isActive: boolean;
   lastSeenAt: Date;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface ICloudinaryImageUploadOptions {
@@ -57,6 +60,7 @@ interface ICloudinaryResponse {
 }
 
 interface IConversation {
+  _id?: Types.ObjectId;
   participants: Types.ObjectId[];
   isGroup: boolean;
   name?: string;
@@ -68,21 +72,22 @@ interface IConversation {
   type: EConversationTypes;
 }
 
-interface IUserGroups {
-  userId: Types.ObjectId;
-  groupId: Types.ObjectId;
-}
-
 interface IMessage {
+  _id?: Types.ObjectId;
   user: Types.ObjectId | string;
   conversation: Types.ObjectId;
   content: string;
-  // sentAt?: Date;
-  // deliveredAt?: Date;
-  // seenAt?: Date;
   type: EMessageType;
   isEdited?: boolean;
   category: EMessageCategory;
+
+  sentAt: Date;
+  deletedAt: Date;
+
+  stats: Record<string, IMessageStats>;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface IFile {
@@ -102,8 +107,9 @@ interface IFileData {
   fileMetadata?: Record<string, any>;
 }
 
-interface IUserRequest extends Request {
+interface ICustomRequest extends Request {
   user: IUser;
+  conversation?: IConversation;
 }
 
 export interface IPagination {
@@ -125,21 +131,28 @@ export interface IObjectKeys {
   [key: string]: any;
 }
 
-export interface IMessageStats {
+export interface IMessageStatsModel {
   _id?: Types.ObjectId;
   user: Types.ObjectId;
   conversation: Types.ObjectId;
   message: Types.ObjectId;
+
   readAt?: Date;
   deliveredAt?: Date;
-  deletedAt?: Date;
+  meta: Record<string, any>;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
 
+export interface IMessageStats {
+  readAt?: Date | null;
+  deliveredAt?: Date | null;
+}
+
 export {
   IConversation,
-  IUserRequest,
+  ICustomRequest,
   ICloudinaryImageUploadOptions,
   ICloudinaryResponse,
   IFileData,
@@ -147,5 +160,4 @@ export {
   IMessage,
   IUploadFileInterface,
   IUser,
-  IUserGroups,
 };

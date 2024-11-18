@@ -3,10 +3,9 @@ import { Request, Response } from "express";
 import { NotFoundError } from "@exceptions";
 import ClientError from "@exceptions/clientError";
 import UnauthorizedError from "@exceptions/unauthorizedError";
-import UserService from "@services/UserService";
 import { generateAccessToken, validatePassword } from "@lib/helpers";
-import { IUserRequest } from "@definitions/interfaces";
 import { User } from "@models";
+import { ICustomRequest } from "@definitions/interfaces";
 
 /**
  * Logins the user by creating a new access token
@@ -51,8 +50,8 @@ const logOut = (req: Request, res: Response) => {
   return res.status(200).json({ data: "Logout successful", success: true });
 };
 
-const session = (req: Request, res: Response) => {
-  const { user } = req as IUserRequest;
+const session = (req: ICustomRequest, res: Response) => {
+  const { user } = req;
 
   return res.status(200).json({ data: user });
 };

@@ -39,12 +39,14 @@ class RedisMethods {
     }
   }
 
-  async setListBulk(key: string, values: string[]) {
+  async setListBulk(key: string, values: any[]) {
     try {
       if (values.length > 0) {
+        const fullKey = `${this.nsp}:${key}`;
         const pipeline = this.client.multi();
+        pipeline.del(fullKey);
         values.forEach((value) => {
-          pipeline.rPush(`${this.nsp}:${key}`, jnstringify(value));
+          pipeline.rPush(fullKey, jnstringify(value));
         });
         await pipeline.exec();
         return true;
@@ -93,8 +95,8 @@ class RedisMethods {
     }
   }
 
-  async getAllKeys() {
-    return await this.client.keys(`${this.nsp}:*`);
+  async getAllKeys({ pattern = "*" }: { pattern?: string } = {}) {
+    return await this.client.keys(`${this.nsp}:${pattern}`);
   }
 
   async deleteKey(key: string) {
@@ -110,8 +112,58 @@ class RedisMethods {
   }
 
   async getKey(key: string): Promise<any> {
-    const value = await this.client.get(`${this.nsp}:${key}`);
-    return value ? jnparse(value) : null;
+    try {
+      const value = await this.client.get(`${this.nsp}:${key}`);
+      return value ? jnparse(value) : null;
+    } catch (error) {
+      logger.error(`Redis getKey error: ${error}`);
+      return null;
+    }
+  }
+
+  async getAllListItems<T = any>(
+    options: {
+      pattern?: string;
+      parser?: (item: string) => T;
+      batchSize?: number;
+    } = {}
+  ) {
+    const { pattern = "*", parser = jnparse, batchSize = 1000 } = options;
+
+    try {
+      const keys = await this.getAllKeys({ pattern });
+      if (!keys.length) return [];
+
+      const pipeline = this.client.multi();
+
+      // Queue all LRANGE commands
+      keys.forEach((key) => {
+        const keyName = key.split(":")?.pop();
+        pipeline.lRange(`${this.nsp}:${keyName}`, 0, -1);
+      });
+
+      const results = await pipeline.exec();
+      const items: T[] = [];
+
+      // Process in batches
+      for (let i = 0; i < results.length; i += batchSize) {
+        const batch = results.slice(i, i + batchSize);
+        const parsedBatch = batch.flatMap((result) => {
+          if (!result || result[0]) {
+            logger.error(`Error processing list: ${result?.[0]}`);
+            return [];
+          }
+          return (result as string[]).map((item) => parser(item));
+        });
+
+        items.push(...parsedBatch);
+      }
+
+      return items;
+    } catch (error) {
+      logger.error(`Error getting list items: ${error}`);
+      return [];
+    }
   }
 }
 

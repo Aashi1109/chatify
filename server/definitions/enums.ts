@@ -19,7 +19,7 @@ enum ESocketMessageEvents {
   // Chat events
   TYPING = "message:typing",
   NEW_MESSAGE = "message:create",
-  MESSAGE_UPDATE = "message:update",
+  UPDATE = "message:update",
   MESSAGE_DELETE = "message:delete",
 }
 
@@ -52,6 +52,7 @@ enum EUploadTypes {
 export enum EConversationEvents {
   JoinConversation = "conversation:join",
   LeaveConversation = "conversation:leave",
+  UPDATE = "conversation:update",
 }
 
 export enum EConversationTypes {

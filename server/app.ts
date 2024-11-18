@@ -10,7 +10,6 @@ import config from "@config";
 import authRouter from "@routes/auth.routes";
 import chatsRouter from "@routes/conversation.routes";
 import fileRouter from "@routes/file.routes";
-import messagesRouter from "@routes/messages.routes";
 import userRouter from "@routes/user.routes";
 
 import userParser from "@middlewares/userParser";
@@ -39,7 +38,6 @@ app.use(cookieparser());
 // routes setup
 app.use(config.apiPrefixes.auth, authRouter);
 app.use(config.apiPrefixes.user, userRouter);
-app.use(config.apiPrefixes.message, [userParser], messagesRouter);
 app.use(config.apiPrefixes.conversation, [userParser], chatsRouter);
 app.use(config.apiPrefixes.file, fileRouter);
 

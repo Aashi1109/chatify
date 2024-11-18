@@ -5,8 +5,9 @@ import {
 } from "@definitions/enums";
 import {
   IConversation,
+  ICustomRequest,
   IRequestPagination,
-  IUserRequest,
+
 } from "@definitions/interfaces";
 import { NotFoundError } from "@exceptions";
 import ClientError from "@exceptions/clientError";
@@ -18,6 +19,8 @@ import ConversationService from "@services/ConversationService";
 import { Request, Response } from "express";
 
 const conversationCache = new RedisCommonCache();
+const userStatusCache = new RedisCommonCache("sct");
+
 
 /**
  * Creates a new conversation with the provided chatId and userId.
@@ -25,7 +28,7 @@ const conversationCache = new RedisCommonCache();
  * @param {Response} res - The response object for sending responses.
  * @throws {Error} Throws an error if the name or description is missing.
  */
-export const createConversation = async (req: IUserRequest, res: Response) => {
+export const createConversation = async (req: ICustomRequest, res: Response) => {
   const { participants, type } = req.body as IConversation;
 
   const isGroup = type === EConversationTypes.GROUP;
@@ -114,6 +117,7 @@ export const getConversationById = async (
   res.json({ success: true, data: userChat });
 };
 
+
 /**
  * Retrieves a chat by its ID from the database.
  * @param {Request} req - The request object containing the room ID.
@@ -137,6 +141,20 @@ export const getConversationByQuery = async (
     req.pagination,
     not as string
   );
+
+  // if participants are populated then add their current status from redis
+  const isParticipantsPopulated = req.pagination.doPopulate
+
+  if (isParticipantsPopulated) {
+    const userStatuses = await userStatusCache.methods.hGet("uup");
+
+    userChats.map(con => ({
+      ...con,
+      participants: con.participants.map(par => (
+        typeof par === "object" ? {...par, ...(userStatuses[par._id?.toString()] || {})} : par
+      ))
+    }))
+  }
 
   res.json({ success: true, data: userChats });
 };

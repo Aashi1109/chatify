@@ -143,7 +143,12 @@ class UserService {
     not?: string
   ): Promise<Require_id<FlattenMaps<IUser>>[]> {
     if (pagination) pagination.populateFields ??= ["profileImage.fileDataId"];
-    return getByFilter(User)(filter, pagination, not);
+    return getByFilter({
+      model: User,
+      filter,
+      pagination,
+      not,
+    });
   }
 }
 

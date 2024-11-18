@@ -56,7 +56,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       setIsTyping(isTyping);
     },
     addMessages: (messages: IMessage[]) => {
-      setMessages((prev) => [...(prev || []), ...messages]);
+      setMessages((prev) => [...messages,...(prev || []), ]);
     },
   }));
 
@@ -187,13 +187,15 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
   };
 
   async function fetchDispatchMessages(isExtend = false) {
-    const messagesResp = await getMessagesByQuery({
-      conversation: interactionData?.conversation?._id,
-      sortOrder: "desc",
-      sortBy: "createdAt",
-      limit: config.conversation.fetchLimit,
-      endDate: lastMessageDateRef.current,
-    });
+    const messagesResp = await getMessagesByQuery(
+      interactionData?.conversation?._id || "",
+      {
+        sortOrder: "desc",
+        sortBy: "createdAt",
+        limit: config.conversation.fetchLimit,
+        endDate: lastMessageDateRef.current,
+      }
+    );
     const _messages = messagesResp?.data || [];
 
     const newMessages = isExtend
@@ -366,7 +368,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
               {/* messages container */}
               <div
                 className={cn(
-                  "flex flex-col-reverse gap-4 overflow-y-auto h-[calc(100vh-11rem)] items-stretch flex-1 relative",
+                  "flex flex-col-reverse gap-4 overflow-y-auto h-[calc(100vh-11rem)] overflow-x-hidden w-full flex-1 relative",
                   {
                     "items-center": !messages?.length,
                   }

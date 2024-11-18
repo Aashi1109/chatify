@@ -1,8 +1,7 @@
 import { useAppSelector } from "@/hook";
-import ChatText from "./chatitems/ChatText";
+import {ChatText,SystemMessage} from "./components";
 import ChatItemCard from "./chatitems/ChatItemCard";
 import { IMessage, IUser } from "@/definitions/interfaces";
-import SystemMessage from "./SystemMessage";
 
 const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
   const { interactionData } = useAppSelector((state) => state.chat);
@@ -39,9 +38,9 @@ const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
     {}
   );
 
-  return Object.entries(messageGroups || {}).map(([date, _messages]) => (
-    <div key={date} className="w-full flex flex-col gap-2">
-      <SystemMessage message={date} />
+  return Object.entries(messageGroups || {}).map(([key, _messages]) => (
+    <div key={key} className="w-full flex flex-col gap-2">
+      <SystemMessage message={key} />
       {_messages.map((message) => (
         <ChatItemCard
           key={message._id}
@@ -49,7 +48,7 @@ const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
           isCurrentUserChat={currentUser?._id === message.user}
           RenderComponent={ChatText}
           message={message}
-          showBottomDate={date === "Today" || date === "Yesterday"}
+          showBottomDate={key === "Today" || key === "Yesterday"}
         />
       ))}
     </div>

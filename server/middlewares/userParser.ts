@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 
-import { IUserRequest } from "@definitions/interfaces";
 import { UnauthorizedError } from "@exceptions";
 import { User } from "@models";
 import asyncHandler from "./asyncHandler";
 import { getJWTPayload } from "@lib/helpers";
 import { RedisCommonCache } from "@redis";
+import { ICustomRequest } from "@definitions/interfaces";
 
 const userCache = new RedisCommonCache();
 
@@ -31,7 +31,7 @@ const userParser = async (req: Request, res: Response, next: NextFunction) => {
 
     if (!user) throw unauthorizedError;
 
-    (req as IUserRequest).user = user;
+    (req as ICustomRequest).user = user;
   } catch (error) {
     throw unauthorizedError;
   }

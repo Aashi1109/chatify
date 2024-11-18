@@ -29,8 +29,12 @@ class ConversationService {
     const filteredFields = _inFields.filter(Boolean);
     delete filter.participants;
 
-    return getByFilter(Conversation)({ ...filter }, pagination, not, {
-      participants: { $all: filteredFields },
+    return getByFilter({
+      model: Conversation,
+      filter: { ...filter },
+      pagination,
+      not,
+      $where: { participants: { $all: filteredFields } },
     });
   }
 }

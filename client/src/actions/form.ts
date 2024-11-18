@@ -195,32 +195,15 @@ const getConversationById = async (conversationId: string) => {
   }
 };
 
-const getMessagesByQuery = async (params: any) => {
+const getMessagesByQuery = async (conversationId: string, params: any) => {
   try {
     // Convert params to query string
     const queryString = new URLSearchParams(params).toString();
-    const requestUrl = `/messages/query?${queryString}`;
+    const requestUrl = `/conversation/${conversationId}/messages/query?${queryString}`;
     const response = await axiosClient.get(requestUrl);
     return response.data;
   } catch (error) {
     console.error("Error getting messages : ", error);
-    throw error;
-  }
-};
-
-const createMessage = async (data: {
-  content: string;
-  chatId: string;
-  userId: string;
-  sentAt: Date;
-  groupId?: string;
-}) => {
-  const requestUrl = `/messages`;
-  try {
-    const response = await axiosClient.post(requestUrl, data);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating message : ", error);
     throw error;
   }
 };
@@ -257,5 +240,4 @@ export {
   loginUser,
   uploadFile,
   getMessagesByQuery,
-  createMessage,
 };

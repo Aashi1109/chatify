@@ -57,14 +57,17 @@ export interface IConversation {
 export interface IMessage {
   _id?: string;
   user: string;
-  chat: string;
+  conversation: string;
   content: string;
   sentAt: string;
-  deliveredAt?: string;
-  seenAt?: string;
   type: EMessageType;
   category: EMessageCategory;
   isEdited?: boolean;
+
+  stats: Record<string, IMessageStats>;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 export interface IFile {
   _id?: string;
@@ -73,4 +76,10 @@ export interface IFile {
   publicId: string;
   fileDataId: string;
   fileMetadata?: Record<string, any>;
+}
+
+export interface IMessageStats {
+  readAt?: Date | null;
+  deliveredAt?: Date | null;
+  meta: Record<string, any>;
 }

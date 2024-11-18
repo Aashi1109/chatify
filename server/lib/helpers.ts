@@ -4,10 +4,10 @@ import * as jwt from "jsonwebtoken";
 import config from "@config";
 import { EUserRoles } from "@definitions/enums";
 import {
+  ICustomRequest,
   IObjectKeys,
   IPagination,
   IUser,
-  IUserRequest,
 } from "@definitions/interfaces";
 
 import { FlattenMaps, Model, Require_id } from "mongoose";
@@ -82,78 +82,77 @@ function parseUserRole(role: string): EUserRoles | undefined {
 /**
  * Queries a particular model based on different params passed to it
  * @template T - Type of the document in the model
- * @param {Model<T>} model - The mongoose model to use for query
- * @returns {Function} A function that takes filter criteria and returns a promise
+ * @param {Object} params - The parameters for the query
+ * @param {Model<T>} params.model - The mongoose model to use for query
+ * @param {Partial<Record<keyof T, any>>} params.filter - The filter object to query documents
+ * @param {IPagination} params.pagination - Pagination and sorting options
+ * @param {string} [params.not] - Optional ID to exclude from results
+ * @param {IObjectKeys} [params.$where] - Additional filter conditions
+ * @returns {Promise<Require_id<FlattenMaps<T>>[]>} A promise that resolves to an array of documents
  */
-const getByFilter =
-  <T>(model: Model<T>): Function =>
-  async (
-    /**
-     * @inner
-     * @param {Object} filter - The filter object to query documents.
-     * @param {Partial<Record<keyof T, any>>} filter - Optional dynamic fields to filter by.
-     * @param {string[]} pagination - Object for pagination
-     * @param {string} [not] - Optional page number for pagination.
-     * @param {object} [$where] - Extra filer object to include in query.
-     * @returns {Promise<Require_id<FlattenMaps<T>>[]>} - A promise that resolves to an array of documents matching the query.
-     */
-    filter: Partial<Record<keyof T, any>>,
-    pagination: IPagination,
-    not?: string,
-    $where?: IObjectKeys
-  ): Promise<Require_id<FlattenMaps<T>>[]> => {
-    try {
-      let {
-        pageNumber,
-        limit,
-        sortBy,
-        sortOrder,
-        populateFields,
-        doPopulate,
-        startDate,
-        endDate,
-      } = pagination || {};
+const getByFilter = async <T>({
+  model,
+  filter,
+  pagination,
+  not,
+  $where,
+}: {
+  model: Model<T>;
+  filter: Partial<Record<keyof T, any>>;
+  pagination: IPagination;
+  not?: string;
+  $where?: IObjectKeys;
+}): Promise<Require_id<FlattenMaps<T>>[]> => {
+  try {
+    let {
+      pageNumber,
+      limit,
+      sortBy,
+      sortOrder,
+      populateFields,
+      doPopulate,
+      startDate,
+      endDate,
+    } = pagination || {};
 
-      const skip = limit ? (pageNumber - 1) * limit : 0;
+    const skip = limit ? (pageNumber - 1) * limit : 0;
 
-      if (startDate || endDate) {
-        $where = {};
-        $where.createdAt = {};
-      }
+    if (startDate || endDate) {
+      $where = { createdAt: {} };
       if (startDate) $where.createdAt.$gte = startDate;
       if (endDate) $where.createdAt.$lt = endDate;
-
-      if ($where) filter = { ...filter, ...$where };
-
-      let query = model.find(filter);
-
-      if (not) {
-        // @ts-ignore
-        query = query.find({ _id: { $ne: not } });
-      }
-
-      if (sortBy && sortOrder) {
-        query.sort({ [sortBy]: sortOrder });
-      }
-
-      if (limit) {
-        query.limit(limit).skip(skip);
-      }
-
-      if (doPopulate && populateFields.length > 0) {
-        populateFields.forEach((field) => {
-          query.populate(field);
-        });
-      }
-
-      return await query.lean().exec();
-    } catch (error) {
-      console.error(`Error fetching ${model.modelName}:`, error);
-      throw error;
     }
-  };
 
-const validateJwtTokenId = (req: IUserRequest, id: string) => {
+    const finalFilter = {
+      ...filter,
+      ...($where || {}),
+      ...(not ? { _id: { $ne: not } } : {}),
+    };
+
+    let query = model.find(finalFilter);
+
+    if (sortBy && sortOrder) {
+      query = query.sort({ [sortBy]: sortOrder });
+    }
+
+    if (limit) {
+      query = query.limit(limit).skip(skip);
+    }
+
+    if (doPopulate && populateFields?.length > 0) {
+      populateFields.forEach((field) => {
+        query = query.populate(field);
+      });
+    }
+
+    return await query.lean().exec();
+  } catch (error) {
+    console.error(`Error fetching ${model.modelName}:`, error);
+    throw error;
+  }
+};
+
+const validateJwtTokenId = (req: ICustomRequest, id: string) => {
   // validate if id and token being used is for the same user
   logger.debug("req.user", req.user);
   if (req.user && req.user._id?.toString() !== id) {
