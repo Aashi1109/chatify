@@ -56,7 +56,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       setIsTyping(isTyping);
     },
     addMessages: (messages: IMessage[]) => {
-      setMessages((prev) => [...messages,...(prev || []), ]);
+      setMessages((prev) => [...messages, ...(prev || [])]);
     },
   }));
 
@@ -303,11 +303,11 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
               <div className="grid grid-cols-[1fr_auto] w-full gap-2">
                 <div className="overflow-hidden">
                   {!isGroupChat && (
-                    <p className="text-sm flex-center gap-1 dark:tex">
+                    <p className="text-sm flex-start gap-1">
                       {typedInteractionUser?.isActive ? (
                         <>
                           <div className="h-2 w-2 rounded-full animate-pulse bg-green-600" />
-                          <p>Active</p>
+                          <p className="text-xs">Active</p>
                         </>
                       ) : typedInteractionUser?.lastSeenAt ? (
                         `Last seen on ${formatTimeAgo(

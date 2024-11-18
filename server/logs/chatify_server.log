@@ -2160,3 +2160,37 @@
 {"asctime":"2024-11-18 22:53:10","level":"DEBUG","service":"Giffy Server","message":"Updated fulfilled [object Object] undelivered messages"}
 {"asctime":"2024-11-18 22:53:33","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
 {"asctime":"2024-11-18 22:53:40","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 22:57:27","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 22:57:28","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 22:57:32","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 22:57:33","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 22:58:00","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 22:58:01","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:00:52","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:00:52","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:00:53","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:00:53","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:03:22","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:03:29","level":"INFO","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c disconnected"}
+{"asctime":"2024-11-18 23:03:29","level":"DEBUG","service":"Giffy Server","message":"Data for emitting updates: {\"user\":{\"id\":\"671e699ca1d1b6d4f3a5cd2c\",\"data\":{\"isActive\":false,\"lastSeenAt\":\"2024-11-18T17:33:29.667Z\"}}}"}
+{"asctime":"2024-11-18 23:03:29","level":"DEBUG","service":"Giffy Server","message":"Buffer empty, no messages to save"}
+{"asctime":"2024-11-18 23:03:29","level":"DEBUG","service":"Giffy Server","message":"Emitting updates for conversations: {\"user:updates\":{\"userId\":\"671e699ca1d1b6d4f3a5cd2c\",\"data\":{\"isActive\":false,\"lastSeenAt\":\"2024-11-18T17:33:29.667Z\"}}}"}
+{"asctime":"2024-11-18 23:03:29","level":"INFO","service":"Giffy Server","message":"Connected cMX9q9fPXaSLUjmXAAAJ"}
+{"asctime":"2024-11-18 23:03:29","level":"DEBUG","service":"Giffy Server","message":"Data for emitting updates: {\"user\":{\"id\":\"671e699ca1d1b6d4f3a5cd2c\",\"data\":{\"isActive\":true}},\"message\":{\"id\":null,\"data\":[]}}"}
+{"asctime":"2024-11-18 23:03:29","level":"DEBUG","service":"Giffy Server","message":"Emitting updates for conversations: {\"user:updates\":{\"userId\":\"671e699ca1d1b6d4f3a5cd2c\",\"data\":{\"isActive\":true}}}"}
+{"asctime":"2024-11-18 23:03:29","level":"DEBUG","service":"Giffy Server","message":"Updated fulfilled [object Object] undelivered messages"}
+{"asctime":"2024-11-18 23:03:31","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:03:37","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:05:16","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:05:16","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:06:07","level":"WARN","service":"Giffy Server","message":"Invalid endDate format: null, setting to null"}
+{"asctime":"2024-11-18 23:10:35","level":"DEBUG","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c typing:true"}
+{"asctime":"2024-11-18 23:10:35","level":"DEBUG","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c typing:true"}
+{"asctime":"2024-11-18 23:10:35","level":"DEBUG","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c typing:true"}
+{"asctime":"2024-11-18 23:10:36","level":"DEBUG","service":"Giffy Server","message":"New message from user 671e699ca1d1b6d4f3a5cd2c in chat 67239e99d22a500721f813bd"}
+{"asctime":"2024-11-18 23:10:36","level":"DEBUG","service":"Giffy Server","message":"Initializing periodic messages save"}
+{"asctime":"2024-11-18 23:10:36","level":"DEBUG","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c typing:false"}
+{"asctime":"2024-11-18 23:10:37","level":"DEBUG","service":"Giffy Server","message":"User 671e699ca1d1b6d4f3a5cd2c typing:false"}
+{"asctime":"2024-11-18 23:10:41","level":"ERROR","service":"Giffy Server","message":"Error processing list: {\"_id\":\"673b7c14aaeed2a5a9621594\",\"conversation\":\"67239e99d22a500721f813bd\",\"content\":\"hii\",\"type\":\"text\",\"user\":\"671e699ca1d1b6d4f3a5cd2c\",\"category\":\"user\",\"sentAt\":\"2024-11-18T17:40:36.189Z\",\"createdAt\":\"2024-11-18T17:40:36.189Z\",\"updatedAt\":\"2024-11-18T17:40:36.189Z\",\"stats\":{\"671ccf01790da5957606230e\":{\"deliveredAt\":\"2024-11-18T17:40:36.190Z\",\"readAt\":null}}}"}
+{"asctime":"2024-11-18 23:10:41","level":"DEBUG","service":"Giffy Server","message":"Buffer empty, no messages to save"}
+{"asctime":"2024-11-18 23:10:41","level":"DEBUG","service":"Giffy Server","message":"Buffer check counter reached 3, stopping interval"}

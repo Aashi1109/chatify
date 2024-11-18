@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/hook";
-import {ChatText,SystemMessage} from "./components";
+import { ChatText, SystemMessage } from "./components";
 import ChatItemCard from "./chatitems/ChatItemCard";
 import { IMessage, IUser } from "@/definitions/interfaces";
 
@@ -38,21 +38,30 @@ const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
     {}
   );
 
-  return Object.entries(messageGroups || {}).map(([key, _messages]) => (
-    <div key={key} className="w-full flex flex-col gap-2">
-      <SystemMessage message={key} />
-      {_messages.map((message) => (
-        <ChatItemCard
-          key={message._id}
-          user={typedInteractionUser}
-          isCurrentUserChat={currentUser?._id === message.user}
-          RenderComponent={ChatText}
-          message={message}
-          showBottomDate={key === "Today" || key === "Yesterday"}
-        />
-      ))}
-    </div>
-  ));
+  return Object.entries(messageGroups || {}).map(([key, _messages]) => {
+    let previousMessageId: string | null = null;
+    return (
+      <div key={key} className="w-full flex flex-col gap-2">
+        <SystemMessage message={key} />
+        {_messages.map((message) => {
+          const isPreviousMessageFromCurrentUser =
+            message?.user?._id === previousMessageId;
+          previousMessageId = message?.user?._id;
+          return (
+            <ChatItemCard
+              key={message._id}
+              user={typedInteractionUser}
+              isCurrentUserChat={currentUser?._id === message.user}
+              RenderComponent={ChatText}
+              message={message}
+              showBottomDate={key === "Today" || key === "Yesterday"}
+              showUserInfo={!isPreviousMessageFromCurrentUser}
+            />
+          );
+        })}
+      </div>
+    );
+  });
 };
 
 export default ChatMessages;

@@ -12,12 +12,14 @@ const ChatItemCard: React.FC<{
   user: IUser;
   message: IMessage;
   showBottomDate?: boolean;
+  showUserInfo?: boolean;
 }> = ({
   RenderComponent,
   isCurrentUserChat,
   user,
   message,
   showBottomDate,
+  showUserInfo = true,
 }) => {
   const isSystemMessage = message.category === EMessageCategory.System;
 
@@ -27,8 +29,8 @@ const ChatItemCard: React.FC<{
         "justify-end": isCurrentUserChat,
       })}
     >
-      {!isCurrentUserChat && (
-        <div className="flex-shrink-0 hidden md:flex">
+      {!isCurrentUserChat && showUserInfo ? (
+        <div className={"flex-shrink-0 hidden md:flex"}>
           <CircleAvatar
             imageUrl={user.profileImage.url}
             alt={"profile image"}
@@ -36,6 +38,8 @@ const ChatItemCard: React.FC<{
             fallback={user.name?.slice(0, 1)?.toUpperCase()}
           />
         </div>
+      ) : (
+        <div className="w-9 h-9" />
       )}
 
       <div className={cn("max-w-[70%] flex flex-col gap-1")}>

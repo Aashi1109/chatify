@@ -74,7 +74,7 @@ const ChatInfoItem: React.FC<{
             <div className="grid grid-cols-[1fr_auto] w-full gap-2 items-center">
               <div className="overflow-hidden">
                 {isTyping ? (
-                  <p className="text-xs italic text-green-600">Typing...</p>
+                  <p className="text-xs italic text-green-600">typing...</p>
                 ) : (
                   <div className="flex-start gap-1">
                     {!isLastMessageFromCurrentUser && (
