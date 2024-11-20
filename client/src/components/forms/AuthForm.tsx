@@ -1,11 +1,9 @@
 import { createUser, loginUser, uploadFile } from "@/actions/form";
 import { EToastType, EUserRoles } from "@/definitions/enums";
 import { IFileInterface } from "@/definitions/interfaces";
-import { debounce } from "@/lib/helpers/generalHelper";
 import authFormValidationSchemaWrapper, {
   validateUsername,
 } from "@/schemas/authFormValidation";
-import { Field, Form, Formik } from "formik";
 
 import FileInput from "@/components/inputs/FileInput";
 import ProfileImageInput from "@/components/inputs/ProfileImageInput";
@@ -13,9 +11,11 @@ import { showToaster } from "@/components/toasts/Toaster";
 import { setAuth } from "@/features/authSlice";
 import { useAppDispatch } from "@/hook";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoadingButton from "../ui/LoadingButton";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const fileData: { profileImage: null | IFileInterface } = {
   profileImage: null,
@@ -31,6 +31,33 @@ const AuthForm: React.FC<{
 
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
   const [isLoginForm, setIsLoginForm] = useState(isLogin ?? true);
+
+  const formInitialValues = {
+    username: "",
+    password: "",
+    confirmPassword: "",
+    about: "",
+    name: "",
+    rememberMe: false,
+  };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    clearErrors,
+    watch,
+    reset,
+  } = useForm({
+    shouldUnregister: true,
+    defaultValues: formInitialValues,
+    resolver: yupResolver(authFormValidationSchemaWrapper),
+    context: { isLoginForm },
+    mode: "onChange",
+  });
+
+  const username = watch("username");
 
   const togglePasswordVisibility = () => {
     setIsPasswordHidden((prevState) => !prevState);
@@ -49,24 +76,10 @@ const AuthForm: React.FC<{
     }
   };
 
-  async function handleFormSubmit(
-    setSubmitting: (isSubmitting: boolean) => void,
-    values: {
-      username: string;
-      password: string;
-      confirmPassword: string;
-      about: string;
-      name: string;
-      rememberMe: boolean;
-    },
-    isLoginForm: boolean,
-    dispatch: typeof dispatcher,
-    setFormValue: ((formData: object) => void) | undefined
-  ) {
+  async function handleFormSubmit(values: any) {
     try {
-      setSubmitting(true);
       const { username, about, confirmPassword, name, password, rememberMe } =
-        values;
+        values || {};
       let doLoginProcess = false;
 
       // if is login form then don't check for profile image
@@ -104,8 +117,6 @@ const AuthForm: React.FC<{
           } else {
             // call popup function
             showToaster(EToastType.Error, "Profile image not uploaded");
-
-            setSubmitting(false);
           }
         }
       } else {
@@ -124,7 +135,7 @@ const AuthForm: React.FC<{
         if (loginResult?.data?.user) {
           showToaster(EToastType.Success, "Login successful");
 
-          dispatch(
+          dispatcher(
             setAuth({
               isAuthenticated: true,
               user: loginResult.data.user,
@@ -141,21 +152,17 @@ const AuthForm: React.FC<{
         setFormValue({ ...values, ...fileData, isLogin: isLoginForm });
     } catch (error: any) {
       showToaster(EToastType.Error, error?.message || "Something went wrong");
-    } finally {
-      setSubmitting(false);
     }
   }
 
-  const debouncedHandleFormSubmit = debounce(handleFormSubmit, 500);
+  useEffect(() => {
+    const _func = async () => {
+      const result = await validateUsername(username);
+      result && setError("username", { message: result });
+    };
 
-  const formInitialValues = {
-    username: "",
-    password: "",
-    confirmPassword: "",
-    about: "",
-    name: "",
-    rememberMe: false,
-  };
+    !isLoginForm && _func();
+  }, [username]);
 
   return (
     <div className="rounded-xl p-8 bg-[--primary-hex] w-[95vw] sm:max-w-[500px]">
@@ -164,182 +171,161 @@ const AuthForm: React.FC<{
         <p className="font-light">Please enter your details to continue.</p>
       </div>
 
-      <Formik
-        initialValues={formInitialValues}
-        onSubmit={async (values, { setSubmitting }) => {
-          await debouncedHandleFormSubmit(
-            setSubmitting,
-            values,
-            isLoginForm,
-            dispatcher,
-            setFormValue
-          );
-        }}
-        validationSchema={authFormValidationSchemaWrapper(isLoginForm)}
+      <form
+        className="flex flex-col gap-6"
+        onSubmit={handleSubmit(handleFormSubmit)}
       >
-        {({ isSubmitting, errors, setValues, touched, resetForm }) => (
-          <Form className="flex flex-col gap-6">
-            {!isLoginForm && (
-              <div className="">
-                <FileInput
-                  acceptedFileTypes={["image/png", "image/jpeg", "image/*"]}
-                  RenderComponent={ProfileImageInput}
-                  setFiles={setFileData}
-                />
-              </div>
-            )}
+        {!isLoginForm && (
+          <div className="">
+            <FileInput
+              acceptedFileTypes={["image/png", "image/jpeg", "image/*"]}
+              RenderComponent={ProfileImageInput}
+              setFiles={setFileData}
+            />
+          </div>
+        )}
 
-            <div className="flex flex-col gap-6">
-              {/* name field */}
-              {!isLoginForm && (
-                <div className="form-group">
-                  <Field
-                    name={"name"}
-                    className={"input"}
-                    placeholder={"Enter full name"}
-                  />
-                  {/* <ErrorMessage className="error-field" name="name" /> */}
-                  {errors.name && touched.name ? (
-                    <div className="error-field">{errors.name}</div>
-                  ) : null}
-                </div>
-              )}
-              {/* username field */}
-              <div className="form-group">
-                <Field
-                  name={"username"}
-                  className={"input"}
-                  placeholder={"Enter username"}
-                  validate={validateUsername(isLoginForm)}
-                />
-                {/* <ErrorMessage className="error-field" name="username" /> */}
-                {errors.username && touched.username ? (
-                  <div className="error-field">{errors.username}</div>
-                ) : null}
-              </div>
-              {/* password field */}
-              <div className="form-group">
-                <div className="relative">
-                  <Field
-                    type={isPasswordHidden ? "password" : "text"}
-                    name="password"
-                    className="input"
-                    placeholder="Enter password"
-                  />
-                  <img
-                    width={25}
-                    height={25}
-                    className="absolute p-1 hover:bg-gray-700 rounded-md right-2 top-[50%] translate-y-[-50%] cursor-pointer"
-                    src={
-                      isPasswordHidden
-                        ? "/assets/password-hidden.png"
-                        : "/assets/password-shown.png"
-                    }
-                    alt={isPasswordHidden ? "Show password" : "Hide password"}
-                    onClick={togglePasswordVisibility}
-                  />
-                </div>
-                {/* <ErrorMessage className="error-field" name="password" /> */}
-                {errors.password && touched.password ? (
-                  <div className="error-field">{errors.password}</div>
-                ) : null}
-              </div>
+        <div className="flex flex-col gap-6">
+          {/* name field */}
+          {!isLoginForm && (
+            <div className="form-group">
+              <input
+                className={"input"}
+                placeholder={"Enter full name"}
+                {...register("name")}
+              />
+              {/* <ErrorMessage className="error-field" name="name" /> */}
+              {errors.name ? (
+                <div className="error-field">{errors.name.message}</div>
+              ) : null}
+            </div>
+          )}
+          {/* username field */}
+          <div className="form-group">
+            <input
+              className={"input"}
+              placeholder={"Enter username"}
+              {...register("username")}
+            />
+            {errors.username ? (
+              <div className="error-field">{errors.username.message}</div>
+            ) : null}
+          </div>
+          {/* password field */}
+          <div className="form-group">
+            <div className="relative">
+              <input
+                type={isPasswordHidden ? "password" : "text"}
+                className="input"
+                placeholder="Enter password"
+                {...register("password")}
+              />
+              <img
+                width={25}
+                height={25}
+                className="absolute p-1 hover:bg-gray-700 rounded-md right-2 top-[50%] translate-y-[-50%] cursor-pointer"
+                src={
+                  isPasswordHidden
+                    ? "/assets/password-hidden.png"
+                    : "/assets/password-shown.png"
+                }
+                alt={isPasswordHidden ? "Show password" : "Hide password"}
+                onClick={togglePasswordVisibility}
+              />
+            </div>
+            {/* <ErrorMessage className="error-field" name="password" /> */}
+            {errors.password ? (
+              <div className="error-field">{errors.password.message}</div>
+            ) : null}
+          </div>
 
-              {!isLoginForm && (
-                <>
-                  {/* confirmPassword field */}
-                  <div className="form-group">
-                    <Field
-                      type={isPasswordHidden ? "password" : "text"}
-                      name="confirmPassword"
-                      className="input"
-                      placeholder="Enter password again"
-                    />
-                    {/* <ErrorMessage
+          {!isLoginForm && (
+            <>
+              {/* confirmPassword field */}
+              <div className="form-group">
+                <input
+                  type={isPasswordHidden ? "password" : "text"}
+                  className="input"
+                  placeholder="Enter password again"
+                  {...register("confirmPassword")}
+                />
+                {/* <ErrorMessage
                       className="error-field"
                       name="confirmPassword"
                     /> */}
-                    {errors.confirmPassword && touched.confirmPassword ? (
-                      <div className="error-field">
-                        {errors.confirmPassword}
-                      </div>
-                    ) : null}
+                {errors.confirmPassword ? (
+                  <div className="error-field">
+                    {errors.confirmPassword.message}
                   </div>
-
-                  {/* about field */}
-                  <div className="form-group">
-                    <Field
-                      name="about"
-                      as="textarea"
-                      className="input"
-                      placeholder="Tell us about yourself ..."
-                      rows={3}
-                      style={{ resize: "none" }}
-                    />
-                    {/* <ErrorMessage className="error-field" name="about" /> */}
-                    {errors.about && touched.about ? (
-                      <div className="error-field">{errors.about}</div>
-                    ) : null}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {isLoginForm && (
-              <div className="flex justify-between ">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    name="remember-me"
-                    id="remember-me"
-                    className="block w-4 h-4 custom__checkbox-input"
-                    onChange={(e) => {
-                      setValues((prevData) => ({
-                        ...prevData,
-                        rememberMe: e.target.checked,
-                      }));
-                    }}
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="flex justify-center custom__checkbox-label"
-                  >
-                    <span className="custom__checkbox-button"></span>
-                    Remember me
-                  </label>
-                </div>
-                <a href={"/forgot-password"} className="underline">
-                  Forgot password?
-                </a>
+                ) : null}
               </div>
-            )}
 
-            <LoadingButton
-              type="submit"
-              disabled={isSubmitting}
-              className={cn("button flex-center gap-2")}
-              isLoading={isSubmitting}
-            >
-              {isLoginForm ? "Sign in" : "Sign up"}
-            </LoadingButton>
+              {/* about field */}
+              <div className="form-group">
+                <textarea
+                  className="input"
+                  placeholder="Tell us about yourself ..."
+                  rows={3}
+                  style={{ resize: "none" }}
+                  {...register("about")}
+                />
+                {/* <ErrorMessage className="error-field" name="about" /> */}
+                {errors.about ? (
+                  <div className="error-field">{errors.about.message}</div>
+                ) : null}
+              </div>
+            </>
+          )}
+        </div>
 
-            <p className="font-light text-center">
-              {isLoginForm
-                ? "Don't have an account yet? "
-                : "Already have an account? "}
-              <strong
-                className="cursor-pointer underline"
-                onClick={() => {
-                  toggleLoginForm();
-                  resetForm();
-                }}
+        {isLoginForm && (
+          <div className="flex justify-between ">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="remember-me"
+                className="block w-4 h-4 custom__checkbox-input"
+                {...register("rememberMe")}
+              />
+              <label
+                htmlFor="remember-me"
+                className="flex justify-center custom__checkbox-label"
               >
-                {isLoginForm ? "Sign up" : "Login"}
-              </strong>
-            </p>
-          </Form>
+                <span className="custom__checkbox-button"></span>
+                Remember me
+              </label>
+            </div>
+            <a href={"/forgot-password"} className="underline">
+              Forgot password?
+            </a>
+          </div>
         )}
-      </Formik>
+
+        <LoadingButton
+          type="submit"
+          disabled={isSubmitting}
+          className={cn("button flex-center gap-2")}
+          isLoading={isSubmitting}
+        >
+          {isLoginForm ? "Sign in" : "Sign up"}
+        </LoadingButton>
+
+        <p className="font-light text-center">
+          {isLoginForm
+            ? "Don't have an account yet? "
+            : "Already have an account? "}
+          <strong
+            className="cursor-pointer underline"
+            onClick={() => {
+              toggleLoginForm();
+              reset();
+              clearErrors();
+            }}
+          >
+            {isLoginForm ? "Sign up" : "Login"}
+          </strong>
+        </p>
+      </form>
     </div>
   );
 };

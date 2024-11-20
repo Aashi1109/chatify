@@ -1,4 +1,3 @@
-import { formatTimeAgo } from "@/lib/helpers/timeHelper";
 import React from "react";
 import CircleAvatar from "../../CircleAvatar";
 import MessageDeliveryIconFromStatus from "../../MessageDeliveryIconFromStatus";
@@ -11,18 +10,17 @@ const ChatItemCard: React.FC<{
   isCurrentUserChat: boolean;
   user: IUser;
   message: IMessage;
-  showBottomDate?: boolean;
   showUserInfo?: boolean;
 }> = ({
   RenderComponent,
   isCurrentUserChat,
   user,
   message,
-  showBottomDate,
   showUserInfo = true,
 }) => {
   const isSystemMessage = message.category === EMessageCategory.System;
 
+  const sentAtDate = new Date(message.sentAt);
   return (
     <div
       className={cn("w-full flex rounded-lg justify-start gap-2", {
@@ -63,14 +61,18 @@ const ChatItemCard: React.FC<{
           )}
         </div>
 
-        {!isSystemMessage && showBottomDate && (
+        {!isSystemMessage && (
           <div
             className={cn("self-end flex-center gap-2 mr-1", {
               "self-start": !isCurrentUserChat,
             })}
           >
             <div className="text-gray-500 dark:text-gray-300 text-2xs">
-              {formatTimeAgo(new Date(message.sentAt))}
+              {sentAtDate.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              })}
             </div>
           </div>
         )}

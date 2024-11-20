@@ -18,7 +18,8 @@ import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import UserChip from "../chip/UserChip";
 import { addConversation, setInteractionData } from "@/features/chatSlice";
-import { useFormik } from "formik";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 let fileData: IFileInterface | null = null;
 
@@ -44,7 +45,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
     fileData && (previousFileData.current = null);
   };
 
-  const onSubmit = async (values: { name: string; description: string }) => {
+  const onSubmit = async (data: any) => {
     const groupCreationData: IConversation = {
       name: "",
       description: "",
@@ -71,8 +72,8 @@ const GroupForm = ({ handleModalClose }: IProps) => {
       groupCreationData.participants =
         selectedUsers?.map((user) => user.id as string) ?? [];
       groupCreationData.participants.push(currentUser?._id as string);
-      groupCreationData.name = values.name;
-      groupCreationData.description = values.description;
+      groupCreationData.name = data?.name;
+      groupCreationData.description = data?.description;
       groupCreationData.creator = currentUser?._id || "";
 
       const createdGroupData = await createConversation(groupCreationData);
@@ -100,13 +101,15 @@ const GroupForm = ({ handleModalClose }: IProps) => {
     }
   };
 
-  const formik = useFormik({
-    initialValues,
-    validationSchema: groupValidationSchema,
-    onSubmit: onSubmit,
+  const {
+    register,
+    formState: { errors, isSubmitting, isValid },
+    setValue,
+    handleSubmit,
+  } = useForm({
+    defaultValues: initialValues,
+    resolver: yupResolver(groupValidationSchema),
   });
-
-  const { errors, touched, setFieldValue } = formik;
 
   const handleSelectedUser = (selectedUser: IUser) => {
     const isUserSelected = selectedUsers?.find(
@@ -120,7 +123,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
       ];
       setSelectedUsers(newSelectedUsers);
       const participantsId = newSelectedUsers.map((user) => user.id);
-      setFieldValue("participants", participantsId);
+      setValue("participants", participantsId as string[]);
       setFilteredUsers(
         (filteredUsers || [])?.filter((user) => user._id !== selectedUser._id)
       );
@@ -156,7 +159,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
       setSelectedUsers(newSelectedUsers);
 
       const participantsId = newSelectedUsers.map((user) => user.id);
-      setFieldValue("participants", participantsId);
+      setValue("participants", participantsId as string[]);
       const userData = users?.find((user) => user._id === id);
       if (userData) {
         setFilteredUsers([userData, ...(filteredUsers || [])]);
@@ -184,7 +187,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
       <form
         className="flex flex-col gap-4 w-full"
         id="group-form"
-        onSubmit={formik.handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className="flex-center gap-8">
           <FileInput
@@ -201,30 +204,24 @@ const GroupForm = ({ handleModalClose }: IProps) => {
           <div className="flex-col flex gap-4">
             <div className="form-group">
               <input
-                name="name"
                 className="input"
                 placeholder={"Group name"}
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                {...register("name")}
               />
-              {errors.name && touched.name ? (
-                <div className="error-field">{errors.name}</div>
+              {errors.name ? (
+                <div className="error-field">{errors.name.message}</div>
               ) : null}
             </div>
             <div className="form-group">
               <textarea
-                name="description"
                 className="input"
                 placeholder={"About group "}
                 rows={3}
                 style={{ resize: "none" }}
-                value={formik.values.description}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                {...register("description")}
               />
-              {errors.description && touched.description ? (
-                <div className="error-field">{errors.description}</div>
+              {errors.description ? (
+                <div className="error-field">{errors.description.message}</div>
               ) : null}
             </div>
           </div>
@@ -268,8 +265,10 @@ const GroupForm = ({ handleModalClose }: IProps) => {
               </div>
             </div>
 
-            {errors.participants && touched.participants ? (
-              <div className="error-field mt-1">{errors.participants}</div>
+            {errors.participants ? (
+              <div className="error-field mt-1">
+                {errors.participants.message}
+              </div>
             ) : null}
           </div>
         )}
@@ -277,8 +276,8 @@ const GroupForm = ({ handleModalClose }: IProps) => {
           type="submit"
           form="group-form"
           className="button"
-          disabled={formik.isSubmitting || !formik.isValid}
-          isLoading={formik.isSubmitting}
+          disabled={isSubmitting || !isValid}
+          isLoading={isSubmitting}
         >
           Create group
         </LoadingButton>

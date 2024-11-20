@@ -39,14 +39,14 @@ const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
   );
 
   return Object.entries(messageGroups || {}).map(([key, _messages]) => {
-    let previousMessageId: string | null = null;
+    let previousMessageUserId: string | null = null;
     return (
       <div key={key} className="w-full flex flex-col gap-2">
         <SystemMessage message={key} />
         {_messages.map((message) => {
           const isPreviousMessageFromCurrentUser =
-            message?.user?._id === previousMessageId;
-          previousMessageId = message?.user?._id;
+            message?.user === previousMessageUserId;
+          previousMessageUserId = message?.user;
           return (
             <ChatItemCard
               key={message._id}
@@ -54,7 +54,6 @@ const ChatMessages = ({ messages }: { messages: IMessage[] }) => {
               isCurrentUserChat={currentUser?._id === message.user}
               RenderComponent={ChatText}
               message={message}
-              showBottomDate={key === "Today" || key === "Yesterday"}
               showUserInfo={!isPreviousMessageFromCurrentUser}
             />
           );

@@ -23,6 +23,7 @@ import { logout } from "@/features/authSlice.ts";
 import { logoutUser } from "@/actions/form.ts";
 import { ITheme } from "@/definitions/type.tsx";
 import { setTheme } from "@/features/uiSlice.ts";
+import Profile from "../forms/Profile.tsx";
 
 const UserProfileActionDropdown: FC<{
   profileImage: IUser["profileImage"];
@@ -40,6 +41,12 @@ const UserProfileActionDropdown: FC<{
     RenderModal: RenderChatForm,
     handleModalOpen: openChatModal,
     handleModalClose: handleChatModalClose,
+  } = useModal();
+
+  const {
+    RenderModal: RenderProfileForm,
+    handleModalOpen: openProfileModal,
+    // handleModalClose: handleProfileModalClose,
   } = useModal();
 
   const handleLogout = async () => {
@@ -76,13 +83,11 @@ const UserProfileActionDropdown: FC<{
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={openProfileModal}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
+
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -103,26 +108,23 @@ const UserProfileActionDropdown: FC<{
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-          </DropdownMenuGroup>
 
-          {/* show only on mobile screens */}
-          <DropdownMenuSeparator className={"block sm:hidden"} />
-          <DropdownMenuGroup className={"block sm:hidden"}>
-            <DropdownMenuItem onClick={openChatModal}>
-              <MessageCircle className={"mr-2 h-4 w-4"} />
-              <span>New chat</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={openGroupModal}>
-              <Users className={"mr-2 h-4 w-4"} />
-              <span>New group</span>
+            <DropdownMenuGroup className={"block sm:hidden"}>
+              <DropdownMenuItem onClick={openChatModal}>
+                <MessageCircle className={"mr-2 h-4 w-4"} />
+                <span>New chat</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={openGroupModal}>
+                <Users className={"mr-2 h-4 w-4"} />
+                <span>New group</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
+            <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
-
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -133,6 +135,10 @@ const UserProfileActionDropdown: FC<{
       <RenderChatForm>
         <NewChatForm handleModalClose={handleChatModalClose} />
       </RenderChatForm>
+
+      <RenderProfileForm>
+        <Profile />
+      </RenderProfileForm>
     </>
   );
 };

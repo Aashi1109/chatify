@@ -8,7 +8,6 @@ import {
   IFileInterface,
   IUser,
 } from "@/definitions/interfaces";
-import { createUrlWithQueryParams } from "@/lib/helpers/generalHelper";
 
 const checkUsernameExists = async (username: string) => {
   const requestUrl = `/users/query?username=` + username;
@@ -16,7 +15,7 @@ const checkUsernameExists = async (username: string) => {
     const response = await axiosClient.get(requestUrl);
     const data = response.data;
 
-    if (data?.data?.username) {
+    if (data?.data?.length) {
       return true;
     }
     return false;
@@ -88,6 +87,17 @@ const createUser = async (
   }
 };
 
+const updateUser = async (userId: string, data: any) => {
+  const requestUrl = `/users/${userId}`;
+  try {
+    const response = await axiosClient.patch(requestUrl, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user : ", error);
+    throw error;
+  }
+};
+
 const getUserData = async (userId: string): Promise<IUser | null> => {
   const requestUrl = `/users/${userId}`;
 
@@ -111,7 +121,7 @@ const getUserConversations = async ({
   conversationId?: string;
   query?: string;
 }) => {
-  const requestUrl = `/conversation/query?populate=true${query ?? ""}`;
+  const requestUrl = `/conversations/query?populate=true${query ?? ""}`;
 
   try {
     const response = await axiosClient.post(requestUrl, {
@@ -124,27 +134,6 @@ const getUserConversations = async ({
     console.error("Error getting user conversations : ", error);
     const errorMessage = error?.response?.data?.error;
     throw errorMessage;
-  }
-};
-
-const getUserChatData = async (
-  chatId: string,
-  options: {
-    populate?: boolean;
-    limit?: number;
-    sortBy?: "createdAt" | "updatedAt";
-    sortOrder?: "asc" | "desc";
-  } = {}
-) => {
-  const requestUrl = `/conversation/${chatId}`;
-
-  const modifiedUrl = createUrlWithQueryParams(requestUrl, options);
-  try {
-    const response = await axiosClient.get(modifiedUrl);
-    return response.data;
-  } catch (error) {
-    console.error("Error getting user chats : ", error);
-    throw error;
   }
 };
 
@@ -167,7 +156,7 @@ const createConversation = async ({
   description,
   creator,
 }: IConversation): Promise<object | any> => {
-  const requestUrl = `/conversation`;
+  const requestUrl = `/conversations`;
   try {
     const response = await axiosClient.post(requestUrl, {
       participants,
@@ -185,7 +174,7 @@ const createConversation = async ({
 };
 
 const getConversationById = async (conversationId: string) => {
-  const requestUrl = `/conversation/${conversationId}`;
+  const requestUrl = `/conversations/${conversationId}`;
   try {
     const response = await axiosClient.get(requestUrl);
     return response.data;
@@ -199,7 +188,7 @@ const getMessagesByQuery = async (conversationId: string, params: any) => {
   try {
     // Convert params to query string
     const queryString = new URLSearchParams(params).toString();
-    const requestUrl = `/conversation/${conversationId}/messages/query?${queryString}`;
+    const requestUrl = `/conversations/${conversationId}/messages/query?${queryString}`;
     const response = await axiosClient.get(requestUrl);
     return response.data;
   } catch (error) {
@@ -229,12 +218,12 @@ export const logoutUser = async () => {
 };
 
 export {
+  updateUser,
   checkUsernameExists,
   createConversation,
   createUser,
   getAllUser,
   getConversationById,
-  getUserChatData,
   getUserConversations,
   getUserData,
   loginUser,
