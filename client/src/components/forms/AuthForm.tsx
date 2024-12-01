@@ -12,10 +12,11 @@ import { setAuth } from "@/features/authSlice";
 import { useAppDispatch } from "@/hook";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import LoadingButton from "../ui/LoadingButton";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import PasswordInput from "../inputs/PasswordInput";
 
 const fileData: { profileImage: null | IFileInterface } = {
   profileImage: null,
@@ -23,14 +24,15 @@ const fileData: { profileImage: null | IFileInterface } = {
 
 const AuthForm: React.FC<{
   setFormValue?: (formData: object) => void;
-
   isLogin?: boolean;
 }> = ({ setFormValue, isLogin }) => {
   const navigate = useNavigate();
   const dispatcher = useAppDispatch();
+  const [searchParams] = useSearchParams();
 
-  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
-  const [isLoginForm, setIsLoginForm] = useState(isLogin ?? true);
+  const [isLoginForm, setIsLoginForm] = useState(
+    searchParams.get("type") === "login" ?? isLogin ?? true
+  );
 
   const formInitialValues = {
     username: "",
@@ -54,14 +56,9 @@ const AuthForm: React.FC<{
     defaultValues: formInitialValues,
     resolver: yupResolver(authFormValidationSchemaWrapper),
     context: { isLoginForm },
-    mode: "onChange",
   });
 
   const username = watch("username");
-
-  const togglePasswordVisibility = () => {
-    setIsPasswordHidden((prevState) => !prevState);
-  };
 
   const toggleLoginForm = () => {
     setIsLoginForm((prevState) => !prevState);
@@ -157,11 +154,19 @@ const AuthForm: React.FC<{
 
   useEffect(() => {
     const _func = async () => {
+      if (!username) {
+        return;
+      }
       const result = await validateUsername(username);
       result && setError("username", { message: result });
     };
 
-    !isLoginForm && _func();
+    // Add debounce to avoid too many API calls
+    const timeoutId = setTimeout(() => {
+      !isLoginForm && _func();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [username]);
 
   return (
@@ -212,54 +217,15 @@ const AuthForm: React.FC<{
             ) : null}
           </div>
           {/* password field */}
-          <div className="form-group">
-            <div className="relative">
-              <input
-                type={isPasswordHidden ? "password" : "text"}
-                className="input"
-                placeholder="Enter password"
-                {...register("password")}
-              />
-              <img
-                width={25}
-                height={25}
-                className="absolute p-1 hover:bg-gray-700 rounded-md right-2 top-[50%] translate-y-[-50%] cursor-pointer"
-                src={
-                  isPasswordHidden
-                    ? "/assets/password-hidden.png"
-                    : "/assets/password-shown.png"
-                }
-                alt={isPasswordHidden ? "Show password" : "Hide password"}
-                onClick={togglePasswordVisibility}
-              />
-            </div>
-            {/* <ErrorMessage className="error-field" name="password" /> */}
-            {errors.password ? (
-              <div className="error-field">{errors.password.message}</div>
-            ) : null}
-          </div>
+          <PasswordInput
+            register={register}
+            errors={errors}
+            showConfirmPassword={!isLoginForm}
+            classes="gap-6"
+          />
 
           {!isLoginForm && (
             <>
-              {/* confirmPassword field */}
-              <div className="form-group">
-                <input
-                  type={isPasswordHidden ? "password" : "text"}
-                  className="input"
-                  placeholder="Enter password again"
-                  {...register("confirmPassword")}
-                />
-                {/* <ErrorMessage
-                      className="error-field"
-                      name="confirmPassword"
-                    /> */}
-                {errors.confirmPassword ? (
-                  <div className="error-field">
-                    {errors.confirmPassword.message}
-                  </div>
-                ) : null}
-              </div>
-
               {/* about field */}
               <div className="form-group">
                 <textarea

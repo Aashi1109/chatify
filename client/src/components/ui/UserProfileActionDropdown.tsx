@@ -24,11 +24,13 @@ import { logoutUser } from "@/actions/form.ts";
 import { ITheme } from "@/definitions/type.tsx";
 import { setTheme } from "@/features/uiSlice.ts";
 import Profile from "../forms/Profile.tsx";
+import { useNavigate } from "react-router-dom";
 
 const UserProfileActionDropdown: FC<{
   profileImage: IUser["profileImage"];
   name: string;
 }> = ({ profileImage, name }) => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const {
@@ -53,6 +55,7 @@ const UserProfileActionDropdown: FC<{
     try {
       await logoutUser();
       dispatch(logout());
+      navigate("/auth?type=login");
     } catch (error) {
       console.error(`Error logging out: ${error}`);
     }

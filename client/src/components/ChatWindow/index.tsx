@@ -7,7 +7,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/hook";
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
 import { cn } from "@/lib/utils";
-import { Loader2, Phone, Send, X } from "lucide-react";
+import { ChevronLeftIcon, Loader2, Phone, Send, X } from "lucide-react";
 import {
   useEffect,
   useImperativeHandle,
@@ -16,14 +16,15 @@ import {
   forwardRef,
   useMemo,
 } from "react";
-import { twMerge } from "tailwind-merge";
 
 import CircleAvatar from "../CircleAvatar";
-import NewConversationGreetMessage from "../NewConversationGreetMessage";
+import NewConversationGreetMessage from "./components/NewConversationGreetMessage";
 import { Socket } from "socket.io-client";
 import {
+  EConversationEvents,
   EConversationTypes,
   EMessageCategory,
+  EMessageType,
   ESocketMessageEvents,
   EToastType,
 } from "@/definitions/enums";
@@ -42,22 +43,20 @@ interface ChatWindowRef {
   scrollToBottom: () => void;
   setIsTyping: (isTyping: boolean) => void;
   addMessages: (messages: IMessage[]) => void;
+  updateMessages: (data: Record<string, Partial<IMessage>>) => void;
 }
 
 // Update the component definition to use ForwardedRef
 const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
   useImperativeHandle(ref, () => ({
-    scrollToBottom: () => {
-      if (chatInputRef.current) {
-        chatInputRef.current.focus();
-      }
-    },
+    scrollToBottom,
     setIsTyping: (isTyping: boolean) => {
       setIsTyping(isTyping);
     },
     addMessages: (messages: IMessage[]) => {
       setMessages((prev) => [...messages, ...(prev || [])]);
     },
+    updateMessages,
   }));
 
   const dispatch = useAppDispatch();
@@ -84,8 +83,12 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
   const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
   const [isFetchingMoreMessages, setIsFetchingMoreMessages] =
     useState<boolean>(false);
+  // TODO: set typings later
+  const [conversationDetails, setConversationDetails] = useState<any>(null);
 
-  const [messages, setMessages] = useState<IMessage[] | null>([]);
+  const [messages, setMessages] = useState<
+    (IMessage & { tid?: string })[] | null
+  >([]);
 
   const interactionUserImageUrl =
     typedInteractionUser?.profileImage?.url || "/assets/user.png";
@@ -109,6 +112,17 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
     }
   };
 
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      if (typingIndicatorRef.current) {
+        typingIndicatorRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }
+    });
+  };
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -116,15 +130,21 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
       return;
     }
 
-    const messageData = {
+    const tid = new Date().toISOString();
+    const messageData: IMessage & { tid: string } = {
       content: chatTextarea,
       user: currentUser?._id || "",
-      type: "text",
+      type: EMessageType.Text,
       category: EMessageCategory.User,
-      conversationId: interactionData?.conversation?._id,
+      conversation: interactionData?.conversation?._id || "",
+      sentAt: tid,
+      // this is just temporary id to update the message after socket sends backs data
+      tid,
+      stats: {},
     };
 
     try {
+      setMessages((prev) => [messageData, ...(prev || [])]);
       socket.emit(
         ESocketMessageEvents.NEW_MESSAGE,
         { ...messageData },
@@ -136,7 +156,6 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
           error?: any;
         }) => {
           handleSocketCallbackError(error, () => {
-            setMessages((prev) => [data!.message, ...(prev || [])]);
             dispatch(
               updateConversation({
                 id: data!.conversationId,
@@ -145,13 +164,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
                 },
               })
             );
-            setTimeout(() => {
-              if (typingIndicatorRef.current) {
-                typingIndicatorRef.current.scrollIntoView({
-                  behavior: "smooth",
-                });
-              }
-            }, 300);
+            updateMessages({ [tid]: { ...data!.message } });
           });
         }
       );
@@ -163,6 +176,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
 
       setChatTextarea("");
       setIsUserScrolling(false);
+      scrollToBottom();
     } catch (error) {
       console.error("Error creating message : ", error);
       throw error;
@@ -204,6 +218,7 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
 
     setMessages(newMessages);
     lastMessageDateRef.current = _messages?.[_messages?.length - 1]?.sentAt;
+
     fetchMoreMessagesRef.current =
       _messages?.length === config.conversation.fetchLimit;
   }
@@ -215,6 +230,12 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
         setIsLoadingData(true);
         try {
           await fetchDispatchMessages();
+          scrollToBottom();
+
+          // emit event for current chat window
+          socket.emit(EConversationEvents.CurrentChatWindow, {
+            conversation: interactionData?.conversation?._id,
+          });
         } catch (error) {
           console.error("Error fetching messages data:", error);
         } finally {
@@ -229,9 +250,9 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
   useEffect(() => {
     // Add a small delay to ensure the DOM has updated
     if (typingIndicatorRef.current && !isUserScrolling) {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         typingIndicatorRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 300);
+      });
     }
   }, [isUserScrolling, isTyping, messages]);
 
@@ -271,167 +292,255 @@ const ChatWindow = forwardRef<ChatWindowRef, IProps>(({ socket }, ref) => {
     }, 2000);
   };
 
+  const updateMessages = (data: Record<string, Partial<IMessage>>) => {
+    setMessages((prev) => {
+      const messages = [...(prev || [])];
+      const _updatedData = { ...data };
+      for (let i = 0; i <= messages.length - 1; i++) {
+        // if message has tid, then use it as id to update the message and then clear it
+        const { tid, ...restMessage } = messages[i];
+        const messageId = tid || messages[i]._id || "";
+        const update = _updatedData[messageId];
+
+        if (update) {
+          messages[i] = {
+            ...restMessage,
+            ...update,
+            stats: {
+              ...restMessage.stats,
+              ...(update.stats || {}),
+            },
+          };
+          delete _updatedData[messageId];
+        }
+
+        if (tid) {
+          delete messages[i].tid;
+        }
+
+        if (Object.keys(_updatedData).length === 0) break;
+      }
+      return messages;
+    });
+  };
+
+  const handleUnreadMessages = (unreadIds: string[]) => {
+    // Handle unread messages here
+    socket.emit(
+      ESocketMessageEvents.MESSAGE_UPDATE,
+      {
+        messages: unreadIds,
+        readAt: new Date().toISOString(),
+        conversation: interactionData?.conversation?._id,
+      },
+      ({ error, data }: { error: any; data: any }) =>
+        handleSocketCallbackError(error, () => {
+          dispatch(
+            updateConversation({
+              id: interactionData?.conversation?._id || "",
+              data: {
+                chatsNotRead: 0,
+                lastRead: unreadIds.pop(),
+              },
+            })
+          );
+          updateMessages(data?.data || {});
+        })
+    );
+  };
+
   return (
-    <section
-      className={cn("flex-col gap-4 w-full hidden sm:flex", {
-        flex: interactionData?.conversation?._id,
-      })}
-    >
-      {/* chat head */}
-      {isChatWindowOpen && (
-        <div className={twMerge("flex items-center justify-between")}>
-          <div className="flex items-center gap-4 flex-1">
-            <CircleAvatar
-              alt={"user image"}
-              imageUrl={isGroupChat ? groupImageUrl : interactionUserImageUrl}
-              fallback={
-                (isGroupChat
-                  ? interactionData?.conversation?.name
-                  : typedInteractionUser?.name
-                )
-                  ?.slice(0, 1)
-                  ?.toUpperCase() || ""
-              }
-            />
-
-            <div className="flex flex-col justify-center items-start flex-nowrap">
-              <p className="font-semibold text-ellipsis text-base">
-                {isGroupChat
-                  ? interactionData?.conversation?.name
-                  : typedInteractionUser?.name}
-              </p>
-              <div className="grid grid-cols-[1fr_auto] w-full gap-2">
-                <div className="overflow-hidden">
-                  {!isGroupChat && (
-                    <p className="text-sm flex-start gap-1">
-                      {typedInteractionUser?.isActive ? (
-                        <>
-                          <div className="h-2 w-2 rounded-full animate-pulse bg-green-600" />
-                          <p className="text-xs">Active</p>
-                        </>
-                      ) : typedInteractionUser?.lastSeenAt ? (
-                        `Last seen on ${formatTimeAgo(
-                          new Date(typedInteractionUser?.lastSeenAt)
-                        )}`
-                      ) : (
-                        "Last seen just now"
-                      )}
-                    </p>
-                  )}
-                  {isGroupChat && (
-                    <p className="text-sm truncate">
-                      {interactionData.conversation?.description}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <Button className="p-1 h-9 w-9">
-              <Phone className="h-5 w-5" />
-            </Button>
-            <Button
-              className="p-1 h-9 w-9"
+    <section className="w-full overflow-hidden relative hidden sm:flex rounded-md">
+      {/* conversation window where conversation will be happening */}
+      <div
+        className={cn("flex-col gap-4 w-full", {
+          flex: interactionData?.conversation?._id,
+        })}
+      >
+        {/* chat head */}
+        {isChatWindowOpen && (
+          <div className={"flex items-center justify-between"}>
+            <div
+              className="flex items-center gap-4 cursor-pointer"
               onClick={() => {
-                setMessages(null);
-                dispatch(
-                  setInteractionData({
-                    conversationData: null,
-                    closeChatWindow: true,
-                  })
-                );
+                setConversationDetails({});
               }}
             >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* chat window */}
-      {isChatWindowOpen && (
-        <div className="flex flex-col bg-gray-200 dark:bg-gray-600 rounded-xl p-4 overflow-hidden flex-1 relative">
-          {isLoadingData ? (
-            <div className="flex-1 h-full flex-center">
-              <Loader2 className="animate-spin w-10 h-10" />
-            </div>
-          ) : (
-            <>
-              {isFetchingMoreMessages && (
-                <div className="absolute top-2 left-[50%] translate-x-[-50%] flex-center gap-1">
-                  <Loader2 className="animate-spin w-3 h-3" />
-                  <p className="text-xs">Loading messages...</p>
-                </div>
-              )}
-              {/* messages container */}
-              <div
-                className={cn(
-                  "flex flex-col-reverse gap-4 overflow-y-auto h-[calc(100vh-11rem)] overflow-x-hidden w-full flex-1 relative",
-                  {
-                    "items-center": !messages?.length,
-                  }
-                )}
-                onScroll={handleScroll}
-              >
-                {/* Typing indicator at the bottom */}
-                <div
-                  className={cn("flex", { hidden: !isTyping })}
-                  ref={typingIndicatorRef}
-                >
-                  <TypingIndicator />
-                </div>
-                {messages?.length ? (
-                  <ChatMessages messages={messages} />
-                ) : (
-                  !isInputContentPresent &&
-                  !isGroupChat && (
-                    <div
-                      className="max-w-[70%] mb-8 cursor-pointer mt-auto"
-                      onClick={handleGreetMessageClick}
-                    >
-                      <NewConversationGreetMessage
-                        name={typedInteractionUser.name || ""}
-                      />
-                    </div>
+              <CircleAvatar
+                alt={"user image"}
+                imageUrl={isGroupChat ? groupImageUrl : interactionUserImageUrl}
+                fallback={
+                  (isGroupChat
+                    ? interactionData?.conversation?.name
+                    : typedInteractionUser?.name
                   )
-                )}
+                    ?.slice(0, 1)
+                    ?.toUpperCase() || ""
+                }
+              />
+
+              <div className="flex flex-col justify-center items-start flex-nowrap">
+                <p className="font-semibold text-ellipsis text-base">
+                  {isGroupChat
+                    ? interactionData?.conversation?.name
+                    : typedInteractionUser?.name}
+                </p>
+                <div className="grid grid-cols-[1fr_auto] w-full gap-2">
+                  <div className="overflow-hidden">
+                    {!isGroupChat && (
+                      <p className="text-sm flex-start gap-1">
+                        {typedInteractionUser?.isActive ? (
+                          <>
+                            <div className="h-2 w-2 rounded-full animate-pulse bg-green-600" />
+                            <p className="text-xs">Active</p>
+                          </>
+                        ) : typedInteractionUser?.lastSeenAt ? (
+                          `Last seen on ${formatTimeAgo(
+                            new Date(typedInteractionUser?.lastSeenAt)
+                          )}`
+                        ) : (
+                          "Last seen just now"
+                        )}
+                      </p>
+                    )}
+                    {isGroupChat && (
+                      <p className="text-sm truncate">
+                        {interactionData.conversation?.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
+            </div>
 
-              {/* chat send buttons */}
-              <form
-                className="flex gap-4 items-start mt-4"
-                onSubmit={handleFormSubmit}
+            <div className="flex gap-4">
+              <Button className="p-1 h-9 w-9">
+                <Phone className="h-5 w-5" />
+              </Button>
+              <Button
+                className="p-1 h-9 w-9"
+                onClick={() => {
+                  setMessages(null);
+                  dispatch(
+                    setInteractionData({
+                      conversationData: null,
+                      closeChatWindow: true,
+                    })
+                  );
+                }}
               >
-                <textarea
-                  className="h-full rounded-lg flex-1 py-2 px-4 text-black"
-                  placeholder="Write message"
-                  style={{ resize: "none" }}
-                  value={chatTextarea}
-                  onChange={handleTextAreaChange}
-                  ref={chatInputRef}
-                  onKeyDown={handleKeyDown}
-                />
-                <Button
-                  onClick={() => {}}
-                  className="p-1 h-9 w-9"
-                  disabled={!isInputContentPresent}
-                  type="submit"
-                >
-                  <Send className="h-5 w-5" />
-                </Button>
-              </form>
-            </>
-          )}
-        </div>
-      )}
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        )}
 
-      {!interactionData && !isLoadingData && (
-        <div className="flex-center flex-1">
-          <p>Click on a conversation to continue.</p>
+        {/* chat window */}
+        {isChatWindowOpen && (
+          <div className="flex flex-col bg-gray-200 dark:bg-gray-600 p-4 overflow-hidden flex-1 relative">
+            {isLoadingData ? (
+              <div className="flex-1 h-full flex-center">
+                <Loader2 className="animate-spin w-10 h-10" />
+              </div>
+            ) : (
+              <>
+                {isFetchingMoreMessages && (
+                  <div className="absolute top-2 left-[50%] translate-x-[-50%] flex-center gap-1">
+                    <Loader2 className="animate-spin w-3 h-3" />
+                    <p className="text-xs">Loading messages...</p>
+                  </div>
+                )}
+                {/* messages container */}
+                <div
+                  className={cn(
+                    "flex flex-col-reverse gap-3 overflow-y-auto h-[calc(100vh-11rem)] overflow-x-hidden w-full flex-1 relative",
+                    {
+                      "items-center": !messages?.length,
+                    }
+                  )}
+                  // style={{ justifyContent: "start" }}
+                  onScroll={handleScroll}
+                >
+                  {/* Typing indicator at the bottom */}
+                  <div
+                    className={cn("flex", {
+                      "h-0 overflow-hidden -mt-3": !isTyping,
+                    })}
+                    ref={typingIndicatorRef}
+                  >
+                    <TypingIndicator />
+                  </div>
+
+                  {messages?.length ? (
+                    <ChatMessages
+                      messages={messages}
+                      onUnreadMessagesFound={handleUnreadMessages}
+                    />
+                  ) : (
+                    !isInputContentPresent &&
+                    !isGroupChat && (
+                      <div
+                        className="max-w-[70%] mb-8 cursor-pointer mt-auto"
+                        onClick={handleGreetMessageClick}
+                      >
+                        <NewConversationGreetMessage
+                          name={typedInteractionUser.name || ""}
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
+
+                {/* chat send buttons */}
+                <form
+                  className="flex gap-4 items-start mt-4"
+                  onSubmit={handleFormSubmit}
+                >
+                  <textarea
+                    className="h-full rounded-lg flex-1 py-2 px-4 text-black"
+                    placeholder="Write message"
+                    style={{ resize: "none" }}
+                    value={chatTextarea}
+                    onChange={handleTextAreaChange}
+                    ref={chatInputRef}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <Button
+                    onClick={() => {}}
+                    className="p-1 h-9 w-9"
+                    disabled={!isInputContentPresent}
+                    type="submit"
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </form>
+              </>
+            )}
+          </div>
+        )}
+
+        {!interactionData && !isLoadingData && (
+          <div className="flex-center flex-1 m-auto h-full">
+            <p>Click on a conversation to continue.</p>
+          </div>
+        )}
+      </div>
+
+      {/* window to show details of conversation(user/group) */}
+      <div
+        className={cn(
+          "absolute z-1 top-0 right-0 w-0 transition-[width] duration-300 ease-out bg-gray-200 dark:bg-gray-600 p-0 overflow-x-hidden",
+          { "w-full p-4": conversationDetails }
+        )}
+      >
+        <div className="flex-start gap-2 min-w-[200px]">
+          <ChevronLeftIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => setConversationDetails(null)}
+          />
+          <p className="text-xl">Info</p>
         </div>
-      )}
+      </div>
     </section>
   );
 });

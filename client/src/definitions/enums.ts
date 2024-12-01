@@ -34,6 +34,7 @@ export enum ESocketMessageEvents {
 export enum EConversationEvents {
   JoinConversation = "conversation:join",
   LeaveConversation = "conversation:leave",
+  CurrentChatWindow = "conversation:currentChatWindow",
 }
 
 export enum EMessageCategory {

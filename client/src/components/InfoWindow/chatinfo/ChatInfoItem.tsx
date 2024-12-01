@@ -5,31 +5,34 @@ import React from "react";
 import CircleAvatar from "../../CircleAvatar";
 import { cn } from "@/lib/utils";
 import { formatTimeAgo } from "@/lib/helpers/timeHelper";
-import MessageDeliveryIconFromStatus from "../../MessageDeliveryIconFromStatus";
-import { EConversationTypes } from "@/definitions/enums";
+import MessageDeliveryIconFromStatus from "../../ChatWindow/components/MessageDeliveryIconFromStatus";
 
 const ChatInfoItem: React.FC<{
   chatData: IConversationInfoItem;
   classes?: string;
 }> = ({ chatData, classes }) => {
-  const { conversation, user, lastMessage } = chatData;
+  const {
+    conversation,
+    displayInfo,
+    isTyping,
+    chatsNotRead,
+    lastMessage,
+    lastRead,
+    isGroupConversation,
+  } = chatData;
 
   const dispatcher = useAppDispatch();
-
-  const isGroupConversation =
-    chatData.conversation.type === EConversationTypes.GROUP;
 
   const handleChatInfoItemClick = () => {
     dispatcher(
       setInteractionData({
-        conversationData: { user: user || null, conversation },
+        conversationData: { user: displayInfo || null, conversation },
         closeChatWindow: false,
       })
     );
   };
 
-  const isLastMessageFromCurrentUser = lastMessage?.user === user?._id;
-  const isTyping = conversation.isTyping;
+  const isLastMessageFromCurrentUser = lastMessage?.user === displayInfo?._id;
 
   return (
     <div
@@ -42,22 +45,15 @@ const ChatInfoItem: React.FC<{
       <div className="relative mr-4">
         <CircleAvatar
           alt={"user image"}
-          imageUrl={
-            (isGroupConversation ? conversation.image : user?.profileImage)
-              ?.url || ""
-          }
-          fallback={
-            (isGroupConversation ? conversation.name : user?.name)
-              ?.slice(0, 1)
-              ?.toUpperCase() || ""
-          }
+          imageUrl={displayInfo?.profileImage?.url || ""}
+          fallback={displayInfo?.name?.slice(0, 1)?.toUpperCase() || ""}
         />
 
         {!isGroupConversation && (
           <div
             className={cn(
               "h-3 w-3 rounded-full bg-green-600 absolute top-0 right-0",
-              { "bg-red-600": !user?.isActive }
+              { "bg-red-600": !displayInfo?.isActive }
             )}
           />
         )}
@@ -66,7 +62,7 @@ const ChatInfoItem: React.FC<{
       <div className="flex flex-col flex-1">
         <div className="flex justify-between items-center flex-1 flex-nowrap">
           <p className="font-medium text-md text-ellipsis">
-            {isGroupConversation ? conversation.name : user?.name}
+            {displayInfo?.name}
           </p>
         </div>
         {lastMessage?._id && (
@@ -88,9 +84,9 @@ const ChatInfoItem: React.FC<{
                 )}
               </div>
               <div className="flex-center gap-2">
-                {chatData?.chatNotRead && chatData.chatNotRead > 0 && (
+                {!!chatsNotRead && (
                   <p className="w-5 h-5 text-center flex-center rounded-full bg-green-500 text-xs">
-                    {chatData.chatNotRead}
+                    {chatsNotRead}
                   </p>
                 )}
                 {lastMessage?.sentAt && (

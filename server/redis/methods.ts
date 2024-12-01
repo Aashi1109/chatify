@@ -11,7 +11,7 @@ class RedisMethods {
     this.nsp = nsp;
   }
 
-  async setString(key: string, value: string, ttl?: number) {
+  async setString(key: string, value: any, ttl?: number) {
     value = jnstringify(value);
 
     return Boolean(
@@ -39,7 +39,7 @@ class RedisMethods {
     }
   }
 
-  async setListBulk(key: string, values: any[]) {
+  async setListBulk(key: string, values: any[], ttl?: number) {
     try {
       if (values.length > 0) {
         const fullKey = `${this.nsp}:${key}`;
@@ -48,6 +48,7 @@ class RedisMethods {
         values.forEach((value) => {
           pipeline.rPush(fullKey, jnstringify(value));
         });
+        if (ttl) pipeline.expire(fullKey, ttl);
         await pipeline.exec();
         return true;
       }
@@ -72,13 +73,22 @@ class RedisMethods {
     }
   }
 
-  async hGet(key: string, path?: string) {
+  async hSetBulk(hashKey: string, updates: { key: string; value: any }[]) {
+    const pipeline = this.client.multi();
+    updates.forEach((update) => {
+      pipeline.hSet(`${this.nsp}:${hashKey}`, update.key, update.value);
+    });
+    await pipeline.exec();
+    return true;
+  }
+
+  async hGet(hashKey: string, path?: string) {
     if (path) {
-      const value = await this.client.hGet(`${this.nsp}:${key}`, path);
+      const value = await this.client.hGet(`${this.nsp}:${hashKey}`, path);
       return value ? jnparse(value) : null;
     }
     // Get all hash fields and values if no path is specified
-    const allValues = await this.client.hGetAll(`${this.nsp}:${key}`);
+    const allValues = await this.client.hGetAll(`${this.nsp}:${hashKey}`);
     return Object.keys(allValues).length > 0
       ? Object.fromEntries(
           Object.entries(allValues).map(([k, v]) => [k, jnparse(v)])
@@ -138,8 +148,7 @@ class RedisMethods {
 
       // Queue all LRANGE commands
       keys.forEach((key) => {
-        const keyName = key.split(":")?.pop();
-        pipeline.lRange(`${this.nsp}:${keyName}`, 0, -1);
+        pipeline.lRange(key, 0, -1);
       });
 
       const results = await pipeline.exec();
@@ -149,11 +158,12 @@ class RedisMethods {
       for (let i = 0; i < results.length; i += batchSize) {
         const batch = results.slice(i, i + batchSize);
         const parsedBatch = batch.flatMap((result) => {
-          if (!result || result[0]) {
-            logger.error(`Error processing list: ${result?.[0]}`);
+          try {
+            return (result as string[]).map((item) => parser(item));
+          } catch (error) {
+            logger.error(`Error processing list: ${error}`);
             return [];
           }
-          return (result as string[]).map((item) => parser(item));
         });
 
         items.push(...parsedBatch);

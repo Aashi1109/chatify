@@ -52,7 +52,8 @@ enum EUploadTypes {
 export enum EConversationEvents {
   JoinConversation = "conversation:join",
   LeaveConversation = "conversation:leave",
-  UPDATE = "conversation:update",
+  Update = "conversation:update",
+  CurrentChatWindow = "conversation:currentChatWindow",
 }
 
 export enum EConversationTypes {

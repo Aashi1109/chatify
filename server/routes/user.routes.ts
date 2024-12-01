@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   createUser,
   deleteUserById,
+  forgotPasswordHandler,
   getAllUsers,
   getUserById,
   getUserByQuery,
@@ -15,6 +16,8 @@ import { validateMongooseIds, validateUser } from "@middlewares/validators";
 import paginationParser from "@middlewares/paginationParser";
 
 const router = Router();
+
+router.patch("/forgot-password", asyncHandler(forgotPasswordHandler));
 
 router
   .route("")
@@ -40,8 +43,8 @@ router
   );
 
 router.patch(
-  "/:id/updatePasswordById",
-  [validateMongooseIds(["id"]), userParser],
+  "/:id/update-password",
+  [validateMongooseIds(["id"])],
   asyncHandler(updateUserPasswordById)
 );
 

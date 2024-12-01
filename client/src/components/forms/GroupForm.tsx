@@ -104,6 +104,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
   const {
     register,
     formState: { errors, isSubmitting, isValid },
+    clearErrors,
     setValue,
     handleSubmit,
   } = useForm({
@@ -127,6 +128,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
       setFilteredUsers(
         (filteredUsers || [])?.filter((user) => user._id !== selectedUser._id)
       );
+      clearErrors("participants");
     }
   };
 
@@ -276,7 +278,7 @@ const GroupForm = ({ handleModalClose }: IProps) => {
           type="submit"
           form="group-form"
           className="button"
-          disabled={isSubmitting || !isValid}
+          disabled={isSubmitting || Object.keys(errors).length > 0}
           isLoading={isSubmitting}
         >
           Create group

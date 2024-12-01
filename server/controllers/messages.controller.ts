@@ -5,6 +5,9 @@ import { createFilterFromParams } from "@lib/helpers";
 import { Message } from "@models";
 import MessageService from "@services/MessageService";
 import { Response } from "express";
+import { RedisCommonCache } from "@redis";
+
+const socketCache = new RedisCommonCache("sct");
 
 /**
  * Create message
@@ -141,7 +144,35 @@ const getMessageByQuery = async (
     !!self
   );
 
-  return res.status(200).json({ data: existingMessage, success: true });
+  // get messages from redis too if user has instantly opened the chatWindow
+  const messages = await socketCache.methods.getAllListItems({
+    pattern: `messages:create`,
+  });
+
+  const unsavedMessages = messages.filter(
+    (message) => message.conversation === conversationId
+  );
+
+  // Only sort unsavedMessages
+  if (unsavedMessages.length) {
+    unsavedMessages.sort((a, b) => {
+      const valueA = a[req.pagination.sortBy];
+      const valueB = b[req.pagination.sortBy];
+
+      if (req.pagination.sortOrder === "desc") {
+        return valueB > valueA ? 1 : -1;
+      }
+      return valueA > valueB ? 1 : -1;
+    });
+  }
+
+  // Combine based on sort order
+  let allMessages =
+    req.pagination.sortOrder !== "desc"
+      ? [...existingMessage, ...unsavedMessages]
+      : [...unsavedMessages, ...existingMessage];
+
+  return res.status(200).json({ data: allMessages, success: true });
 };
 
 export {

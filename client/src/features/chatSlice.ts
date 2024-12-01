@@ -1,4 +1,9 @@
-import { IConversation, IMessage, IUser } from "@/definitions/interfaces";
+import {
+  IConversation,
+  IConversationInfoItem,
+  IMessage,
+  IUser,
+} from "@/definitions/interfaces";
 // initial state for chat slice
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -8,7 +13,7 @@ interface IInteractionData {
 }
 interface IChatSlice {
   interactionData: IInteractionData | null;
-  conversations: IConversation[] | null;
+  conversations: IConversationInfoItem[] | null;
   isChatWindowOpen: boolean;
 }
 
@@ -37,20 +42,14 @@ const chatSlice = createSlice({
       state.isChatWindowOpen = !action.payload.closeChatWindow;
     },
     //
-    setConversation: (state, action: PayloadAction<IConversation[] | null>) => {
+    setConversation: (
+      state,
+      action: PayloadAction<IConversationInfoItem[] | null>
+    ) => {
       state.conversations = action.payload;
     },
-    // addInteractionMessage: (state, action: PayloadAction<IMessage>) => {
-    //   state.interactionMessages?.unshift(action.payload);
-    // },
-    // extendInteractionMessages: (state, action: PayloadAction<IMessage[]>) => {
-    //   if (action.payload.length > 0)
-    //     state.interactionMessages = [
-    //       ...(state.interactionMessages || []),
-    //       ...action.payload,
-    //     ];
-    // },
-    addConversation: (state, action: PayloadAction<IConversation>) => {
+
+    addConversation: (state, action: PayloadAction<IConversationInfoItem>) => {
       state.conversations = appendData(state.conversations, action.payload);
     },
 
@@ -58,18 +57,26 @@ const chatSlice = createSlice({
       state,
       action: PayloadAction<{
         id: string;
-        data: Partial<IConversation>;
+        data: Partial<IConversationInfoItem>;
       }>
     ) => {
       const existingChat = state.conversations?.find(
-        (con) => con._id === action.payload.id
+        (con) => con.conversation?._id === action.payload.id
       );
 
       if (existingChat) {
-        for (const key in action.payload.data) {
-          const updateData = action.payload.data[key as keyof IConversation];
-          existingChat[key as keyof IConversation] = updateData;
-        }
+        Object.keys(action.payload.data).forEach((key) => {
+          const isKeyFromConversation = key in existingChat.conversation;
+          if (isKeyFromConversation) {
+            (existingChat.conversation as any)[key] =
+              action.payload.data[key as keyof IConversationInfoItem];
+          } else {
+            if (key in existingChat) {
+              (existingChat as any)[key] =
+                action.payload.data[key as keyof IConversationInfoItem];
+            }
+          }
+        });
       }
     },
 
@@ -85,17 +92,47 @@ const chatSlice = createSlice({
       // Update user in all conversations using regular for loop
       for (let i = 0; i < state.conversations.length; i++) {
         const existingUser = (
-          state.conversations[i].participants as IUser[]
+          state.conversations[i].conversation?.participants as IUser[]
         )?.find((p) => p._id === action.payload.id);
         if (existingUser) {
-          for (const key in action.payload.data) {
-            if (key in action.payload.data) {
-              existingUser[key as keyof IUser] =
+          Object.keys(action.payload.data).forEach((key) => {
+            if (key in existingUser) {
+              (existingUser as any)[key] =
                 action.payload.data[key as keyof IUser];
             }
-          }
+          });
         }
       }
+    },
+
+    updateMessagesAcrossConversations: (
+      state,
+      action: PayloadAction<{
+        data: Record<string, Record<string, Partial<IMessage>>>;
+      }>
+    ) => {
+      if (!state.conversations?.length) return;
+
+      state.conversations.forEach((conversation) => {
+        const conversationId = conversation.conversation?._id?.toString();
+        if (!conversationId) return;
+        const conversationUpdates = action.payload.data[conversationId];
+        const lastMessage = conversation.conversation.lastMessage;
+
+        if (
+          conversationUpdates &&
+          lastMessage &&
+          (lastMessage?._id || "") in conversationUpdates
+        ) {
+          conversation.conversation.lastMessage = {
+            ...lastMessage,
+            stats: {
+              ...(lastMessage.stats || {}),
+              ...(conversationUpdates[lastMessage._id || ""]?.stats || {}),
+            },
+          };
+        }
+      });
     },
   },
 });
@@ -106,6 +143,7 @@ export const {
   addConversation,
   updateConversation,
   updateConversationUser,
+  updateMessagesAcrossConversations,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

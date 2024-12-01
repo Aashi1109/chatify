@@ -9,16 +9,13 @@ import {
   IUser,
 } from "@/definitions/interfaces";
 
-const checkUsernameExists = async (username: string) => {
+const getUserByUsername = async (username: string) => {
   const requestUrl = `/users/query?username=` + username;
   try {
     const response = await axiosClient.get(requestUrl);
     const data = response.data;
 
-    if (data?.data?.length) {
-      return true;
-    }
-    return false;
+    return data;
   } catch (error) {
     console.error(error);
     return true;
@@ -217,9 +214,46 @@ export const logoutUser = async () => {
   }
 };
 
+export const updatePassword = async (
+  userId: string,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const requestUrl = `/users/${userId}/update-password`;
+  try {
+    const response = await axiosClient.patch(requestUrl, {
+      oldPassword,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating password: ", error);
+    throw error;
+  }
+};
+
+export const forgotPassword = async (
+  username: string,
+  password: string,
+  confirmPassword: string
+) => {
+  const requestUrl = `/users/forgot-password`;
+  try {
+    const response = await axiosClient.patch(requestUrl, {
+      username,
+      password,
+      confirmPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating password: ", error);
+    throw error;
+  }
+};
+
 export {
   updateUser,
-  checkUsernameExists,
+  getUserByUsername,
   createConversation,
   createUser,
   getAllUser,

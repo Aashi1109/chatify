@@ -4,17 +4,23 @@ import { useForm } from "react-hook-form";
 import CircleAvatar from "../CircleAvatar";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { AtSign, UserCircle2 } from "lucide-react";
+import { AtSign, Edit3Icon, UserCircle2 } from "lucide-react";
 import LoadingButton from "../ui/LoadingButton";
 import { useEffect, useState } from "react";
-import { updateUser } from "@/actions/form";
+import { updatePassword, updateUser } from "@/actions/form";
 import { showToaster } from "../toasts/Toaster";
 import { EToastType } from "@/definitions/enums";
 import { setAuth } from "@/features/authSlice";
+import PasswordInput from "../inputs/PasswordInput";
+import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 const Profile = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth.user);
+
+  const [isPasswordChangeOpen, setIsPasswordChangeOpen] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
 
   const joinedOn = new Date(currentUser!.createdAt).toLocaleDateString(
     "en-US",
@@ -30,6 +36,7 @@ const Profile = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue,
+    clearErrors,
     watch,
   } = useForm({
     defaultValues: {
@@ -37,10 +44,41 @@ const Profile = () => {
       username: currentUser?.username,
       about: currentUser?.about,
       isAboutEditing: false,
+      oldPassword: "",
+      confirmPassword: "",
+      newPassword: "",
     },
   });
 
   const allValues = watch();
+
+  const handleOpenPasswordChange = () => {
+    setIsPasswordChangeOpen((prev) => !prev);
+    clearErrors(["newPassword", "confirmPassword", "oldPassword"]);
+  };
+
+  const handlePasswordUpdate = async () => {
+    handleSubmit(async () => {
+      try {
+        const updateResult = await updatePassword(
+          currentUser?._id || "",
+          allValues?.oldPassword,
+          allValues?.newPassword
+        );
+
+        if (updateResult.success) {
+          handleOpenPasswordChange();
+          showToaster(EToastType.Success, "Password updated successfully");
+        }
+      } catch (error: any) {
+        console.error(`Error updating password`, error);
+        showToaster(
+          EToastType.Error,
+          error.message || "Error updating password"
+        );
+      }
+    })();
+  };
 
   const onSubmit = async (data: any) => {
     try {
@@ -64,8 +102,6 @@ const Profile = () => {
       console.error("Error updating profile : ", error);
     }
   };
-
-  const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
     setIsChanged(() => {
@@ -148,6 +184,53 @@ const Profile = () => {
           </p>
         )}
         {errors.about && <p className="error-field">{errors.about.message}</p>}
+      </div>
+
+      <div className="flex flex-col">
+        <div className="flex-between">
+          <p className="text-sm">Change Password</p>
+          {isPasswordChangeOpen ? (
+            <div className="flex-center gap-4">
+              <Button
+                variant={"outline"}
+                size={"xs"}
+                onClick={handleOpenPasswordChange}
+              >
+                Cancel
+              </Button>
+              <LoadingButton size={"xs"} onClick={handlePasswordUpdate}>
+                Update
+              </LoadingButton>
+            </div>
+          ) : (
+            <Edit3Icon
+              className="w-4 h-4 cursor-pointer"
+              onClick={handleOpenPasswordChange}
+            />
+          )}
+        </div>
+        <div
+          className={cn(
+            "flex flex-col gap-4 w-full max-h-0 transition-[max-height] duration-300 ease-out overflow-hidden",
+            {
+              "max-h-40 mt-4 overflow-auto": isPasswordChangeOpen,
+            }
+          )}
+        >
+          <PasswordInput
+            register={register}
+            errors={errors}
+            name="oldPassword"
+            showConfirmPassword={false}
+            placeholder="Enter old password"
+          />
+          <PasswordInput
+            register={register}
+            errors={errors}
+            name="newPassword"
+            placeholder="Enter new password"
+          />
+        </div>
       </div>
 
       <LoadingButton

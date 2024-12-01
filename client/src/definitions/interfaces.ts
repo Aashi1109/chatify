@@ -12,9 +12,19 @@ export interface IChipItem {
 
 export interface IConversationInfoItem {
   conversation: IConversation;
-  user?: IUser;
-  lastMessage?: IMessage;
-  chatNotRead?: number;
+  lastMessage?: IMessage; // only for typing purpose
+  lastRead?: string; // only for typing purpose
+  chatsNotRead?: number;
+  isTyping?: boolean;
+  isGroupConversation: boolean;
+
+  // this will be used to display info in the sidebar based on conversation type
+  displayInfo?: {
+    _id: string;
+    name?: string;
+    profileImage?: { url: string }; // TODO change to image
+    isActive?: boolean; // only applicable in case of user
+  };
 }
 
 export interface IFileInterface {
@@ -50,11 +60,11 @@ export interface IConversation {
   operation?: "add" | "delete";
   lastMessage?: IMessage;
   type: EConversationTypes;
-  isTyping: boolean;
-  chatNotRead: number;
+  lastRead?: IMessage;
 }
 
 export interface IMessage {
+  tid?: string;
   _id?: string;
   user: string;
   conversation: string;
@@ -63,9 +73,7 @@ export interface IMessage {
   type: EMessageType;
   category: EMessageCategory;
   isEdited?: boolean;
-
   stats: Record<string, IMessageStats>;
-
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -6,6 +6,7 @@ import TopBar from "./TopBar";
 import {
   updateConversation,
   updateConversationUser,
+  updateMessagesAcrossConversations,
 } from "@/features/chatSlice";
 import { showToaster } from "./toasts/Toaster";
 import {
@@ -30,15 +31,23 @@ function UserHomePage() {
   const isChatWindowOpen = !!interactionData?.conversation?._id;
 
   const getIsInteractionConversation = (conversationId: string) => {
+    const { isChatWindowOpen, interactionData } = store.getState().chat || {};
     return (
       isChatWindowOpen && conversationId === interactionData?.conversation?._id
     );
   };
 
+  // this function is used to get the current conversation id in socket event handlers only
+  const getCurrentConversationId = () => {
+    return store.getState().chat.interactionData?.conversation?._id;
+  };
+
   const getUnreadMessagesCount = (conversationId: string) => {
     return (
-      store.getState().chat.conversations?.find((c) => c._id === conversationId)
-        ?.chatNotRead || 0
+      store
+        .getState()
+        .chat.conversations?.find((c) => c.conversation?._id === conversationId)
+        ?.chatsNotRead || 0
     );
   };
 
@@ -68,7 +77,7 @@ function UserHomePage() {
           id: data.conversationId,
           data: {
             lastMessage: newMessage,
-            chatNotRead: getUnreadMessagesCount(data.conversationId) + 1,
+            chatsNotRead: getUnreadMessagesCount(data.conversationId) + 1,
           },
         })
       );
@@ -90,6 +99,19 @@ function UserHomePage() {
         })
       );
       chatWindowRef.current?.setIsTyping(data.isTyping);
+    });
+  };
+
+  const handleMessagesUpdate = ({ data, error }: { data: any; error: any }) => {
+    handleSocketCallbackError(error, () => {
+      // updateMessages: (data: Record<string, Partial<IMessage>>) => void;
+      // if message is for current interacting conversation update in both places
+      const updates = data?.data;
+      const currentConversationId = getCurrentConversationId();
+      if (currentConversationId && currentConversationId in updates)
+        chatWindowRef.current?.updateMessages(updates[currentConversationId]);
+
+      dispatch(updateMessagesAcrossConversations({ data: updates }));
     });
   };
 
@@ -130,11 +152,13 @@ function UserHomePage() {
     socket.on(ESocketMessageEvents.NEW_MESSAGE, handleNewMessage);
     socket.on(ESocketMessageEvents.TYPING, handleTyping);
     socket.on(ESocketUserEvents.UPDATES, handleUserUpdates);
+    socket.on(ESocketMessageEvents.MESSAGE_UPDATE, handleMessagesUpdate);
 
     return () => {
       socket.off(ESocketMessageEvents.NEW_MESSAGE, handleNewMessage);
       socket.off(ESocketMessageEvents.TYPING, handleTyping);
       socket.off(ESocketUserEvents.UPDATES, handleUserUpdates);
+      socket.off(ESocketMessageEvents.MESSAGE_UPDATE, handleMessagesUpdate);
     };
   }, [socket]);
 

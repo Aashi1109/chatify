@@ -19,7 +19,7 @@ const LoadingButton = forwardRef<HTMLButtonElement, ILoadingButtonProps>(
         <p>{children}</p>
       </Button>
     );
-  },
+  }
 );
 
 export default LoadingButton;

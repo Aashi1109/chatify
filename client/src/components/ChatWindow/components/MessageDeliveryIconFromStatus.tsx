@@ -1,5 +1,5 @@
 import { EChatDeliveryStatus } from "@/definitions/enums";
-import { IMessage } from "@/definitions/interfaces";
+import { IMessage, IUser } from "@/definitions/interfaces";
 import { Check, CheckCheck, Clock5, RotateCcw } from "lucide-react";
 
 /**
@@ -34,20 +34,28 @@ const iconFromDeliveryStatus = (
 };
 
 const getMessageDeliveryStatus = (message: IMessage) => {
-  const { sentAt, stats } = message || {};
-  
+  const { sentAt, stats, tid } = message || {};
+
+  // if there is temporary id then it is just sent
+  if (tid) {
+    return EChatDeliveryStatus.Sending;
+  }
+
+  // don't include stats for current user
+  const newStats = { ...stats };
+  delete newStats[message.user ?? ""];
+
   // Check if stats exists and has any entries
-  if (!stats || Object.keys(stats).length === 0) {
+  if (!newStats || Object.keys(newStats).length === 0) {
     return EChatDeliveryStatus.Sent;
   }
 
-  const deliveredToAllUsers = Object.values(stats).every(
-    (stat) => !!stat.deliveredAt
+  // if read then that will be considered as delivered
+  const deliveredToAllUsers = Object.values(newStats).every(
+    (stat) => !!stat.deliveredAt || !!stat.readAt
   );
 
-  const seenByAllUsers = Object.values(stats).every(
-    (stat) => !!stat.readAt
-  );
+  const seenByAllUsers = Object.values(newStats).every((stat) => !!stat.readAt);
 
   if (!sentAt) {
     return EChatDeliveryStatus.Sending;
@@ -72,6 +80,7 @@ const MessageDeliveryIconFromStatus = ({
 }: {
   message: IMessage;
   iconSize?: string;
+  currentAuthenticatedUser?: IUser;
 }) => {
   return (
     <div className={"flex-shrink-0"}>

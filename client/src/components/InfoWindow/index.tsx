@@ -13,46 +13,51 @@ import SpinningLoader from "../ui/SpinningLoader";
 
 const InfoWindow = () => {
   const userChats = useAppSelector((state) => state.chat.conversations);
-  const userData = useAppSelector((state) => state.auth.user);
+  const currentUser = useAppSelector((state) => state.auth.user);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [allChats, setAllChats] = useState<typeof userChats>([]);
+  const [allChats, setAllChats] = useState<IConversationInfoItem[]>([]);
 
   const dispatch = useAppDispatch();
 
   const [tab, setTab] = useState<(typeof INBOX_CHIP_ITEMS)[0]["id"]>("all");
 
-  const formattedChats = userChats?.map((ch) => {
-    const { lastMessage, ...conversationWithoutLastMessage } = ch;
-
-    const data: IConversationInfoItem = {
-      conversation: conversationWithoutLastMessage,
-      lastMessage: lastMessage,
-      chatNotRead: ch.chatNotRead,
-    };
-
-    const receiverData = (ch?.participants as IUser[])?.filter(
-      (p) => p._id !== userData?._id
-    )?.[0];
-
-    const isUserDataPresent = Object.keys(receiverData || {}).length;
-
-    if (isUserDataPresent) {
-      data["user"] = receiverData;
-    }
-
-    return data;
-  });
-
   // Filter chats based on selected tab
-  const filteredChats = formattedChats?.filter((chat) => {
+  const filteredChats = userChats?.filter((chat) => {
     if (tab === "all") return true;
     return chat.conversation.type === tab;
   });
 
   useEffect(() => {
     if (allChats?.length) {
-      dispatch(setConversation(allChats));
+      dispatch(
+        setConversation(
+          allChats.map((ch: any) => {
+            const { lastRead, lastMessage, ...rest } = ch;
+            const data = {
+              conversation: rest,
+              lastRead,
+              lastMessage,
+              isTyping: false,
+              chatsNotRead: 0,
+              displayInfo: undefined,
+              isGroupConversation: ch.type === EConversationTypes.GROUP,
+            };
+
+            data.displayInfo = !data.isGroupConversation
+              ? ch.participants.filter(
+                  (p: IUser) => p._id !== currentUser?._id
+                )[0]
+              : {
+                  name: ch?.name,
+                  profileImage: ch?.profileImage,
+                  description: ch?.description,
+                };
+
+            return data;
+          })
+        )
+      );
       dispatch(
         setInteractionData({
           conversationData: null,
@@ -63,7 +68,7 @@ const InfoWindow = () => {
     }
     setIsLoading(true);
     getUserConversations({
-      participants: [userData?._id || ""],
+      participants: [currentUser?._id || ""],
       type: tab === "all" ? undefined : (tab as EConversationTypes),
       query:
         "&fieldsToPopulate=participants,lastMessage&limit=50&sortBy=updatedAt&sortOrder=desc",
@@ -78,7 +83,7 @@ const InfoWindow = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [dispatch, userData, tab, allChats]);
+  }, [dispatch, tab, allChats]);
 
   return (
     <section className="flex gap-4 flex-col overflow-y-auto flex-1">

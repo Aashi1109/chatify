@@ -7,7 +7,6 @@ import {
   IConversation,
   ICustomRequest,
   IRequestPagination,
-
 } from "@definitions/interfaces";
 import { NotFoundError } from "@exceptions";
 import ClientError from "@exceptions/clientError";
@@ -18,9 +17,7 @@ import ConversationService from "@services/ConversationService";
 
 import { Request, Response } from "express";
 
-const conversationCache = new RedisCommonCache();
-const userStatusCache = new RedisCommonCache("sct");
-
+const commonCache = new RedisCommonCache();
 
 /**
  * Creates a new conversation with the provided chatId and userId.
@@ -28,7 +25,10 @@ const userStatusCache = new RedisCommonCache("sct");
  * @param {Response} res - The response object for sending responses.
  * @throws {Error} Throws an error if the name or description is missing.
  */
-export const createConversation = async (req: ICustomRequest, res: Response) => {
+export const createConversation = async (
+  req: ICustomRequest,
+  res: Response
+) => {
   const { participants, type } = req.body as IConversation;
 
   const isGroup = type === EConversationTypes.GROUP;
@@ -77,7 +77,7 @@ export const createConversation = async (req: ICustomRequest, res: Response) => 
     await Message.insertMany(messages);
   }
 
-  await conversationCache.methods.setString(
+  await commonCache.methods.setString(
     `conversation:${newChat._id}`,
     newChat.toObject(),
     3600
@@ -98,14 +98,14 @@ export const getConversationById = async (
 ) => {
   const { conversationId } = req.params;
 
-  let userChat = await conversationCache.methods.getKey(
+  let userChat = await commonCache.methods.getKey(
     `conversation:${conversationId}`
   );
 
   if (!userChat) {
     userChat = await Conversation.findById(conversationId);
     userChat &&
-      conversationCache.methods.setString(
+      commonCache.methods.setString(
         `conversation:${conversationId}`,
         userChat.toObject(),
         3600
@@ -116,7 +116,6 @@ export const getConversationById = async (
 
   res.json({ success: true, data: userChat });
 };
-
 
 /**
  * Retrieves a chat by its ID from the database.
@@ -143,18 +142,27 @@ export const getConversationByQuery = async (
   );
 
   // if participants are populated then add their current status from redis
-  const isParticipantsPopulated = req.pagination.doPopulate
+  const isParticipantsPopulated = req.pagination.doPopulate;
+
+  const promises = [commonCache.methods.hGet(`conversation-updates`)];
 
   if (isParticipantsPopulated) {
-    const userStatuses = await userStatusCache.methods.hGet("uup");
-
-    userChats.map(con => ({
-      ...con,
-      participants: con.participants.map(par => (
-        typeof par === "object" ? {...par, ...(userStatuses[par._id?.toString()] || {})} : par
-      ))
-    }))
+    promises.push(commonCache.methods.hGet("user-updates"));
   }
+
+  const [conversationUpdates, userStatuses] = await Promise.all(promises);
+
+  userChats.map((con) => ({
+    ...con,
+    participants: con.participants.map((par) =>
+      typeof par === "object"
+        ? { ...par, ...(userStatuses[par._id?.toString()] || {}) }
+        : par
+    ),
+    lastMessage:
+      conversationUpdates?.[con._id?.toString()]?.lastMessage ||
+      con.lastMessage,
+  }));
 
   res.json({ success: true, data: userChats });
 };
@@ -213,7 +221,7 @@ export const updateConversationById = async (req: Request, res: Response) => {
 
   await Promise.allSettled([
     existingChat.save(),
-    conversationCache.methods.setString(
+    commonCache.methods.setString(
       `conversation:${conversationId}`,
       existingChat.toObject(),
       3600
@@ -239,7 +247,7 @@ export const deleteConversationById = async (req: Request, res: Response) => {
   await Promise.allSettled([
     userChatDelete,
     messagesDelete,
-    conversationCache.methods.deleteKey(`conversation:${conversationId}`),
+    commonCache.methods.deleteKey(`conversation:${conversationId}`),
   ]);
 
   res.status(200).json({

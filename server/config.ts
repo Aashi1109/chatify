@@ -13,7 +13,7 @@ const config = {
     auth: "/api/auth",
     message: "/api/messages",
     file: "/api/files",
-    conversation: "/api/conversation",
+    conversation: "/api/conversations",
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,

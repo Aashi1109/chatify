@@ -31,7 +31,7 @@ const messageSchema = new Schema<IMessage>(
       default: EMessageCategory.User,
     },
     isEdited: { type: Boolean, default: false },
-    sentAt: { type: Date },
+    sentAt: { type: Date, default: Date.now },
     deletedAt: { type: Date },
     stats: {
       type: Map,

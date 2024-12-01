@@ -1,6 +1,6 @@
 import React from "react";
 import CircleAvatar from "../../CircleAvatar";
-import MessageDeliveryIconFromStatus from "../../MessageDeliveryIconFromStatus";
+import MessageDeliveryIconFromStatus from "../components/MessageDeliveryIconFromStatus";
 import { cn } from "@/lib/utils";
 import { IMessage, IUser } from "@/definitions/interfaces";
 import { EMessageCategory } from "@/definitions/enums";
@@ -21,6 +21,7 @@ const ChatItemCard: React.FC<{
   const isSystemMessage = message.category === EMessageCategory.System;
 
   const sentAtDate = new Date(message.sentAt);
+
   return (
     <div
       className={cn("w-full flex rounded-lg justify-start gap-2", {
@@ -28,16 +29,16 @@ const ChatItemCard: React.FC<{
       })}
     >
       {!isCurrentUserChat && showUserInfo ? (
-        <div className={"flex-shrink-0 hidden md:flex"}>
+        <div className={"flex-shrink-0 hidden sm:flex"}>
           <CircleAvatar
-            imageUrl={user.profileImage.url}
+            imageUrl={user?.profileImage?.url}
             alt={"profile image"}
             classes="w-9 h-9"
-            fallback={user.name?.slice(0, 1)?.toUpperCase()}
+            fallback={user?.name?.slice(0, 1)?.toUpperCase()}
           />
         </div>
       ) : (
-        <div className="w-9 h-9" />
+        <div className="w-9 h-9 hidden sm:block" />
       )}
 
       <div className={cn("max-w-[70%] flex flex-col gap-1")}>

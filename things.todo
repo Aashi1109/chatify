@@ -1,0 +1,20 @@
+Today's target
+4. Handle realtime message update (FE)
+5. Add support for unread message count (FS)
+6. Add support for password update (FE)
+
+
+Improvements:
+1. use same redis cache for socket data and api caching
+2. Add email authentication and other SSO (Google)
+
+Major Improvements
+1. UI Revamp
+
+
+Future Feats
+1. End-to-End encryption of messages.
+1. Realtime video calling
+2. Other message type support
+3. Audio message send
+4. Push notifications

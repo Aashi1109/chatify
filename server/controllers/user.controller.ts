@@ -10,7 +10,7 @@ import {
   validatePassword,
 } from "@lib/helpers";
 import { NotFoundError } from "@exceptions";
-import { IRequestPagination, IUserRequest } from "@definitions/interfaces";
+import { ICustomRequest, IRequestPagination } from "@definitions/interfaces";
 import { User } from "@models";
 import { RedisCommonCache } from "@redis";
 
@@ -24,7 +24,7 @@ const userCache = new RedisCommonCache();
  * @returns {Promise<Response>} A Promise that resolves with the user data.
  */
 const getUserById = async (
-  req: IUserRequest,
+  req: ICustomRequest,
   res: Response
 ): Promise<Response> => {
   const id = req.params?.id;
@@ -77,9 +77,11 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
     role
   );
 
+  delete createdUser.password;
+
   await userCache.methods.setString(
     `user:${createdUser._id}`,
-    createdUser.toObject(),
+    createdUser,
     3600
   );
 
@@ -92,7 +94,10 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
  * @param {Response} res - The Express response object.
  * @throws {ClientError} If an invalid or incorrect username is provided.
  */
-const getUserByQuery = async (req: IRequestPagination, res: Response) => {
+const getUserByQuery = async (
+  req: IRequestPagination & ICustomRequest,
+  res: Response
+) => {
   const { username, userId, not } = req.query;
 
   const filter = createFilterFromParams({
@@ -117,7 +122,7 @@ const getUserByQuery = async (req: IRequestPagination, res: Response) => {
  * @returns {Promise<Response>} A Promise that resolves when the user is deleted successfully.
  */
 const deleteUserById = async (
-  req: IUserRequest,
+  req: ICustomRequest,
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
@@ -141,7 +146,7 @@ const deleteUserById = async (
  * @throws {ClientError} Throws a ClientError if the provided user ID is invalid or if the user with the specified ID or username is not found, or if an invalid role is provided.
  * @throws {Error} Throws an error if the update fails for any other reason.
  */
-const updateUserById = async (req: IUserRequest, res: Response) => {
+const updateUserById = async (req: ICustomRequest, res: Response) => {
   const { username, name, profileImage, about, role, lastSeenAt, isActive } =
     req.body;
   const { id } = req.params;
@@ -172,11 +177,7 @@ const updateUserById = async (req: IUserRequest, res: Response) => {
   });
 
   await Promise.all([
-    userCache.methods.setString(
-      `user:${updatedUser._id}`,
-      updatedUser.toObject(),
-      3600
-    ),
+    userCache.methods.setString(`user:${updatedUser._id}`, updatedUser, 3600),
   ]);
 
   return res.status(200).json({ data: updatedUser, success: true });
@@ -191,7 +192,7 @@ const updateUserById = async (req: IUserRequest, res: Response) => {
  * @return {Promise<Response>} Promise resolved with the updated user
  */
 const updateUserPasswordById = async (
-  req: IUserRequest,
+  req: ICustomRequest,
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
@@ -217,17 +218,18 @@ const updateUserPasswordById = async (
 
   const hashedPassword = await hashPassword(newPassword);
 
-  const updatedUser = await UserService.updateUser(id, {
-    password: hashedPassword,
-  });
+  existingUser.password = hashedPassword;
+  await existingUser.save();
+
+  delete existingUser.password;
 
   await userCache.methods.setString(
-    `user:${updatedUser._id}`,
-    updatedUser.toObject(),
+    `user:${existingUser._id}`,
+    existingUser,
     3600
   );
 
-  return res.status(200).json({ data: updatedUser, success: true });
+  return res.status(200).json({ data: existingUser, success: true });
 };
 
 /**
@@ -239,6 +241,31 @@ const updateUserPasswordById = async (
 const getAllUsers = async (_: Request, res: Response): Promise<Response> => {
   const data = await UserService.getAllUsers();
   return res.status(200).json({ data, success: true });
+};
+
+export const forgotPasswordHandler = async (req: Request, res: Response) => {
+  // TODO: make flow for forgot password
+  const { username, password, confirmPassword } = req.body;
+
+  const existingUser = await User.findOne({ username });
+
+  if (!existingUser) {
+    throw new NotFoundError(`User with username: ${username} not found`);
+  }
+
+  if (password !== confirmPassword) {
+    throw new ClientError("Passwords do not match");
+  }
+
+  const hashedPassword = await hashPassword(password);
+
+  existingUser.password = hashedPassword;
+
+  await existingUser.save();
+
+  delete existingUser.password;
+
+  return res.status(200).json({ data: existingUser, success: true });
 };
 
 export {

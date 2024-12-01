@@ -1,4 +1,4 @@
-import { checkUsernameExists } from "@/actions/form";
+import { getUserByUsername } from "@/actions/form";
 import * as Yup from "yup";
 
 const authFormValidationSchemaWrapper = Yup.object().shape({
@@ -33,7 +33,10 @@ const authFormValidationSchemaWrapper = Yup.object().shape({
     .matches(/^[a-zA-Z0-9]+$/, "Username can only contain letters and numbers"),
 });
 
-export const validateUsername = async (value: string | undefined) => {
+export const validateUsername = async (
+  value: string | undefined,
+  returnResult = false
+) => {
   if (!value) {
     return "Username is required";
   }
@@ -45,9 +48,11 @@ export const validateUsername = async (value: string | undefined) => {
   }
 
   try {
-    const isUsernameExists = await checkUsernameExists(value);
+    const response = await getUserByUsername(value);
 
-    if (isUsernameExists) {
+    if (returnResult) return response.data;
+
+    if (response?.data?.length) {
       return "Username already taken";
     }
 
