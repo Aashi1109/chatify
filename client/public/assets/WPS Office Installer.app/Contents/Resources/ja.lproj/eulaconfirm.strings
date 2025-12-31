@@ -1,0 +1,12 @@
+
+/* Class = "NSButtonCell"; title = "Back"; ObjectID = "7mm-VL-R58"; */
+"7mm-VL-R58.title" = "戻る";
+
+/* Class = "NSTextFieldCell"; title = "Terms of service"; ObjectID = "gps-vw-U1c"; */
+"gps-vw-U1c.title" = "利用規約";
+
+/* Class = "NSButtonCell"; title = "Agree and Continue"; ObjectID = "kOl-xv-G73"; */
+"kOl-xv-G73.title" = "同意して続行";
+
+/* Class = "NSTextFieldCell"; title = "By clicking \"Agree and Continue\", you agree to our WPS Office License Agreement and acknowledge that you have read our Privacy Policy to learn how we collect, use and share your data."; ObjectID = "pvr-kc-dVV"; */
+"pvr-kc-dVV.title" = "By clicking \"Agree and Continue\", you agree to our WPS Office License Agreement and acknowledge that you have read our Privacy Policy to learn how we collect, use and share your data.";

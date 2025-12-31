@@ -1,0 +1,102 @@
+
+/* Class = "NSMenuItem"; title = "WPS Office Installer"; ObjectID = "1Xt-HY-uBw"; */
+"1Xt-HY-uBw.title" = "WPS Office Installer";
+
+/* Class = "NSTextFieldCell"; title = "All-in-One Office Suite with PDF Editor"; ObjectID = "2mY-uK-Voy"; */
+"2mY-uK-Voy.title" = "All-in-One Office Suite mit PDF Editor";
+
+/* Class = "NSTextFieldCell"; title = "License Agreement and Privacy Policy"; ObjectID = "44Q-GP-AB7"; */
+"44Q-GP-AB7.title" = "License Agreement and Privacy Policy";
+
+/* Class = "NSMenuItem"; title = "Quit WPS Office Installer"; ObjectID = "4sb-4s-VLi"; */
+"4sb-4s-VLi.title" = "Quit WPS Office Installer";
+
+/* Class = "NSMenuItem"; title = "About WPS Office Installer"; ObjectID = "5kV-Vb-QxS"; */
+"5kV-Vb-QxS.title" = "About WPS Office Installer";
+
+/* Class = "NSTextFieldCell"; title = "Download failed, please check the network"; ObjectID = "7HR-Yo-VLH"; */
+"7HR-Yo-VLH.title" = "Download failed, please check the network";
+
+/* Class = "NSMenu"; title = "Main Menu"; ObjectID = "AYu-sK-qS6"; */
+"AYu-sK-qS6.title" = "Main Menu";
+
+/* Class = "NSMenuItem"; title = "Preferences…"; ObjectID = "BOF-NM-1cW"; */
+"BOF-NM-1cW.title" = "Preferences…";
+
+/* Class = "NSMenu"; title = "Help"; ObjectID = "F2S-fz-NVQ"; */
+"F2S-fz-NVQ.title" = "Help";
+
+/* Class = "NSMenuItem"; title = "WPS Office Installer Help"; ObjectID = "FKE-Sm-Kum"; */
+"FKE-Sm-Kum.title" = "WPS Office Installer Help";
+
+/* Class = "NSButtonCell"; title = "Retry"; ObjectID = "J2T-R4-zQP"; */
+"J2T-R4-zQP.title" = "Retry";
+
+/* Class = "NSMenuItem"; title = "Show All"; ObjectID = "Kd2-mp-pUS"; */
+"Kd2-mp-pUS.title" = "Show All";
+
+/* Class = "NSMenuItem"; title = "Bring All to Front"; ObjectID = "LE2-aR-0XJ"; */
+"LE2-aR-0XJ.title" = "Bring All to Front";
+
+/* Class = "NSMenuItem"; title = "Services"; ObjectID = "NMo-om-nkz"; */
+"NMo-om-nkz.title" = "Services";
+
+/* Class = "NSMenuItem"; title = "Minimize"; ObjectID = "OY7-WF-poV"; */
+"OY7-WF-poV.title" = "Minimize";
+
+/* Class = "NSMenuItem"; title = "Hide WPS Office Installer"; ObjectID = "Olw-nP-bQN"; */
+"Olw-nP-bQN.title" = "Hide WPS Office Installer";
+
+/* Class = "NSTabViewItem"; label = "InstallFailedView"; ObjectID = "Oma-qy-bkH"; */
+"Oma-qy-bkH.label" = "InstallFailedView";
+
+/* Class = "NSMenuItem"; title = "Zoom"; ObjectID = "R4o-n2-Eq4"; */
+"R4o-n2-Eq4.title" = "Zoom";
+
+/* Class = "NSTabViewItem"; label = "startpage"; ObjectID = "TXg-Hi-6Qw"; */
+"TXg-Hi-6Qw.label" = "startpage";
+
+/* Class = "NSMenu"; title = "Window"; ObjectID = "Td7-aD-5lo"; */
+"Td7-aD-5lo.title" = "Window";
+
+/* Class = "NSMenuItem"; title = "Hide Others"; ObjectID = "Vdr-fp-XzO"; */
+"Vdr-fp-XzO.title" = "Hide Others";
+
+/* Class = "NSMenuItem"; title = "Window"; ObjectID = "aUF-d1-5bR"; */
+"aUF-d1-5bR.title" = "Window";
+
+/* Class = "NSTabViewItem"; label = "HomeView"; ObjectID = "c38-Pp-cQM"; */
+"c38-Pp-cQM.label" = "HomeView";
+
+/* Class = "NSButtonCell"; title = "manual install"; ObjectID = "cbn-P1-vI8"; */
+"cbn-P1-vI8.title" = "manual install";
+
+/* Class = "NSTabViewItem"; label = "DownloadFailedView"; ObjectID = "ddT-Mb-tMi"; */
+"ddT-Mb-tMi.label" = "DownloadFailedView";
+
+/* Class = "NSTabViewItem"; label = "downloadingpage"; ObjectID = "fXK-Zq-bBG"; */
+"fXK-Zq-bBG.label" = "downloadingpage";
+
+/* Class = "NSMenu"; title = "Services"; ObjectID = "hz9-B4-Xy5"; */
+"hz9-B4-Xy5.title" = "Services";
+
+/* Class = "NSTextFieldCell"; title = "0%"; ObjectID = "qV2-Hb-Dhq"; */
+"qV2-Hb-Dhq.title" = "0%";
+
+/* Class = "NSTextFieldCell"; title = "We will abide by the following privacy policy to collect, process and protect the information you provide when you use our products and services. The information does not include your sensitive information such as your health records, identity number, and financial information."; ObjectID = "rah-7P-jOO"; */
+"rah-7P-jOO.title" = "Wir halten uns an die folgenden Datenschutzrichtlinien, um die Informationen, die Sie bei der Nutzung unserer Produkte und Dienste angeben, zu sammeln, zu verarbeiten und zu schützen. Die Informationen umfassen keine sensiblen Daten wie Gesundheitsdaten, Identitätsnummern und Finanzdaten.";
+
+/* Class = "NSButtonCell"; title = "Install Now"; ObjectID = "twi-8P-jtY"; */
+"twi-8P-jtY.title" = "Installieren";
+
+/* Class = "NSTextFieldCell"; title = "Installation failed, please check if the system has enough memory space."; ObjectID = "uOf-MD-BH1"; */
+"uOf-MD-BH1.title" = "Installation failed, please check if the system has enough memory space.";
+
+/* Class = "NSMenu"; title = "WPS Office Installer"; ObjectID = "uQy-DD-JDr"; */
+"uQy-DD-JDr.title" = "WPS Office Installer";
+
+/* Class = "NSMenuItem"; title = "Help"; ObjectID = "wpr-3q-Mcd"; */
+"wpr-3q-Mcd.title" = "Help";
+
+/* Class = "NSTextFieldCell"; title = "Downloading WPS Office"; ObjectID = "xEt-7J-Y4C"; */
+"xEt-7J-Y4C.title" = "Das Herunterladen WPS Office";
